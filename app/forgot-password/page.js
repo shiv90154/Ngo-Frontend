@@ -13,6 +13,7 @@ const STEPS = [
     { label: "Enter OTP" },
     { label: "New password" },
 ];
+console.log(process.env.NEXT_PUBLIC_API_URL);
 
 export default function ForgotPassword() {
     const router = useRouter();

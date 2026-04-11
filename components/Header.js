@@ -49,7 +49,7 @@ NavLink.displayName = "NavLink";
 const Header = () => {
     const router = useRouter();
     const pathname = usePathname(); // replaces useLocation().pathname
-    const { user, logout } = useAuth();
+    const { user, logout } = useAuth() || {};
 
     const [scrolled, setScrolled] = useState(false);
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);

@@ -2,7 +2,6 @@
 
 import { createContext, useState, useContext, useEffect } from "react";
 import api from "@/config/api"; // adjust path if needed
-import { setupDevBundler } from "next/dist/server/lib/router-utils/setup-dev-bundler";
 
 const AuthContext = createContext();
 
@@ -11,10 +10,6 @@ export const useAuth = () => useContext(AuthContext);
 export function AuthProvider({ children }) {
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
-
-    // ======================
-    // INIT (Run on mount)
-    // ======================
     useEffect(() => {
         const verifyUser = async () => {
             try {
@@ -32,7 +27,6 @@ export function AuthProvider({ children }) {
                 });
 
                 setUser(res.data.user);
-                setUser(null)
             } catch (err) {
                 console.error("Auth load error:", err);
                 localStorage.clear();
@@ -119,7 +113,7 @@ export function AuthProvider({ children }) {
 
     return (
         <AuthContext.Provider value={value}>
-            {!loading && children}
+            {children}
         </AuthContext.Provider>
     );
 }
