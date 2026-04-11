@@ -1,6 +1,7 @@
+'use client';
 import React, { useState, useEffect, useCallback, useMemo, lazy, Suspense } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
-import { useAuth } from "../contexts/AuthContext";
+import { useRouter, usePathname } from "next/navigation";
+import { useAuth } from "@/contexts/AuthContext";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
@@ -46,8 +47,8 @@ const NavLink = React.memo(({ path, label, isActive, onClick }) => (
 NavLink.displayName = "NavLink";
 
 const Header = () => {
-    const navigate = useNavigate();
-    const location = useLocation();
+    const router = useRouter();
+    const pathname = usePathname(); // replaces useLocation().pathname
     const { user, logout } = useAuth();
 
     const [scrolled, setScrolled] = useState(false);
@@ -58,7 +59,6 @@ const Header = () => {
     // Optimized scroll handler with passive event listener
     useEffect(() => {
         const handleScroll = () => {
-            // Throttle using requestAnimationFrame for better performance
             requestAnimationFrame(() => {
                 setScrolled(window.scrollY > 20);
             });
@@ -82,36 +82,36 @@ const Header = () => {
 
     // Memoized navigation handler
     const handleNav = useCallback((path) => {
-        navigate(path);
+        router.push(path);
         setMobileMenuOpen(false);
-    }, [navigate]);
+    }, [router]);
 
     // Memoized logout handler
     const handleLogout = useCallback(() => {
         logout();
         toast.success("Logged out successfully 👋", toastConfig);
-        navigate("/");
+        router.push("/");
         setMobileMenuOpen(false);
-    }, [logout, navigate]);
+    }, [logout, router]);
 
     // Memoized auth handlers
     const handleLogin = useCallback(() => {
-        navigate("/login");
+        router.push("/login");
         setMobileMenuOpen(false);
-    }, [navigate]);
+    }, [router]);
 
     const handleRegister = useCallback(() => {
-        navigate("/register");
+        router.push("/register");
         setMobileMenuOpen(false);
-    }, [navigate]);
+    }, [router]);
 
     const handleDashboard = useCallback(() => {
-        navigate("/services");
+        router.push("/services");
         setMobileMenuOpen(false);
-    }, [navigate]);
+    }, [router]);
 
     // Memoized active path check
-    const isActive = useCallback((path) => location.pathname === path, [location.pathname]);
+    const isActive = useCallback((path) => pathname === path, [pathname]);
 
     // Memoized desktop navigation links
     const desktopNavLinks = useMemo(() => (
@@ -182,8 +182,8 @@ const Header = () => {
                             key={item.path}
                             onClick={() => handleNav(item.path)}
                             className={`text-left py-2 px-3 rounded ${isActive(item.path)
-                                    ? "bg-blue-100 text-blue-600"
-                                    : "text-gray-700 hover:bg-gray-100"
+                                ? "bg-blue-100 text-blue-600"
+                                : "text-gray-700 hover:bg-gray-100"
                                 }`}
                         >
                             {item.label}
@@ -281,26 +281,28 @@ const Header = () => {
     );
 };
 
-// Add a CSS animation for mobile menu (optional - add to your global CSS)
-const style = document.createElement("style");
-style.textContent = `
-  @keyframes slideDown {
-    from {
-      opacity: 0;
-      transform: translateY(-10px);
+// Add a CSS animation for mobile menu (injects once)
+if (typeof window !== "undefined") {
+    const style = document.createElement("style");
+    style.textContent = `
+      @keyframes slideDown {
+        from {
+          opacity: 0;
+          transform: translateY(-10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      .animate-slideDown {
+        animation: slideDown 0.2s ease-out;
+      }
+    `;
+    if (!document.querySelector("#header-animation-style")) {
+        style.id = "header-animation-style";
+        document.head.appendChild(style);
     }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-  .animate-slideDown {
-    animation: slideDown 0.2s ease-out;
-  }
-`;
-if (!document.querySelector("#header-animation-style")) {
-    style.id = "header-animation-style";
-    document.head.appendChild(style);
 }
 
 export default React.memo(Header);
