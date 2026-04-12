@@ -77,12 +77,10 @@ export default function Services() {
   const [hoveredIndex, setHoveredIndex] = useState(null);
   const [isClient, setIsClient] = useState(false);
 
-  // Mark when we are on the client side (after hydration)
   useEffect(() => {
     setIsClient(true);
   }, []);
 
-  // Redirect only after client-side hydration and auth check
   useEffect(() => {
     if (isClient && !loading && !user) {
       router.replace('/login');
@@ -94,7 +92,6 @@ export default function Services() {
     router.push('/login');
   };
 
-  // Show loading while auth is initializing or during SSR
   if (!isClient || loading) {
     return (
       <div className="flex items-center justify-center h-screen">
@@ -106,8 +103,8 @@ export default function Services() {
   if (!user) return null;
 
   return (
-    <div className="min-h-screen w-full bg-gradient-to-br from-[#f8fafc] to-[#f1f5f9] font-['Inter',system-ui,-apple-system,'Segoe_UI',Roboto,sans-serif] flex flex-col">
-      {/* Header with My Profile button */}
+    <div className="min-h-screen w-full bg-gradient-to-br from-[#f8fafc] to-[#f1f5f9] flex flex-col">
+      {/* Header */}
       <div className="flex-shrink-0 pt-3 sm:pt-4 px-4 sm:px-6 lg:px-8 pb-2 border-b border-black/10 bg-white/50 backdrop-blur-sm">
         <div className="flex justify-between items-center">
           <div>
@@ -137,8 +134,25 @@ export default function Services() {
         </div>
       </div>
 
-      {/* Grid */}
-      <div className="flex-1 services-grid grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-1.5 sm:gap-2.5 lg:gap-4 px-3 sm:px-5 lg:px-6 py-1.5 sm:py-2 lg:py-3 items-stretch content-center">
+      {/* Animated Grid */}
+      <style jsx>{`
+        @keyframes cardFadeIn {
+          0% { opacity: 0; transform: translateY(20px); }
+          100% { opacity: 1; transform: translateY(0); }
+        }
+        .animate-card {
+          opacity: 0;
+          animation: cardFadeIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+        }
+        .services-grid .animate-card:nth-child(1) { animation-delay: 0.08s; }
+        .services-grid .animate-card:nth-child(2) { animation-delay: 0.14s; }
+        .services-grid .animate-card:nth-child(3) { animation-delay: 0.20s; }
+        .services-grid .animate-card:nth-child(4) { animation-delay: 0.26s; }
+        .services-grid .animate-card:nth-child(5) { animation-delay: 0.32s; }
+        .services-grid .animate-card:nth-child(6) { animation-delay: 0.38s; }
+      `}</style>
+
+      <div className="services-grid flex-1 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-1.5 sm:gap-2.5 lg:gap-4 px-3 sm:px-5 lg:px-6 py-1.5 sm:py-2 lg:py-3 items-stretch content-center">
         {services.map((service, idx) => {
           const Icon = service.icon;
           const isHovered = hoveredIndex === idx;
@@ -219,27 +233,9 @@ export default function Services() {
         })}
       </div>
 
-      {/* Footer */}
       <div className="text-center py-1 sm:py-1.5 lg:py-2 px-2 flex-shrink-0 text-[0.5rem] sm:text-[0.55rem] lg:text-[0.6rem] font-medium text-[#94a3b8] border-t border-black/3 tracking-[0.2px]">
         <span>⚡ Tap any card to explore • Seamless experience</span>
       </div>
-
-      <style jsx>{`
-        @keyframes cardFadeIn {
-          0% { opacity: 0; transform: translateY(20px); }
-          100% { opacity: 1; transform: translateY(0); }
-        }
-        .animate-card {
-          opacity: 0;
-          animation: cardFadeIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
-        }
-        .services-grid .animate-card:nth-child(1) { animation-delay: 0.08s; }
-        .services-grid .animate-card:nth-child(2) { animation-delay: 0.14s; }
-        .services-grid .animate-card:nth-child(3) { animation-delay: 0.20s; }
-        .services-grid .animate-card:nth-child(4) { animation-delay: 0.26s; }
-        .services-grid .animate-card:nth-child(5) { animation-delay: 0.32s; }
-        .services-grid .animate-card:nth-child(6) { animation-delay: 0.38s; }
-      `}</style>
     </div>
   );
 }

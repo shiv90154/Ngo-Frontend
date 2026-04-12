@@ -8,21 +8,18 @@ importers:
 
   .:
     dependencies:
+      '@mui/icons-material':
+        specifier: ^9.0.0
+        version: 9.0.0(@mui/material@9.0.0(@types/react@19.2.14)(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(@types/react@19.2.14)(react@19.2.4)
       axios:
         specifier: ^1.15.0
         version: 1.15.0
       framer-motion:
         specifier: ^12.38.0
         version: 12.38.0(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
-<<<<<<< HEAD
-=======
-      install:
-        specifier: ^0.13.0
-        version: 0.13.0
->>>>>>> 345d8a94d78f7ffa4ab94d79c49e1f21578fefc5
       lucide-react:
-        specifier: ^1.8.0
-        version: 1.8.0(react@19.2.4)
+        specifier: ^0.376.0
+        version: 0.376.0(react@19.2.4)
       next:
         specifier: 16.2.3
         version: 16.2.3(@babel/core@7.29.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
@@ -43,7 +40,7 @@ importers:
         specifier: ^4.2.2
         version: 4.2.2
       eslint:
-        specifier: ^9
+        specifier: ^9.0.0
         version: 9.39.4(jiti@2.6.1)
       eslint-config-next:
         specifier: 16.2.3
@@ -1639,10 +1636,10 @@ packages:
   lru-cache@5.1.1:
     resolution: {integrity: sha512-KpNARQA3Iwv+jTA0utUVVbrh+Jlrr1Fv0e56GGzAFOXN7dk/FviaDW8LHmK52DlcH4WP2n6gI8vN1aesBFgo9w==}
 
-  lucide-react@1.8.0:
-    resolution: {integrity: sha512-WuvlsjngSk7TnTBJ1hsCy3ql9V9VOdcPkd3PKcSmM34vJD8KG6molxz7m7zbYFgICwsanQWmJ13JlYs4Zp7Arw==}
+  lucide-react@0.376.0:
+    resolution: {integrity: sha512-g91IX3ERD6yUR1TL2dsL4BkcGygpZz/EsqjAeL/kcRQV0EApIOr/9eBfKhYOVyQIcGGuotFGjF3xKLHMEz+b7g==}
     peerDependencies:
-      react: ^16.5.1 || ^17.0.0 || ^18.0.0 || ^19.0.0
+      react: ^16.5.1 || ^17.0.0 || ^18.0.0
 
   magic-string@0.30.21:
     resolution: {integrity: sha512-vd2F4YUyEXKGcLHoq+TEyCjxueSeHnFxyyjNp80yg0XV4vUhnDer/lvvlqM/arB5bXQN5K2/3oinyCRyx8T2CQ==}
@@ -1844,11 +1841,20 @@ packages:
   react-is@16.13.1:
     resolution: {integrity: sha512-24e6ynE2H+OKt4kqsOvNd8kBpV65zoxbA4BVsEOB3ARVWQki/DHzaUoC5KuON/BiccDaCCTZBuOcfZs70kR8bQ==}
 
+  react-is@19.2.5:
+    resolution: {integrity: sha512-Dn0t8IQhCmeIT3wu+Apm1/YVsJXsGWi6k4sPdnBIdqMVtHtv0IGi6dcpNpNkNac0zB2uUAqNX3MHzN8c+z2rwQ==}
+
   react-toastify@11.0.5:
     resolution: {integrity: sha512-EpqHBGvnSTtHYhCPLxML05NLY2ZX0JURbAdNYa6BUkk+amz4wbKBQvoKQAB0ardvSarUBuY4Q4s1sluAzZwkmA==}
     peerDependencies:
       react: ^18 || ^19
       react-dom: ^18 || ^19
+
+  react-transition-group@4.4.5:
+    resolution: {integrity: sha512-pZcd1MCJoiKiBR2NRxeCRg13uCXbydPnmB4EOeRrY7480qNWO8IIgQG6zlDkm6uRMsURXPuKq0GWtiM59a5Q6g==}
+    peerDependencies:
+      react: '>=16.6.0'
+      react-dom: '>=16.6.0'
 
   react@19.2.4:
     resolution: {integrity: sha512-9nfp2hYpCwOjAN+8TZFGhtWEwgvWHXqESH8qT89AT/lWklpLON22Lc8pEtnpsZz7VmawabSU0gCjnj8aC0euHQ==}
@@ -3806,7 +3812,7 @@ snapshots:
     dependencies:
       yallist: 3.1.1
 
-  lucide-react@1.8.0(react@19.2.4):
+  lucide-react@0.376.0(react@19.2.4):
     dependencies:
       react: 19.2.4
 
@@ -4006,9 +4012,20 @@ snapshots:
 
   react-is@16.13.1: {}
 
+  react-is@19.2.5: {}
+
   react-toastify@11.0.5(react-dom@19.2.4(react@19.2.4))(react@19.2.4):
     dependencies:
       clsx: 2.1.1
+      react: 19.2.4
+      react-dom: 19.2.4(react@19.2.4)
+
+  react-transition-group@4.4.5(react-dom@19.2.4(react@19.2.4))(react@19.2.4):
+    dependencies:
+      '@babel/runtime': 7.29.2
+      dom-helpers: 5.2.1
+      loose-envify: 1.4.0
+      prop-types: 15.8.1
       react: 19.2.4
       react-dom: 19.2.4(react@19.2.4)
 
