@@ -11,7 +11,7 @@ const services = [
     {
         title: "Education",
         desc: "Courses, live classes & certificates.",
-        route: "education",
+        route: "education",          // /education
         features: ["Live Classes", "Tests", "Certs"],
         icon: GraduationCap,
         accent: "#7c3aed",
@@ -21,7 +21,7 @@ const services = [
     {
         title: "Finance",
         desc: "Wallet, transfers & micro-loans.",
-        route: "finance/dashboard",
+        route: "finance",            // /finance
         features: ["Wallet", "Transfer", "Loans"],
         icon: Wallet,
         accent: "#0369a1",
@@ -31,7 +31,7 @@ const services = [
     {
         title: "Healthcare",
         desc: "Doctors, records & medicines online.",
-        route: "healthcare",
+        route: "healthcare",         // /healthcare
         features: ["Consult", "Records", "Meds"],
         icon: HeartPulse,
         accent: "#be123c",
@@ -41,7 +41,7 @@ const services = [
     {
         title: "News",
         desc: "Live local news & community stories.",
-        route: "news",
+        route: "news",               // /news
         features: ["Live Feed", "Videos", "Local"],
         icon: Newspaper,
         accent: "#b45309",
@@ -51,7 +51,7 @@ const services = [
     {
         title: "Agriculture",
         desc: "AI crop tips & smart market prices.",
-        route: "agriculture",
+        route: "agriculture",        // /agriculture
         features: ["Crop Tips", "Market", "AI Help"],
         icon: Sprout,
         accent: "#15803d",
@@ -61,7 +61,7 @@ const services = [
     {
         title: "IT Services",
         desc: "Billing, projects & CRM tools.",
-        route: "it/dashboard",
+        route: "it",                 // /it
         features: ["Billing", "Projects", "CRM"],
         icon: MonitorSmartphone,
         accent: "#0f766e",
@@ -76,7 +76,6 @@ export default function Services() {
 
     return (
         <div className="h-screen w-full bg-gradient-to-br from-[#f8fafc] to-[#f1f5f9] font-['Inter',system-ui,-apple-system,'Segoe_UI',Roboto,sans-serif] flex flex-col relative">
-            {/* Minimal CSS for fade‑in animation (replaces framer‑motion) */}
             <style>{`
         @keyframes cardFadeIn {
           0% { opacity: 0; transform: translateY(20px); }
@@ -92,12 +91,11 @@ export default function Services() {
         .services-grid .animate-card:nth-child(4) { animation-delay: 0.26s; }
         .services-grid .animate-card:nth-child(5) { animation-delay: 0.32s; }
         .services-grid .animate-card:nth-child(6) { animation-delay: 0.38s; }
-        /* Hide scrollbar for all browsers */
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
       `}</style>
 
-            {/* Header – compact padding */}
+            {/* Header */}
             <div className="flex-shrink-0 pt-3 sm:pt-4 px-4 sm:px-6 lg:px-8 pb-0.5 sm:pb-1 border-b border-black/4">
                 <h1 className="text-[1.25rem] sm:text-[1.4rem] lg:text-[1.6rem] font-extrabold bg-gradient-to-br from-[#0f172a] to-[#334155] bg-clip-text text-transparent tracking-[-0.02em] leading-tight">
                     Everything you need in one ecosystem
@@ -107,14 +105,8 @@ export default function Services() {
                 </p>
             </div>
 
-            {/* Grid – single column on mobile, 2 on tablet, 3 on desktop */}
-            <div
-                className="services-grid flex-1 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 
-                   gap-1.5 sm:gap-2.5 lg:gap-4 
-                   px-3 sm:px-5 lg:px-6 
-                   py-1.5 sm:py-2 lg:py-3 
-                   items-stretch content-center"
-            >
+            {/* Grid */}
+            <div className="services-grid flex-1 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-1.5 sm:gap-2.5 lg:gap-4 px-3 sm:px-5 lg:px-6 py-1.5 sm:py-2 lg:py-3 items-stretch content-center">
                 {services.map((service, idx) => {
                     const Icon = service.icon;
                     const isHovered = hoveredIndex === idx;
@@ -140,11 +132,7 @@ export default function Services() {
                         >
                             {/* Icon */}
                             <div
-                                className="w-8 h-8 sm:w-9 sm:h-9 lg:w-10 lg:h-10 
-                           rounded-lg sm:rounded-xl 
-                           flex items-center justify-center 
-                           mb-1.5 sm:mb-2 lg:mb-3 
-                           transition-transform duration-200 ease-out group-hover:scale-95"
+                                className="w-8 h-8 sm:w-9 sm:h-9 lg:w-10 lg:h-10 rounded-lg sm:rounded-xl flex items-center justify-center mb-1.5 sm:mb-2 lg:mb-3 transition-transform duration-200 ease-out group-hover:scale-95"
                                 style={{
                                     background: service.light,
                                     boxShadow: isHovered ? `0 4px 8px ${service.accent}20` : 'none'
@@ -168,20 +156,16 @@ export default function Services() {
                                 {service.features.map((feature, fIdx) => (
                                     <span key={fIdx}
                                         className="text-[0.55rem] sm:text-[0.6rem] lg:text-[0.65rem] font-semibold 
-                               px-1.5 sm:px-2 py-0.5 
-                               rounded-[20px] bg-black/4 text-[#334155] 
-                               transition-all duration-200 group-hover:bg-black/8">
+                               px-1.5 sm:px-2 py-0.5 rounded-[20px] bg-black/4 text-[#334155] transition-all duration-200 group-hover:bg-black/8">
                                         {feature}
                                     </span>
                                 ))}
                             </div>
 
-                            {/* Footer with tag and arrow */}
+                            {/* Footer */}
                             <div className="flex items-center justify-between mt-auto">
                                 <span
-                                    className="text-[0.5rem] sm:text-[0.55rem] lg:text-[0.6rem] font-bold tracking-[0.3px] uppercase 
-                             py-0.5 px-1.5 sm:px-2 
-                             rounded-[20px] backdrop-blur-[2px]"
+                                    className="text-[0.5rem] sm:text-[0.55rem] lg:text-[0.6rem] font-bold tracking-[0.3px] uppercase py-0.5 px-1.5 sm:px-2 rounded-[20px] backdrop-blur-[2px]"
                                     style={{
                                         background: `${service.accent}0c`,
                                         color: service.accent,
@@ -191,10 +175,7 @@ export default function Services() {
                                     {service.tag}
                                 </span>
                                 <div
-                                    className="w-5 h-5 sm:w-5 sm:h-5 lg:w-6 lg:h-6 
-                             rounded-full flex items-center justify-center 
-                             transition-all duration-200 ease-[cubic-bezier(0.34,1.2,0.64,1)] opacity-60
-                             group-hover:opacity-100 group-hover:translate-x-0.5"
+                                    className="w-5 h-5 sm:w-5 sm:h-5 lg:w-6 lg:h-6 rounded-full flex items-center justify-center transition-all duration-200 ease-[cubic-bezier(0.34,1.2,0.64,1)] opacity-60 group-hover:opacity-100 group-hover:translate-x-0.5"
                                     style={{
                                         background: service.accent,
                                         transform: isHovered ? 'scale(1.02)' : 'scale(0.98)'
@@ -217,7 +198,7 @@ export default function Services() {
                 })}
             </div>
 
-            {/* Footer – minimal */}
+            {/* Footer */}
             <div className="text-center py-1 sm:py-1.5 lg:py-2 px-2 flex-shrink-0 text-[0.5rem] sm:text-[0.55rem] lg:text-[0.6rem] font-medium text-[#94a3b8] border-t border-black/3 tracking-[0.2px]">
                 <span>⚡ Tap any card to explore • Seamless experience</span>
             </div>

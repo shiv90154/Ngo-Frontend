@@ -1,25 +1,22 @@
-'use client';
+"use client";
 
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { FaEnvelope, FaLock, FaEye, FaEyeSlash, FaArrowLeft, FaCheckCircle } from "react-icons/fa";
-import axios from "axios";
+import api from "@/config/api"; // use your configured API client
 
-const api = process.env.NEXT_PUBLIC_API_URL;
-// ─── Step indicators shown in the left panel ───────────────────────────────
 const STEPS = [
     { label: "Verify email" },
     { label: "Enter OTP" },
     { label: "New password" },
 ];
-console.log(process.env.NEXT_PUBLIC_API_URL);
 
 export default function ForgotPassword() {
     const router = useRouter();
 
     // ── Global state ────────────────────────────────────────────────────────
-    const [step, setStep] = useState(1); // 1 | 2 | 3
+    const [step, setStep] = useState(1);
     const [loading, setLoading] = useState(false);
     const [generalError, setGeneralError] = useState("");
 
@@ -63,7 +60,7 @@ export default function ForgotPassword() {
 
         setLoading(true);
         try {
-            await axios.post(`${api}/users/forgot-password`, { email });
+            await api.post("/users/forgot-password", { email });
             setResendTimer(150); // 2 min 30 sec
             setStep(2);
         } catch (err) {
@@ -77,7 +74,7 @@ export default function ForgotPassword() {
     // Step 2 — OTP input helpers
     // ════════════════════════════════════════════════════════════════════════
     const handleOtpChange = (index, value) => {
-        if (!/^\d?$/.test(value)) return; // digits only
+        if (!/^\d?$/.test(value)) return;
         const updated = [...otp];
         updated[index] = value;
         setOtp(updated);
@@ -108,7 +105,7 @@ export default function ForgotPassword() {
 
         setLoading(true);
         try {
-            await axios.post(`${api}/users/verify-reset-otp`, { email, otp: code });
+            await api.post("/users/verify-reset-otp", { email, otp: code });
             setStep(3);
         } catch (err) {
             setOtpError(err.response?.data?.message || "Invalid or expired OTP");
@@ -123,7 +120,7 @@ export default function ForgotPassword() {
         setOtpError("");
         setLoading(true);
         try {
-            await axios.post(`${api}/users/forgot-password`, { email });
+            await api.post("/users/forgot-password", { email });
             setOtp(["", "", "", "", "", ""]);
             setResendTimer(150);
             otpRefs.current[0]?.focus();
@@ -154,7 +151,7 @@ export default function ForgotPassword() {
 
         setLoading(true);
         try {
-            await axios.post(`${api}/users/reset-password`, {
+            await api.post("/users/reset-password", {
                 email,
                 otp: otp.join(""),
                 newPassword: password,
@@ -173,7 +170,6 @@ export default function ForgotPassword() {
     const LeftPanel = () => (
         <div className="md:w-1/2 bg-gradient-to-br from-blue-900 to-blue-800 p-8 text-white flex flex-col justify-between">
             <div>
-                {/* Branding */}
                 <div className="flex items-center gap-3 mb-8">
                     <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center">
                         <div className="w-10 h-10 rounded-full border-2 border-blue-900 flex items-center justify-center">
@@ -191,7 +187,6 @@ export default function ForgotPassword() {
                     Securely recover your account in 3 easy steps.
                 </p>
 
-                {/* Step list */}
                 <div className="space-y-4">
                     {STEPS.map((s, i) => {
                         const num = i + 1;
@@ -200,16 +195,16 @@ export default function ForgotPassword() {
                         return (
                             <div
                                 key={num}
-                                className={`flex items-center gap-3 text-sm transition-opacity ${current ? "opacity-100" : done ? "opacity-80" : "opacity-40"
-                                    }`}
+                                className={`flex items-center gap-3 text-sm transition-opacity ${current ? "opacity-100" : done ? "opacity-80" : "opacity-40"}`}
                             >
                                 <div
-                                    className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-semibold flex-shrink-0 ${done
-                                        ? "bg-green-400 text-white"
-                                        : current
+                                    className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-semibold flex-shrink-0 ${
+                                        done
+                                            ? "bg-green-400 text-white"
+                                            : current
                                             ? "bg-white text-blue-900"
                                             : "bg-white/20 text-white"
-                                        }`}
+                                    }`}
                                 >
                                     {done ? "✓" : num}
                                 </div>
@@ -233,29 +228,21 @@ export default function ForgotPassword() {
         </div>
     );
 
-    // ════════════════════════════════════════════════════════════════════════
-    // Right panel header (shared)
-    // ════════════════════════════════════════════════════════════════════════
     const RightHeader = ({ title, subtitle }) => (
         <>
-            {/* Tricolor bar */}
             <div className="flex mb-6">
                 <div className="h-1 w-1/3 bg-[#FF9933] rounded-l"></div>
                 <div className="h-1 w-1/3 bg-white"></div>
                 <div className="h-1 w-1/3 bg-[#138808] rounded-r"></div>
             </div>
 
-            {/* Progress dots */}
             <div className="flex gap-2 mb-5">
                 {STEPS.map((_, i) => (
                     <div
                         key={i}
-                        className={`h-1 flex-1 rounded-full transition-all ${step > i + 1
-                            ? "bg-green-500"
-                            : step === i + 1
-                                ? "bg-blue-600"
-                                : "bg-gray-200"
-                            }`}
+                        className={`h-1 flex-1 rounded-full transition-all ${
+                            step > i + 1 ? "bg-green-500" : step === i + 1 ? "bg-blue-600" : "bg-gray-200"
+                        }`}
                     />
                 ))}
             </div>
@@ -268,20 +255,14 @@ export default function ForgotPassword() {
         </>
     );
 
-    // ════════════════════════════════════════════════════════════════════════
-    // Render
-    // ════════════════════════════════════════════════════════════════════════
     return (
         <div className="min-h-screen bg-gradient-to-br from-blue-50 to-gray-100 flex items-center justify-center p-4">
             <div className="w-full max-w-5xl bg-white rounded-xl shadow-2xl overflow-hidden flex flex-col md:flex-row">
-
                 <LeftPanel />
 
-                {/* ── Right Panel ──────────────────────────────────────────────── */}
                 <div className="md:w-1/2 p-8 bg-white">
                     <div className="max-w-sm mx-auto">
-
-                        {/* ── Success screen ─────────────────────────────────────── */}
+                        {/* Success screen */}
                         {step === 4 && (
                             <div className="flex flex-col items-center text-center py-8">
                                 <FaCheckCircle className="text-green-500 text-5xl mb-4" />
@@ -298,7 +279,7 @@ export default function ForgotPassword() {
                             </div>
                         )}
 
-                        {/* ── Step 1 – Email ─────────────────────────────────────── */}
+                        {/* Step 1 – Email */}
                         {step === 1 && (
                             <>
                                 <RightHeader
@@ -322,9 +303,13 @@ export default function ForgotPassword() {
                                                 type="email"
                                                 placeholder="you@example.com"
                                                 value={email}
-                                                onChange={(e) => { setEmail(e.target.value); setEmailError(""); }}
-                                                className={`w-full px-4 py-2.5 rounded-lg border focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition ${emailError ? "border-red-400" : "border-gray-300"
-                                                    }`}
+                                                onChange={(e) => {
+                                                    setEmail(e.target.value);
+                                                    setEmailError("");
+                                                }}
+                                                className={`w-full px-4 py-2.5 rounded-lg border focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition ${
+                                                    emailError ? "border-red-400" : "border-gray-300"
+                                                }`}
                                             />
                                             <FaEnvelope className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" />
                                         </div>
@@ -356,7 +341,7 @@ export default function ForgotPassword() {
                             </>
                         )}
 
-                        {/* ── Step 2 – OTP ───────────────────────────────────────── */}
+                        {/* Step 2 – OTP */}
                         {step === 2 && (
                             <>
                                 <RightHeader
@@ -391,14 +376,14 @@ export default function ForgotPassword() {
                                                     value={digit}
                                                     onChange={(e) => handleOtpChange(i, e.target.value)}
                                                     onKeyDown={(e) => handleOtpKeyDown(i, e)}
-                                                    className={`w-full aspect-square text-center text-lg font-bold rounded-lg border focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition ${otpError ? "border-red-400" : "border-gray-300"
-                                                        }`}
+                                                    className={`w-full aspect-square text-center text-lg font-bold rounded-lg border focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition ${
+                                                        otpError ? "border-red-400" : "border-gray-300"
+                                                    }`}
                                                 />
                                             ))}
                                         </div>
                                     </div>
 
-                                    {/* Resend timer */}
                                     <p className="text-xs text-gray-500">
                                         {resendTimer > 0 ? (
                                             <>
@@ -435,7 +420,11 @@ export default function ForgotPassword() {
                                 <p className="mt-5 text-xs text-center text-gray-500">
                                     Wrong email?{" "}
                                     <button
-                                        onClick={() => { setStep(1); setOtp(["", "", "", "", "", ""]); setGeneralError(""); }}
+                                        onClick={() => {
+                                            setStep(1);
+                                            setOtp(["", "", "", "", "", ""]);
+                                            setGeneralError("");
+                                        }}
                                         className="text-blue-700 hover:text-blue-800 font-medium"
                                     >
                                         Go back
@@ -444,7 +433,7 @@ export default function ForgotPassword() {
                             </>
                         )}
 
-                        {/* ── Step 3 – New Password ──────────────────────────────── */}
+                        {/* Step 3 – New Password */}
                         {step === 3 && (
                             <>
                                 <RightHeader
@@ -459,7 +448,6 @@ export default function ForgotPassword() {
                                 )}
 
                                 <form onSubmit={handleResetPassword} className="space-y-5">
-                                    {/* New password */}
                                     <div>
                                         <label className="block text-sm font-medium text-gray-700 mb-1">
                                             New Password <span className="text-red-500">*</span>
@@ -469,9 +457,13 @@ export default function ForgotPassword() {
                                                 type={showPassword ? "text" : "password"}
                                                 placeholder="••••••••"
                                                 value={password}
-                                                onChange={(e) => { setPassword(e.target.value); setPasswordErrors((p) => ({ ...p, password: "" })); }}
-                                                className={`w-full px-4 py-2.5 rounded-lg border focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition ${passwordErrors.password ? "border-red-400" : "border-gray-300"
-                                                    }`}
+                                                onChange={(e) => {
+                                                    setPassword(e.target.value);
+                                                    setPasswordErrors((p) => ({ ...p, password: "" }));
+                                                }}
+                                                className={`w-full px-4 py-2.5 rounded-lg border focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition ${
+                                                    passwordErrors.password ? "border-red-400" : "border-gray-300"
+                                                }`}
                                             />
                                             <button
                                                 type="button"
@@ -486,7 +478,6 @@ export default function ForgotPassword() {
                                         )}
                                     </div>
 
-                                    {/* Confirm password */}
                                     <div>
                                         <label className="block text-sm font-medium text-gray-700 mb-1">
                                             Confirm Password <span className="text-red-500">*</span>
@@ -496,9 +487,13 @@ export default function ForgotPassword() {
                                                 type={showConfirm ? "text" : "password"}
                                                 placeholder="••••••••"
                                                 value={confirmPassword}
-                                                onChange={(e) => { setConfirmPassword(e.target.value); setPasswordErrors((p) => ({ ...p, confirmPassword: "" })); }}
-                                                className={`w-full px-4 py-2.5 rounded-lg border focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition ${passwordErrors.confirmPassword ? "border-red-400" : "border-gray-300"
-                                                    }`}
+                                                onChange={(e) => {
+                                                    setConfirmPassword(e.target.value);
+                                                    setPasswordErrors((p) => ({ ...p, confirmPassword: "" }));
+                                                }}
+                                                className={`w-full px-4 py-2.5 rounded-lg border focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition ${
+                                                    passwordErrors.confirmPassword ? "border-red-400" : "border-gray-300"
+                                                }`}
                                             />
                                             <button
                                                 type="button"
@@ -540,7 +535,6 @@ export default function ForgotPassword() {
                         )}
                     </div>
                 </div>
-
             </div>
         </div>
     );
