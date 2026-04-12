@@ -63,7 +63,7 @@ export default function ContactContent() {
     };
 
     return (
-        <section id="contact" className="py-30 px-4 bg-white">
+        <section id="contact" className="px-4 bg-white">
             <div className="container mx-auto max-w-5xl">
                 {/* Hero Section */}
                 <motion.div

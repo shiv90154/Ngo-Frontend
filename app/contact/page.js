@@ -1,13 +1,11 @@
-import Header from '@/components/Header';
-import Footer from '@/components/Footer';
+import HeadFootLayout from "@/app/headFootLayout";
 import ContactContent from '@/components/Contact';
 
 export default function Contact() {
     return (
-        <>
-            <Header />
+
+        <HeadFootLayout>
             <ContactContent />
-            <Footer />
-        </>
+        </HeadFootLayout>
     );
 }
