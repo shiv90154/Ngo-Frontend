@@ -1,7 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
 
 export default function ContactContent() {
     const [formData, setFormData] = useState({
@@ -63,56 +62,38 @@ export default function ContactContent() {
     };
 
     return (
-        <section id="contact" className="py-30 px-4 bg-white">
+        <section id="contact" className="py-16 px-4 bg-white pt-[65px] md:pt-[120px]">
             <div className="container mx-auto max-w-5xl">
                 {/* Hero Section */}
-                <motion.div
-                    initial={{ opacity: 0, y: 30 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.6 }}
-                    viewport={{ once: true }}
-                    className="text-center mb-12"
-                >
-                    <h2 className="text-4xl md:text-5xl font-bold text-[#1e3a5f] mb-4">Need Assistance?</h2>
-                    <p className="text-gray-600 text-lg max-w-2xl mx-auto">
+                <div className="text-center mb-10">
+                    <h2 className="text-3xl md:text-4xl font-bold text-[#1e3a5f] mb-2">Need Assistance?</h2>
+                    <p className="text-gray-600 text-base max-w-2xl mx-auto">
                         Samraddh Bharat Helpline is available 24/7 to assist you with any government services
                     </p>
-                </motion.div>
+                </div>
 
                 {/* Quick Contact Buttons */}
-                <motion.div
-                    className="grid md:grid-cols-2 gap-6 mb-16"
-                    initial={{ opacity: 0, y: 20 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5, delay: 0.1 }}
-                    viewport={{ once: true }}
-                >
+                <div className="grid md:grid-cols-2 gap-5 mb-12">
                     <a
                         href="tel:18001234567"
-                        className="bg-gradient-to-r from-[#ff8c42] to-[#ff6b22] text-white px-8 py-4 rounded-xl font-semibold text-lg shadow-lg hover:shadow-xl transition-all text-center"
+                        className="bg-gradient-to-r from-[#ff8c42] to-[#ff6b22] text-white px-6 py-3 rounded-xl font-semibold text-base shadow-md hover:shadow-lg transition-all text-center"
                     >
                         📞 Call Helpline: 1800-123-4567
                     </a>
                     <a
                         href="mailto:support@samraddhbharat.gov.in"
-                        className="border-2 border-[#1e3a5f] text-[#1e3a5f] px-8 py-4 rounded-xl font-semibold text-lg hover:bg-[#1e3a5f] hover:text-white transition-all text-center"
+                        className="border-2 border-[#1e3a5f] text-[#1e3a5f] px-6 py-3 rounded-xl font-semibold text-base hover:bg-[#1e3a5f] hover:text-white transition-all text-center"
                     >
                         ✉️ Send Email
                     </a>
-                </motion.div>
+                </div>
 
                 {/* Contact Form & Info Grid */}
-                <div className="grid md:grid-cols-2 gap-12 mb-20">
+                <div className="grid md:grid-cols-2 gap-8 mb-16">
                     {/* Form Section */}
-                    <motion.div
-                        className="bg-white rounded-2xl shadow-xl p-6 md:p-8 border border-gray-100"
-                        initial={{ opacity: 0, x: -30 }}
-                        whileInView={{ opacity: 1, x: 0 }}
-                        transition={{ duration: 0.6, delay: 0.2 }}
-                        viewport={{ once: true }}
-                    >
-                        <h3 className="text-2xl font-bold text-[#1e3a5f] mb-6">Send us a Message</h3>
-                        <form onSubmit={handleSubmit} className="space-y-5">
+                    <div className="bg-white rounded-xl shadow-md p-6 border border-gray-100">
+                        <h3 className="text-xl font-bold text-[#1e3a5f] mb-4">Send us a Message</h3>
+                        <form onSubmit={handleSubmit} className="space-y-4">
                             <div>
                                 <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
                                     Full Name <span className="text-red-500">*</span>
@@ -123,7 +104,7 @@ export default function ContactContent() {
                                     name="name"
                                     value={formData.name}
                                     onChange={handleChange}
-                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#ff8c42] focus:border-transparent transition"
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#ff8c42] focus:border-transparent transition"
                                     required
                                 />
                             </div>
@@ -137,7 +118,7 @@ export default function ContactContent() {
                                     name="email"
                                     value={formData.email}
                                     onChange={handleChange}
-                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#ff8c42] focus:border-transparent transition"
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#ff8c42] focus:border-transparent transition"
                                     required
                                 />
                             </div>
@@ -151,7 +132,7 @@ export default function ContactContent() {
                                     name="subject"
                                     value={formData.subject}
                                     onChange={handleChange}
-                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#ff8c42] focus:border-transparent transition"
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#ff8c42] focus:border-transparent transition"
                                 />
                             </div>
                             <div>
@@ -161,103 +142,55 @@ export default function ContactContent() {
                                 <textarea
                                     id="message"
                                     name="message"
-                                    rows="5"
+                                    rows="4"
                                     value={formData.message}
                                     onChange={handleChange}
-                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#ff8c42] focus:border-transparent transition"
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#ff8c42] focus:border-transparent transition"
                                     required
                                 ></textarea>
                             </div>
                             <button
                                 type="submit"
-                                className="w-full bg-gradient-to-r from-[#1e3a5f] to-[#2c4e7a] text-white font-semibold py-3 rounded-lg hover:shadow-lg transition-all transform hover:scale-[1.02]"
+                                className="w-full bg-gradient-to-r from-[#1e3a5f] to-[#2c4e7a] text-white font-semibold py-2 rounded-lg hover:shadow-md transition-all hover:scale-[1.01]"
                             >
                                 Send Message
                             </button>
                             {formStatus.submitted && (
-                                <div className={`text-center p-3 rounded-lg ${formStatus.error ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'}`}>
+                                <div className={`text-center p-2 rounded-lg text-sm ${formStatus.error ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'}`}>
                                     {formStatus.message}
                                 </div>
                             )}
                         </form>
-                    </motion.div>
+                    </div>
 
                     {/* Info Card */}
-                    <motion.div
-                        className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-2xl p-6 md:p-8 shadow-xl"
-                        initial={{ opacity: 0, x: 30 }}
-                        whileInView={{ opacity: 1, x: 0 }}
-                        transition={{ duration: 0.6, delay: 0.3 }}
-                        viewport={{ once: true }}
-                    >
-                        <h3 className="text-2xl font-bold text-[#1e3a5f] mb-6">Get in Touch</h3>
-                        <div className="space-y-6">
-                            <div className="flex items-start gap-4">
-                                <div className="bg-[#ff8c42] p-3 rounded-full text-white">📍</div>
+                    <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-6 shadow-md">
+                        <h3 className="text-xl font-bold text-[#1e3a5f] mb-4">Get in Touch</h3>
+                        <div className="space-y-5">
+                            <div className="flex items-start gap-3">
+                                <div className="bg-[#ff8c42] p-2 rounded-full text-white text-sm">📍</div>
                                 <div>
-                                    <h4 className="font-semibold text-gray-800">Visit Us</h4>
-                                    <p className="text-gray-600">Samraddh Bharat Foundation,<br />Government of India,<br />New Delhi - 110001</p>
+                                    <h4 className="font-semibold text-gray-800 text-sm">Visit Us</h4>
+                                    <p className="text-gray-600 text-sm">Samraddh Bharat Foundation,<br />Government of India,<br />New Delhi - 110001</p>
                                 </div>
                             </div>
-                            <div className="flex items-start gap-4">
-                                <div className="bg-[#ff8c42] p-3 rounded-full text-white">📞</div>
+                            <div className="flex items-start gap-3">
+                                <div className="bg-[#ff8c42] p-2 rounded-full text-white text-sm">📞</div>
                                 <div>
-                                    <h4 className="font-semibold text-gray-800">Helpline Numbers</h4>
-                                    <p className="text-gray-600">Toll Free: 1800-123-4567<br />Office: +91-11-23456789</p>
+                                    <h4 className="font-semibold text-gray-800 text-sm">Helpline Numbers</h4>
+                                    <p className="text-gray-600 text-sm">Toll Free: 1800-123-4567<br />Office: +91-11-23456789</p>
                                 </div>
                             </div>
-                            <div className="flex items-start gap-4">
-                                <div className="bg-[#ff8c42] p-3 rounded-full text-white">✉️</div>
+                            <div className="flex items-start gap-3">
+                                <div className="bg-[#ff8c42] p-2 rounded-full text-white text-sm">✉️</div>
                                 <div>
-                                    <h4 className="font-semibold text-gray-800">Email Support</h4>
-                                    <p className="text-gray-600">support@samraddhbharat.gov.in<br />grievance@samraddhbharat.gov.in</p>
+                                    <h4 className="font-semibold text-gray-800 text-sm">Email Support</h4>
+                                    <p className="text-gray-600 text-sm">support@samraddhbharat.gov.in<br />grievance@samraddhbharat.gov.in</p>
                                 </div>
                             </div>
                         </div>
-                    </motion.div>
-                </div>
-
-                {/* FAQ Section */}
-                <motion.div
-                    className="mt-16"
-                    initial={{ opacity: 0, y: 30 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.6, delay: 0.4 }}
-                    viewport={{ once: true }}
-                >
-                    <h3 className="text-3xl font-bold text-center text-[#1e3a5f] mb-4">Frequently Asked Questions</h3>
-                    <p className="text-center text-gray-600 mb-12">Find quick answers to common queries</p>
-                    <div className="max-w-3xl mx-auto space-y-4">
-                        {faqData.map((faq, index) => (
-                            <div key={index} className="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden">
-                                <button
-                                    className="w-full text-left px-6 py-4 font-semibold text-gray-800 flex justify-between items-center hover:bg-gray-50 transition"
-                                    onClick={() => toggleFAQ(index)}
-                                >
-                                    <span>{faq.question}</span>
-                                    <span className="text-[#ff8c42] text-xl">
-                                        {activeFAQ === index ? '−' : '+'}
-                                    </span>
-                                </button>
-                                <AnimatePresence>
-                                    {activeFAQ === index && (
-                                        <motion.div
-                                            initial={{ height: 0, opacity: 0 }}
-                                            animate={{ height: 'auto', opacity: 1 }}
-                                            exit={{ height: 0, opacity: 0 }}
-                                            transition={{ duration: 0.3 }}
-                                            className="border-t border-gray-100"
-                                        >
-                                            <div className="px-6 py-4 text-gray-600 bg-gray-50">
-                                                {faq.answer}
-                                            </div>
-                                        </motion.div>
-                                    )}
-                                </AnimatePresence>
-                            </div>
-                        ))}
                     </div>
-                </motion.div>
+                </div>
             </div>
         </section>
     );

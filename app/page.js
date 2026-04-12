@@ -23,8 +23,9 @@ import Footer from '@/components/Footer';
 const Home = () => (
   <>
     <Header />
+
     {/* Page offset — accounts for TopBar (~32px) + MainNav (64px) + tricolor strip (4px) */}
-    <main className="pt-[100px] md:pt-[132px]">
+    <main className="pt-[65px] md:pt-[120px]">
       <HomeOne />
       <HomeTwo />
       <HomeThree />

@@ -23,7 +23,7 @@ export default function AboutContent() {
     ];
 
     return (
-        <main className="bg-gray-50">
+        <main className="bg-gray-50 pt-[65px] md:pt-[120px]">
             {/* Hero Section */}
             <section className="bg-[#1e3a5f] text-white py-16 px-4">
                 <div className="container mx-auto max-w-5xl text-center">
