@@ -15,7 +15,6 @@ const toastConfig = {
 const NAV_ITEMS = [
     { path: "/", label: "Home" },
     { path: "/about", label: "About" },
-    { path: "/services", label: "Services" },
     { path: "/contact", label: "Contact" },
 ];
 
@@ -127,7 +126,7 @@ const Header = () => {
                 hideProgressBar={false} closeOnClick draggable pauseOnHover />
 
             {/* Sticky wrapper wrapping both bars */}
-            <div className="fixed top-0 left-0 w-full z-50">
+            <div className="fixed top-0 left-0 w-full z-50 ">
                 <TopBar />
 
                 <header className={`w-full bg-white transition-shadow duration-300 ${scrolled ? "shadow-lg" : "border-b border-gray-100"}`}>
