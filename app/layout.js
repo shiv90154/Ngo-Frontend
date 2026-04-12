@@ -1,4 +1,3 @@
-// app/layout.js (Server Component)
 import ClientProvider from "./ClientProvider";
 import "./globals.css";
 
