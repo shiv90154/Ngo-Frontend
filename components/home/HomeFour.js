@@ -84,7 +84,7 @@ const HomeFour = () => {
             </section>
 
             {/* ── Subscription Plans ── */}
-            <section className="py-24 px-4 bg-[#FF9933]">
+            <section className="py-24 px-4 ">
                 <div className="container mx-auto">
                     <div className="text-center mb-14">
                         <div className="inline-flex gap-1.5 mb-5">
@@ -92,8 +92,8 @@ const HomeFour = () => {
                             <span className="w-8 h-1.5 rounded-full bg-white/50" />
                             <span className="w-8 h-1.5 rounded-full bg-white" />
                         </div>
-                        <h2 className="text-4xl md:text-5xl font-black text-white mb-4">Membership & Plans</h2>
-                        <p className="text-white/90 max-w-2xl mx-auto text-lg">
+                        <h2 className="text-4xl md:text-5xl font-black  mb-4">Membership & Plans</h2>
+                        <p className="text- max-w-2xl mx-auto text-lg">
                             Affordable plans for every citizen — Education, Health, Agriculture
                         </p>
                     </div>
