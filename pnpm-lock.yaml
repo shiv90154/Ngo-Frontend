@@ -937,7 +937,6 @@ packages:
       eslint: '*'
       eslint-import-resolver-node: '*'
       eslint-import-resolver-typescript: '*'
-      eslint-import-resolver-webpack: '*'
     peerDependenciesMeta:
       '@typescript-eslint/parser':
         optional: true
@@ -947,7 +946,6 @@ packages:
         optional: true
       eslint-import-resolver-typescript:
         optional: true
-      eslint-import-resolver-webpack:
         optional: true
 
   eslint-plugin-import@2.32.0:
@@ -2820,7 +2818,6 @@ snapshots:
       typescript: 6.0.2
     transitivePeerDependencies:
       - '@typescript-eslint/parser'
-      - eslint-import-resolver-webpack
       - eslint-plugin-import-x
       - supports-color
 
@@ -2884,7 +2881,6 @@ snapshots:
       '@typescript-eslint/parser': 8.58.1(eslint@9.39.4(jiti@2.6.1))(typescript@6.0.2)
     transitivePeerDependencies:
       - eslint-import-resolver-typescript
-      - eslint-import-resolver-webpack
       - supports-color
 
   eslint-plugin-jsx-a11y@6.10.2(eslint@9.39.4(jiti@2.6.1)):
