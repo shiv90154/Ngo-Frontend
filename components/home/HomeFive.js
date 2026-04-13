@@ -12,27 +12,41 @@ const INITIATIVES = [
 ];
 
 const TAG_COLORS = {
-    Education: { bg: '#FFF3E0', text: '#8B3A00' },
-    Healthcare: { bg: '#E8F5E9', text: '#0a5c06' },
-    Agriculture: { bg: '#FFF3E0', text: '#8B3A00' },
-    Finance: { bg: '#E8F5E9', text: '#0a5c06' },
-    Media: { bg: '#FFF3E0', text: '#8B3A00' },
-    'CRM & IT': { bg: '#E8F5E9', text: '#0a5c06' },
+    Education: { bg: '#FFF3E0', text: '#FF9933' },
+    Healthcare: { bg: '#E8F5E9', text: '#138808' },
+    Agriculture: { bg: '#FFF3E0', text: '#FF9933' },
+    Finance: { bg: '#E8F5E9', text: '#138808' },
+    Media: { bg: '#FFF3E0', text: '#FF9933' },
+    'CRM & IT': { bg: '#E8F5E9', text: '#138808' },
 };
 
 const InitiativeCard = React.memo(({ title, desc, tag, icon }) => {
     const colors = TAG_COLORS[tag] || { bg: '#f3f4f6', text: '#374151' };
     return (
-        <div className="bg-white rounded-2xl p-6 shadow-md hover:shadow-xl transition-all duration-300 group cursor-pointer border border-transparent hover:border-gray-100">
-            <div className="flex items-start gap-4">
-                <div className="text-3xl group-hover:scale-110 transition-transform duration-200 shrink-0">{icon}</div>
-                <div>
-                    <span className="inline-block text-[10px] font-black px-2.5 py-1 rounded-full tracking-wider uppercase"
+        <div className="group bg-white rounded-xl p-5 shadow-md hover:shadow-xl transition-all duration-300 cursor-pointer hover:-translate-y-1 border border-gray-100">
+            <div className="flex items-start gap-3">
+                {/* Icon */}
+                <div className="text-3xl group-hover:scale-110 transition-transform duration-200 shrink-0">
+                    {icon}
+                </div>
+                
+                {/* Content */}
+                <div className="flex-1">
+                    {/* Tag */}
+                    <span className="inline-block text-[10px] font-bold px-2 py-1 rounded-full uppercase"
                         style={{ backgroundColor: colors.bg, color: colors.text }}>
                         {tag}
                     </span>
-                    <h3 className="text-base font-bold mt-2 mb-1 text-gray-800">{title}</h3>
-                    <p className="text-gray-500 text-sm leading-relaxed">{desc}</p>
+                    
+                    {/* Title */}
+                    <h3 className="text-base font-bold mt-2 mb-1 text-gray-800 group-hover:text-[#138808] transition-colors">
+                        {title}
+                    </h3>
+                    
+                    {/* Description */}
+                    <p className="text-gray-500 text-xs leading-relaxed">
+                        {desc}
+                    </p>
                 </div>
             </div>
         </div>
@@ -46,52 +60,66 @@ const HomeFive = () => {
 
     return (
         <>
-            {/* ── Flagship Initiatives ── */}
-            <section className="py-24 px-4 bg-white">
-                <div className="container mx-auto">
-                    <div className="text-center mb-14">
-                        <div className="inline-flex gap-1.5 mb-5">
-                            <span className="w-8 h-1.5 rounded-full bg-[#FF9933]" />
-                            <span className="w-8 h-1.5 rounded-full bg-gray-200" />
-                            <span className="w-8 h-1.5 rounded-full bg-[#138808]" />
+            {/* ── Flagship Initiatives Section ── */}
+            <section className="py-16 px-4 bg-white">
+                <div className="container mx-auto max-w-6xl">
+                    {/* Header */}
+                    <div className="text-center mb-10">
+                        <div className="inline-block bg-gradient-to-r from-[#FF9933]/10 to-[#138808]/10 px-4 py-1 rounded-full mb-3">
+                            <span className="text-xs font-bold text-[#FF9933]">OUR INITIATIVES</span>
                         </div>
-                        <h2 className="text-4xl md:text-5xl font-black text-gray-900 mb-4">Flagship Initiatives</h2>
-                        <p className="text-gray-500 max-w-2xl mx-auto text-lg">
+                        <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">
+                            Flagship <span className="text-[#138808]">Initiatives</span>
+                        </h2>
+                        <p className="text-gray-500 text-sm">
                             Transforming India — One initiative at a time
                         </p>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {INITIATIVES.map((item) => <InitiativeCard key={item.title} {...item} />)}
+                    {/* Initiatives Grid */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                        {INITIATIVES.map((item) => (
+                            <InitiativeCard key={item.title} {...item} />
+                        ))}
                     </div>
                 </div>
             </section>
 
-            {/* ── Franchise Highlight ── */}
-            <section className="py-16 px-4 bg-[#E8F5E9]">
-                <div className="container mx-auto max-w-4xl">
-                    <div className="bg-white rounded-3xl p-10 shadow-2xl text-center relative overflow-hidden">
-                        {/* Decorative circles */}
-                        <div className="absolute -top-10 -right-10 w-40 h-40 rounded-full bg-[#FF9933]/10" />
-                        <div className="absolute -bottom-10 -left-10 w-40 h-40 rounded-full bg-[#138808]/10" />
+            {/* ── Franchise Highlight Section ── */}
+            <section className="py-16 px-4 bg-gradient-to-br from-[#FF9933]/5 to-[#138808]/5">
+                <div className="container mx-auto max-w-5xl">
+                    <div className="bg-white rounded-2xl p-8 shadow-xl hover:shadow-2xl transition-all duration-300 text-center relative overflow-hidden">
+                        {/* Decorative elements */}
+                        <div className="absolute top-0 right-0 w-32 h-32 bg-[#FF9933]/5 rounded-full blur-2xl"></div>
+                        <div className="absolute bottom-0 left-0 w-32 h-32 bg-[#138808]/5 rounded-full blur-2xl"></div>
 
                         <div className="relative z-10">
-                            <div className="inline-flex items-center justify-center w-16 h-16 bg-[#FF9933]/10 rounded-2xl mb-5 text-4xl">
-                                🤝
+                            {/* Icon */}
+                            <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-[#FF9933] to-[#138808] rounded-2xl mb-5 shadow-lg">
+                                <span className="text-3xl">🤝</span>
                             </div>
-                            <h2 className="text-3xl md:text-4xl font-black text-gray-900 mb-3">
+                            
+                            {/* Title */}
+                            <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">
                                 Franchise & MLM System
                             </h2>
-                            <p className="text-gray-500 text-lg mb-2">Multi-level income distribution</p>
-                            <div className="flex flex-wrap justify-center gap-4 mb-8 text-sm">
-                                {['Weekly Payouts', 'Team Hierarchy Earnings', 'Passive Income', 'Nationwide Network'].map((f) => (
-                                    <span key={f} className="flex items-center gap-1.5 bg-gray-50 border border-gray-100 px-3 py-1.5 rounded-full text-gray-600 font-medium">
-                                        <span className="text-[#138808]">✓</span> {f}
+                            
+                            <p className="text-gray-500 text-sm mb-4">
+                                Multi-level income distribution with weekly payouts
+                            </p>
+                            
+                            {/* Features */}
+                            <div className="flex flex-wrap justify-center gap-2 mb-6">
+                                {['Weekly Payouts', 'Team Hierarchy', 'Passive Income', 'Nationwide Network'].map((f) => (
+                                    <span key={f} className="text-xs bg-gray-100 px-3 py-1 rounded-full text-gray-700 font-medium">
+                                        {f}
                                     </span>
                                 ))}
                             </div>
+                            
+                            {/* Button */}
                             <button onClick={goFranchise}
-                                className="px-10 py-3.5 rounded-xl font-bold text-white bg-gradient-to-r from-[#138808] to-[#0a5c06] hover:shadow-xl hover:scale-105 transition-all duration-300">
+                                className="px-8 py-2.5 rounded-lg font-bold text-sm text-white bg-[#138808] hover:bg-[#0a5c06] hover:shadow-lg transition-all duration-300">
                                 Become a Partner →
                             </button>
                         </div>
