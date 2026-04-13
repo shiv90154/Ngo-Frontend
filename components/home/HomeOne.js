@@ -42,7 +42,7 @@ const HomeOne = () => {
             <div className="container mx-auto px-4 text-center relative z-10">
                 <div className="max-w-4xl mx-auto">
                     {/* Badge */}
-                    <span className="inline-flex items-center gap-2 px-5 py-2 bg-white/15 backdrop-blur-sm rounded-full text-white text-xs font-bold mb-8 tracking-widest uppercase border border-white/20">
+                    <span className="inline-flex items-center mt-10 gap-2 px-5 py-2 bg-white/15 backdrop-blur-sm rounded-full text-white text-xs font-bold mb-8 tracking-widest uppercase border border-white/20">
                         🇮🇳 Government of India Initiative
                     </span>
 

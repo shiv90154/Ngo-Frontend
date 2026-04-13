@@ -2,8 +2,10 @@
 
 import { useState, useEffect, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import api from "../config/api";
+import axios from "axios";
 import { useAuth } from "../contexts/AuthContext";
+
+const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
 export default function VerifyOTP() {
     const [otp, setOtp] = useState("");
@@ -11,43 +13,65 @@ export default function VerifyOTP() {
     const [error, setError] = useState("");
     const [resendLoading, setResendLoading] = useState(false);
     const [resendMessage, setResendMessage] = useState("");
+    const [cooldown, setCooldown] = useState(0); // seconds
     const router = useRouter();
     const searchParams = useSearchParams();
-    const email = searchParams.get("email"); // Get email from query param
+    const email = searchParams.get("email");
     const inputRef = useRef(null);
     const { setUser } = useAuth();
 
+    // Focus input on mount
     useEffect(() => {
         if (inputRef.current) inputRef.current.focus();
-        if (!email) router.push("/login");
+        if (!email) router.replace("/login");
     }, [email, router]);
 
+    // Resend cooldown timer
+    useEffect(() => {
+        if (cooldown <= 0) return;
+        const timer = setTimeout(() => setCooldown(cooldown - 1), 1000);
+        return () => clearTimeout(timer);
+    }, [cooldown]);
+
     const handleVerify = async () => {
-        if (!otp || otp.length !== 6) return setError("Enter 6-digit OTP");
+        if (!otp || otp.length !== 6) {
+            setError("Please enter a 6-digit OTP");
+            return;
+        }
         setLoading(true);
         setError("");
         try {
-            const res = await api.post("/users/verify-otp", { email, otp });
-            localStorage.setItem("token", res.data.token);
-            localStorage.setItem("user", JSON.stringify(res.data.user));
-            setUser(res.data.user);
+            const response = await axios.post(`${API_URL}/users/verify-otp`, { email, otp });
+            const { token, user } = response.data;
+            localStorage.setItem("token", token);
+            localStorage.setItem("user", JSON.stringify(user));
+            setUser(user);
             router.push("/services");
         } catch (err) {
-            setError(err.response?.data?.message || "Verification failed");
+            const message = err.response?.data?.message || "Verification failed. Please try again.";
+            setError(message);
+            // Clear OTP on failure for security
+            setOtp("");
+            inputRef.current?.focus();
         } finally {
             setLoading(false);
         }
     };
 
     const handleResend = async () => {
+        if (cooldown > 0) return;
         setResendLoading(true);
         setResendMessage("");
         setError("");
         try {
-            await api.post("/users/resend-otp", { email });
-            setResendMessage("New OTP sent to your email");
+            await axios.post(`${API_URL}/users/resend-otp`, { email });
+            setResendMessage("✓ New OTP sent to your email");
+            setCooldown(30); // 30 seconds cooldown
+            setOtp(""); // Clear old OTP
+            inputRef.current?.focus();
         } catch (err) {
-            setError(err.response?.data?.message || "Failed to resend OTP");
+            const message = err.response?.data?.message || "Failed to resend OTP";
+            setError(message);
         } finally {
             setResendLoading(false);
         }
@@ -56,10 +80,7 @@ export default function VerifyOTP() {
     return (
         <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 py-12 px-4">
             <div className="max-w-md mx-auto">
-
-                {/* Card */}
                 <div className="bg-white rounded-2xl shadow-xl p-8 border border-gray-100">
-
                     {/* Header */}
                     <div className="flex flex-col items-center mb-8">
                         <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-500 rounded-2xl flex items-center justify-center mb-4 shadow-md">
@@ -73,14 +94,14 @@ export default function VerifyOTP() {
 
                     {/* Error Message */}
                     {error && (
-                        <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg mb-6 text-center">
+                        <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg mb-6 text-center text-sm">
                             {error}
                         </div>
                     )}
 
                     {/* Success Message */}
                     {resendMessage && (
-                        <div className="bg-green-50 border border-green-200 text-green-600 px-4 py-3 rounded-lg mb-6 text-center">
+                        <div className="bg-green-50 border border-green-200 text-green-600 px-4 py-3 rounded-lg mb-6 text-center text-sm">
                             {resendMessage}
                         </div>
                     )}
@@ -89,10 +110,16 @@ export default function VerifyOTP() {
                     <input
                         ref={inputRef}
                         type="text"
+                        inputMode="numeric"
+                        pattern="\d*"
                         maxLength={6}
                         placeholder="Enter 6-digit OTP"
                         value={otp}
-                        onChange={(e) => setOtp(e.target.value.replace(/\D/g, ""))}
+                        onChange={(e) => {
+                            const val = e.target.value.replace(/\D/g, "");
+                            if (val.length <= 6) setOtp(val);
+                            if (error) setError("");
+                        }}
                         onKeyPress={(e) => e.key === "Enter" && handleVerify()}
                         className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-gray-800 text-center text-2xl tracking-widest focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
                     />
@@ -100,10 +127,18 @@ export default function VerifyOTP() {
                     {/* Verify Button */}
                     <button
                         onClick={handleVerify}
-                        disabled={loading}
-                        className="w-full mt-6 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-semibold py-3 rounded-xl transition duration-200 disabled:opacity-50 shadow-md"
+                        disabled={loading || otp.length !== 6}
+                        className="w-full mt-6 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-semibold py-3 rounded-xl transition duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-md"
                     >
-                        {loading ? "Verifying..." : "Verify OTP"}
+                        {loading ? (
+                            <span className="flex items-center justify-center gap-2">
+                                <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
+                                Verifying...
+                            </span>
+                        ) : "Verify OTP"}
                     </button>
 
                     {/* Resend OTP */}
@@ -111,10 +146,10 @@ export default function VerifyOTP() {
                         Didn't receive code?{" "}
                         <button
                             onClick={handleResend}
-                            disabled={resendLoading}
-                            className="text-blue-500 hover:text-blue-600 font-medium disabled:opacity-50 transition"
+                            disabled={resendLoading || cooldown > 0}
+                            className="text-blue-500 hover:text-blue-600 font-medium disabled:opacity-50 disabled:cursor-not-allowed transition"
                         >
-                            {resendLoading ? "Sending..." : "Resend OTP"}
+                            {resendLoading ? "Sending..." : cooldown > 0 ? `Resend in ${cooldown}s` : "Resend OTP"}
                         </button>
                     </div>
 
@@ -129,7 +164,6 @@ export default function VerifyOTP() {
                     </div>
                 </div>
 
-                {/* Footer */}
                 <footer className="text-center mt-8">
                     <p className="text-gray-400 text-sm">
                         © 2026 Samraddh Bharat Portal. All rights reserved.

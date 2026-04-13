@@ -22,7 +22,6 @@ import HomeSix from '@/components/home/HomeSix';
 const Home = () => (
   <>
     <HeadFootLayout>
-      {/* Page offset — accounts for TopBar (~32px) + MainNav (64px) + tricolor strip (4px) */}
       <main>
         <HomeOne />
         <HomeTwo />
