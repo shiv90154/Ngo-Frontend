@@ -52,7 +52,7 @@ const HomeFour = () => {
                         <p className="text-gray-500 text-sm mt-2">Access government services online instantly</p>
                     </div>
 
-                    {/* Steps Grid */}
+                    {/* Steps Grid */}  
                     <div className="grid md:grid-cols-3 gap-6">
                         {STEPS.map(({ step, title, desc, icon, color }) => (
                             <div key={step}
