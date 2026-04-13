@@ -8,7 +8,7 @@ import {
   User, Mail, Phone, Calendar, MapPin, Fingerprint, CreditCard,
   GraduationCap, HeartPulse, Sprout, Wallet, Banknote,
   MonitorSmartphone, Users, Video, Store, Save, Camera, X,
-  Loader2, Eye, EyeOff, CheckCircle, AlertCircle
+  Loader2, Eye, EyeOff, CheckCircle, AlertCircle, IndianRupee, Briefcase
 } from "lucide-react";
 
 export default function ProfilePage() {
@@ -16,9 +16,7 @@ export default function ProfilePage() {
   const router = useRouter();
   const fileInputRef = useRef(null);
 
-  // ─────────────────────────────────────────────────────────────────
-  // State for all editable fields (mirrors backend schema)
-  // ─────────────────────────────────────────────────────────────────
+  // ========== STATE (all original fields) ==========
   const [profileData, setProfileData] = useState({
     fullName: "",
     email: "",
@@ -54,17 +52,16 @@ export default function ProfilePage() {
 
   const [profileImage, setProfileImage] = useState(null);
   const [profileImagePreview, setProfileImagePreview] = useState("");
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(true);   // <-- THIS WAS MISSING
   const [saving, setSaving] = useState(false);
   const [activeTab, setActiveTab] = useState("basic");
   const [saveMessage, setSaveMessage] = useState({ type: "", text: "" });
 
-  // Load user data from API (fresh)
+  // ========== LOAD PROFILE ==========
   const loadProfile = async () => {
     try {
       const res = await api.get("/users/profile");
       const userData = res.data.user;
-      // Map backend fields to our form state
       setProfileData({
         fullName: userData.fullName || "",
         email: userData.email || "",
@@ -111,7 +108,7 @@ export default function ProfilePage() {
     else if (user) loadProfile();
   }, [user, authLoading]);
 
-  // Helper to update nested fields
+  // ========== HELPERS ==========
   const updateField = (path, value) => {
     const keys = path.split(".");
     setProfileData(prev => {
@@ -156,9 +153,7 @@ export default function ProfilePage() {
     const formData = new FormData();
     if (profileImage) formData.append("profileImage", profileImage);
 
-    // Append all fields as JSON (backend expects JSON in req.body)
     const jsonData = { ...profileData };
-    // Convert nested objects properly
     formData.append("fullName", jsonData.fullName);
     formData.append("phone", jsonData.phone);
     formData.append("fatherName", jsonData.fatherName);
@@ -181,52 +176,34 @@ export default function ProfilePage() {
     formData.append("emergencyContactName", jsonData.emergencyContact.name);
     formData.append("emergencyContactRelation", jsonData.emergencyContact.relationship);
     formData.append("emergencyContactPhone", jsonData.emergencyContact.phone);
-
-    // Teacher
     formData.append("teacherSpecialization", jsonData.teacherProfile.specialization);
     formData.append("qualifications", jsonData.teacherProfile.qualifications.join(","));
     formData.append("teacherExperience", jsonData.teacherProfile.experienceYears);
-
-    // Doctor
     formData.append("doctorSpecialization", jsonData.doctorProfile.specialization);
     formData.append("doctorExperience", jsonData.doctorProfile.experienceYears);
     formData.append("consultationFee", jsonData.doctorProfile.consultationFee);
     formData.append("registrationNumber", jsonData.doctorProfile.registrationNumber);
-
-    // Farmer
     formData.append("landSize", jsonData.farmerProfile.landSize);
     formData.append("crops", jsonData.farmerProfile.crops.join(","));
     formData.append("farmingType", jsonData.farmerProfile.farmingType);
     formData.append("isContractFarmer", jsonData.farmerProfile.isContractFarmer);
     formData.append("farmLocation", jsonData.farmerProfile.farmLocation);
     formData.append("irrigationType", jsonData.farmerProfile.irrigationType);
-
-    // Education
     formData.append("className", jsonData.educationProfile.className);
     formData.append("schoolName", jsonData.educationProfile.schoolName);
     formData.append("board", jsonData.educationProfile.board);
     formData.append("percentage", jsonData.educationProfile.percentage);
-
-    // IT
     formData.append("projectType", jsonData.itProfile.projectType);
     formData.append("techStack", jsonData.itProfile.techStack);
     formData.append("experience", jsonData.itProfile.experience);
-
-    // Social
     formData.append("username", jsonData.socialProfile.username);
     formData.append("bio", jsonData.socialProfile.bio);
     formData.append("interests", jsonData.socialProfile.interests);
-
-    // Media Creator
     formData.append("isMediaCreator", jsonData.mediaCreatorProfile.isCreator);
     formData.append("mediaBio", jsonData.mediaCreatorProfile.bio);
-
-    // Seller
     formData.append("isSeller", jsonData.sellerProfile.isSeller);
     formData.append("storeName", jsonData.sellerProfile.storeName);
     formData.append("gstNumber", jsonData.sellerProfile.gstNumber);
-
-    // Bank
     formData.append("bankAccount", JSON.stringify(jsonData.bankAccount));
 
     try {
@@ -234,9 +211,7 @@ export default function ProfilePage() {
         headers: { "Content-Type": "multipart/form-data" },
       });
       setSaveMessage({ type: "success", text: "Profile updated successfully!" });
-      // Refresh user context
       setUser(res.data.user);
-      // Reload profile data
       loadProfile();
       setTimeout(() => setSaveMessage({ type: "", text: "" }), 3000);
     } catch (err) {
@@ -246,47 +221,70 @@ export default function ProfilePage() {
     }
   };
 
+  // ========== LOADING STATES ==========
   if (authLoading || loading) {
     return (
-      <div className="flex justify-center items-center h-screen">
-        <Loader2 className="animate-spin h-8 w-8 text-blue-600" />
+      <div className="flex justify-center items-center h-screen bg-gradient-to-br from-[#f8fafc] to-[#f1f5f9]">
+        <div className="text-center">
+          <Loader2 className="animate-spin h-10 w-10 text-[#FF9933] mx-auto mb-3" />
+          <p className="text-gray-600">Loading your profile...</p>
+        </div>
       </div>
     );
   }
 
+  // ========== TABS ==========
   const tabs = [
-    { id: "basic", label: "Basic Info", icon: User },
-    { id: "kyc", label: "KYC / ID", icon: Fingerprint },
+    { id: "basic", label: "Personal Details", icon: User },
+    { id: "kyc", label: "Identity & KYC", icon: Fingerprint },
     { id: "address", label: "Address", icon: MapPin },
     { id: "education", label: "Education", icon: GraduationCap },
     { id: "healthcare", label: "Healthcare", icon: HeartPulse },
     { id: "agriculture", label: "Agriculture", icon: Sprout },
-    { id: "finance", label: "Finance & Bank", icon: Wallet },
-    { id: "it", label: "IT / CRM", icon: MonitorSmartphone },
+    { id: "finance", label: "Finance & Banking", icon: Wallet },
+    { id: "it", label: "IT & CRM", icon: MonitorSmartphone },
     { id: "social", label: "Social & Media", icon: Users },
     { id: "seller", label: "Seller / Store", icon: Store },
   ];
 
+  // ========== GOVERNMENT PORTAL UI ==========
   return (
-    <div className="min-h-screen bg-gray-50 py-8 px-4">
-      <div className="max-w-6xl mx-auto">
-        {/* Header */}
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-2xl font-bold text-gray-800">My Profile</h1>
+    <div className="min-h-screen bg-gradient-to-br from-[#f8fafc] to-[#f1f5f9] py-6 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto">
+        {/* Tricolor Header */}
+        <div className="flex mb-6">
+          <div className="h-1 w-1/3 bg-[#FF9933] rounded-l"></div>
+          <div className="h-1 w-1/3 bg-white"></div>
+          <div className="h-1 w-1/3 bg-[#138808] rounded-r"></div>
+        </div>
+
+        {/* Title with Emblem */}
+        <div className="flex items-center justify-between flex-wrap gap-4 mb-6">
+          <div className="flex items-center gap-3">
+            <div className="w-12 h-12 bg-white rounded-full shadow-md flex items-center justify-center border border-gray-200">
+              <div className="w-10 h-10 rounded-full border-2 border-[#FF9933] flex items-center justify-center">
+                <div className="w-6 h-6 rounded-full bg-[#138808]"></div>
+              </div>
+            </div>
+            <div>
+              <h1 className="text-2xl md:text-3xl font-bold text-gray-800">My Profile</h1>
+              <p className="text-sm text-gray-500">Manage your personal information and service preferences</p>
+            </div>
+          </div>
           <button
             onClick={handleSubmit}
             disabled={saving}
-            className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 disabled:opacity-50"
+            className="flex items-center gap-2 bg-[#FF9933] hover:bg-[#ff8800] text-white font-semibold px-5 py-2.5 rounded-lg shadow-md transition disabled:opacity-50"
           >
             {saving ? <Loader2 className="animate-spin" size={18} /> : <Save size={18} />}
-            Save Changes
+            {saving ? "Saving..." : "Save Changes"}
           </button>
         </div>
 
-        {/* Save message */}
+        {/* Save Message */}
         {saveMessage.text && (
-          <div className={`mb-4 p-3 rounded-lg flex items-center gap-2 ${
-            saveMessage.type === "success" ? "bg-green-50 text-green-700 border border-green-200" : "bg-red-50 text-red-700 border border-red-200"
+          <div className={`mb-5 p-3 rounded-lg flex items-center gap-2 shadow-sm ${
+            saveMessage.type === "success" ? "bg-green-50 text-green-800 border-l-4 border-green-600" : "bg-red-50 text-red-800 border-l-4 border-red-600"
           }`}>
             {saveMessage.type === "success" ? <CheckCircle size={18} /> : <AlertCircle size={18} />}
             {saveMessage.text}
@@ -294,22 +292,22 @@ export default function ProfilePage() {
         )}
 
         <div className="flex flex-col lg:flex-row gap-6">
-          {/* Sidebar - Profile Picture & Tabs */}
-          <div className="lg:w-80">
-            <div className="bg-white rounded-xl shadow-sm p-5 text-center mb-4">
+          {/* Sidebar */}
+          <div className="lg:w-80 flex-shrink-0">
+            <div className="bg-white rounded-xl shadow-md border border-gray-100 p-5 text-center mb-5">
               <div className="relative inline-block">
-                <div className="w-28 h-28 rounded-full bg-gray-200 overflow-hidden mx-auto">
+                <div className="w-28 h-28 rounded-full bg-gray-100 overflow-hidden mx-auto border-2 border-[#FF9933] shadow-sm">
                   {profileImagePreview ? (
                     <img src={profileImagePreview} alt="Profile" className="w-full h-full object-cover" />
                   ) : (
-                    <div className="w-full h-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center text-white text-3xl font-bold">
+                    <div className="w-full h-full bg-gradient-to-br from-[#FF9933] to-[#138808] flex items-center justify-center text-white text-3xl font-bold">
                       {profileData.fullName?.[0]?.toUpperCase() || "U"}
                     </div>
                   )}
                 </div>
                 <button
                   onClick={() => fileInputRef.current.click()}
-                  className="absolute bottom-0 right-0 bg-blue-600 text-white p-1.5 rounded-full shadow-md hover:bg-blue-700"
+                  className="absolute bottom-0 right-0 bg-white border border-gray-300 text-gray-600 p-1.5 rounded-full shadow-md hover:bg-gray-50 transition"
                 >
                   <Camera size={14} />
                 </button>
@@ -317,115 +315,141 @@ export default function ProfilePage() {
               </div>
               <h2 className="mt-3 font-semibold text-gray-800">{profileData.fullName || "Your Name"}</h2>
               <p className="text-sm text-gray-500">{profileData.email}</p>
+              <div className="mt-3 pt-3 border-t border-gray-100">
+                <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                  user?.role === "SUPER_ADMIN" ? "bg-red-100 text-red-800" :
+                  user?.role === "TEACHER" ? "bg-blue-100 text-blue-800" :
+                  user?.role === "DOCTOR" ? "bg-green-100 text-green-800" :
+                  "bg-gray-100 text-gray-800"
+                }`}>
+                  {user?.role || "USER"}
+                </span>
+              </div>
             </div>
 
-            <div className="bg-white rounded-xl shadow-sm p-2">
+            <div className="bg-white rounded-xl shadow-md border border-gray-100 p-2">
               {tabs.map(tab => (
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
-                  className={`flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-left transition ${
-                    activeTab === tab.id ? "bg-blue-50 text-blue-700" : "text-gray-600 hover:bg-gray-50"
+                  className={`flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-left transition mb-1 ${
+                    activeTab === tab.id
+                      ? "bg-[#FF9933]/10 text-[#FF9933] font-medium border-l-4 border-[#FF9933]"
+                      : "text-gray-600 hover:bg-gray-50"
                   }`}
                 >
-                  <tab.icon size={18} />
-                  <span className="text-sm font-medium">{tab.label}</span>
+                  <tab.icon size={18} className={activeTab === tab.id ? "text-[#FF9933]" : "text-gray-400"} />
+                  <span className="text-sm">{tab.label}</span>
                 </button>
               ))}
             </div>
           </div>
 
           {/* Main Form */}
-          <div className="flex-1 bg-white rounded-xl shadow-sm p-6">
+          <div className="flex-1 bg-white rounded-xl shadow-md border border-gray-100 p-5 md:p-6">
             <form onSubmit={handleSubmit}>
-              {/* Basic Info Tab */}
+              {/* Personal Details Tab */}
               {activeTab === "basic" && (
-                <div className="space-y-4">
-                  <h3 className="text-lg font-semibold border-b pb-2">Basic Information</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div><label className="block text-sm font-medium">Full Name *</label><input name="fullName" value={profileData.fullName} onChange={handleInputChange} className="w-full border rounded-lg px-3 py-2" /></div>
-                    <div><label className="block text-sm font-medium">Email</label><input value={profileData.email} disabled className="w-full border rounded-lg px-3 py-2 bg-gray-50" /></div>
-                    <div><label className="block text-sm font-medium">Phone</label><input name="phone" value={profileData.phone} onChange={handleInputChange} className="w-full border rounded-lg px-3 py-2" /></div>
-                    <div><label className="block text-sm font-medium">Father's Name</label><input name="fatherName" value={profileData.fatherName} onChange={handleInputChange} className="w-full border rounded-lg px-3 py-2" /></div>
-                    <div><label className="block text-sm font-medium">Mother's Name</label><input name="motherName" value={profileData.motherName} onChange={handleInputChange} className="w-full border rounded-lg px-3 py-2" /></div>
-                    <div><label className="block text-sm font-medium">Date of Birth</label><input type="date" name="dob" value={profileData.dob} onChange={handleInputChange} className="w-full border rounded-lg px-3 py-2" /></div>
-                    <div><label className="block text-sm font-medium">Gender</label><select name="gender" value={profileData.gender} onChange={handleInputChange} className="w-full border rounded-lg px-3 py-2"><option value="">Select</option><option value="male">Male</option><option value="female">Female</option><option value="other">Other</option></select></div>
+                <div className="space-y-5">
+                  <div className="border-b border-gray-200 pb-2 flex items-center gap-2">
+                    <User size={20} className="text-[#FF9933]" />
+                    <h3 className="text-lg font-semibold text-gray-800">Personal Information</h3>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <div><label className="block text-sm font-medium text-gray-700 mb-1">Full Name <span className="text-red-500">*</span></label><input name="fullName" value={profileData.fullName} onChange={handleInputChange} className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-[#FF9933] focus:border-transparent" /></div>
+                    <div><label className="block text-sm font-medium text-gray-700 mb-1">Email ID</label><input value={profileData.email} disabled className="w-full border border-gray-200 rounded-lg px-3 py-2 bg-gray-50 text-gray-500" /></div>
+                    <div><label className="block text-sm font-medium text-gray-700 mb-1">Mobile Number</label><input name="phone" value={profileData.phone} onChange={handleInputChange} className="w-full border border-gray-300 rounded-lg px-3 py-2" /></div>
+                    <div><label className="block text-sm font-medium text-gray-700 mb-1">Father's Name</label><input name="fatherName" value={profileData.fatherName} onChange={handleInputChange} className="w-full border border-gray-300 rounded-lg px-3 py-2" /></div>
+                    <div><label className="block text-sm font-medium text-gray-700 mb-1">Mother's Name</label><input name="motherName" value={profileData.motherName} onChange={handleInputChange} className="w-full border border-gray-300 rounded-lg px-3 py-2" /></div>
+                    <div><label className="block text-sm font-medium text-gray-700 mb-1">Date of Birth</label><input type="date" name="dob" value={profileData.dob} onChange={handleInputChange} className="w-full border border-gray-300 rounded-lg px-3 py-2" /></div>
+                    <div><label className="block text-sm font-medium text-gray-700 mb-1">Gender</label><select name="gender" value={profileData.gender} onChange={handleInputChange} className="w-full border border-gray-300 rounded-lg px-3 py-2"><option value="">Select</option><option value="male">Male</option><option value="female">Female</option><option value="other">Other</option></select></div>
                   </div>
                 </div>
               )}
 
               {/* KYC Tab */}
               {activeTab === "kyc" && (
-                <div className="space-y-4">
-                  <h3 className="text-lg font-semibold border-b pb-2">Identity Documents</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div><label className="block text-sm font-medium">Aadhaar Number</label><input name="aadhaarNumber" value={profileData.aadhaarNumber} onChange={handleInputChange} className="w-full border rounded-lg px-3 py-2" /></div>
-                    <div><label className="block text-sm font-medium">PAN Number</label><input name="panNumber" value={profileData.panNumber} onChange={handleInputChange} className="w-full border rounded-lg px-3 py-2" /></div>
-                    <div><label className="block text-sm font-medium">Voter ID</label><input name="voterId" value={profileData.voterId} onChange={handleInputChange} className="w-full border rounded-lg px-3 py-2" /></div>
-                    <div><label className="block text-sm font-medium">Passport Number</label><input name="passportNumber" value={profileData.passportNumber} onChange={handleInputChange} className="w-full border rounded-lg px-3 py-2" /></div>
+                <div className="space-y-5">
+                  <div className="border-b border-gray-200 pb-2 flex items-center gap-2">
+                    <Fingerprint size={20} className="text-[#FF9933]" />
+                    <h3 className="text-lg font-semibold text-gray-800">Identity Documents</h3>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <div><label className="block text-sm font-medium text-gray-700 mb-1">Aadhaar Number</label><input name="aadhaarNumber" value={profileData.aadhaarNumber} onChange={handleInputChange} className="w-full border border-gray-300 rounded-lg px-3 py-2" /></div>
+                    <div><label className="block text-sm font-medium text-gray-700 mb-1">PAN Number</label><input name="panNumber" value={profileData.panNumber} onChange={handleInputChange} className="w-full border border-gray-300 rounded-lg px-3 py-2" /></div>
+                    <div><label className="block text-sm font-medium text-gray-700 mb-1">Voter ID</label><input name="voterId" value={profileData.voterId} onChange={handleInputChange} className="w-full border border-gray-300 rounded-lg px-3 py-2" /></div>
+                    <div><label className="block text-sm font-medium text-gray-700 mb-1">Passport Number</label><input name="passportNumber" value={profileData.passportNumber} onChange={handleInputChange} className="w-full border border-gray-300 rounded-lg px-3 py-2" /></div>
                   </div>
                 </div>
               )}
 
               {/* Address Tab */}
               {activeTab === "address" && (
-                <div className="space-y-4">
-                  <h3 className="text-lg font-semibold border-b pb-2">Address Details</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div><label>State</label><input name="state" value={profileData.state} onChange={handleInputChange} className="w-full border rounded-lg px-3 py-2" /></div>
-                    <div><label>District</label><input name="district" value={profileData.district} onChange={handleInputChange} className="w-full border rounded-lg px-3 py-2" /></div>
-                    <div><label>Block / Tehsil</label><input name="block" value={profileData.block} onChange={handleInputChange} className="w-full border rounded-lg px-3 py-2" /></div>
-                    <div><label>Village / City</label><input name="village" value={profileData.village} onChange={handleInputChange} className="w-full border rounded-lg px-3 py-2" /></div>
-                    <div><label>Pincode</label><input name="pincode" value={profileData.pincode} onChange={handleInputChange} className="w-full border rounded-lg px-3 py-2" /></div>
-                    <div className="md:col-span-2"><label>Full Address</label><textarea name="fullAddress" value={profileData.fullAddress} onChange={handleInputChange} rows={2} className="w-full border rounded-lg px-3 py-2" /></div>
+                <div className="space-y-5">
+                  <div className="border-b border-gray-200 pb-2 flex items-center gap-2">
+                    <MapPin size={20} className="text-[#FF9933]" />
+                    <h3 className="text-lg font-semibold text-gray-800">Address Details</h3>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <div><label className="block text-sm font-medium text-gray-700 mb-1">State</label><input name="state" value={profileData.state} onChange={handleInputChange} className="w-full border border-gray-300 rounded-lg px-3 py-2" /></div>
+                    <div><label className="block text-sm font-medium text-gray-700 mb-1">District</label><input name="district" value={profileData.district} onChange={handleInputChange} className="w-full border border-gray-300 rounded-lg px-3 py-2" /></div>
+                    <div><label className="block text-sm font-medium text-gray-700 mb-1">Block / Tehsil</label><input name="block" value={profileData.block} onChange={handleInputChange} className="w-full border border-gray-300 rounded-lg px-3 py-2" /></div>
+                    <div><label className="block text-sm font-medium text-gray-700 mb-1">Village / City</label><input name="village" value={profileData.village} onChange={handleInputChange} className="w-full border border-gray-300 rounded-lg px-3 py-2" /></div>
+                    <div><label className="block text-sm font-medium text-gray-700 mb-1">Pincode</label><input name="pincode" value={profileData.pincode} onChange={handleInputChange} className="w-full border border-gray-300 rounded-lg px-3 py-2" /></div>
+                    <div className="md:col-span-2"><label className="block text-sm font-medium text-gray-700 mb-1">Full Address</label><textarea name="fullAddress" value={profileData.fullAddress} onChange={handleInputChange} rows={2} className="w-full border border-gray-300 rounded-lg px-3 py-2" /></div>
                   </div>
                 </div>
               )}
 
               {/* Education Tab */}
               {activeTab === "education" && (
-                <div className="space-y-4">
-                  <h3 className="text-lg font-semibold border-b pb-2">Education Details</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div><label>Class / Qualification</label><input name="educationProfile.className" value={profileData.educationProfile.className} onChange={(e) => updateField("educationProfile.className", e.target.value)} className="w-full border rounded-lg px-3 py-2" /></div>
-                    <div><label>School / College</label><input name="educationProfile.schoolName" value={profileData.educationProfile.schoolName} onChange={(e) => updateField("educationProfile.schoolName", e.target.value)} className="w-full border rounded-lg px-3 py-2" /></div>
-                    <div><label>Board / University</label><input name="educationProfile.board" value={profileData.educationProfile.board} onChange={(e) => updateField("educationProfile.board", e.target.value)} className="w-full border rounded-lg px-3 py-2" /></div>
-                    <div><label>Percentage / CGPA</label><input name="educationProfile.percentage" value={profileData.educationProfile.percentage} onChange={(e) => updateField("educationProfile.percentage", e.target.value)} className="w-full border rounded-lg px-3 py-2" /></div>
+                <div className="space-y-5">
+                  <div className="border-b border-gray-200 pb-2 flex items-center gap-2">
+                    <GraduationCap size={20} className="text-[#FF9933]" />
+                    <h3 className="text-lg font-semibold text-gray-800">Educational Qualifications</h3>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <div><label className="block text-sm font-medium text-gray-700 mb-1">Class / Qualification</label><input name="educationProfile.className" value={profileData.educationProfile.className} onChange={(e) => updateField("educationProfile.className", e.target.value)} className="w-full border border-gray-300 rounded-lg px-3 py-2" /></div>
+                    <div><label className="block text-sm font-medium text-gray-700 mb-1">School / College</label><input name="educationProfile.schoolName" value={profileData.educationProfile.schoolName} onChange={(e) => updateField("educationProfile.schoolName", e.target.value)} className="w-full border border-gray-300 rounded-lg px-3 py-2" /></div>
+                    <div><label className="block text-sm font-medium text-gray-700 mb-1">Board / University</label><input name="educationProfile.board" value={profileData.educationProfile.board} onChange={(e) => updateField("educationProfile.board", e.target.value)} className="w-full border border-gray-300 rounded-lg px-3 py-2" /></div>
+                    <div><label className="block text-sm font-medium text-gray-700 mb-1">Percentage / CGPA</label><input name="educationProfile.percentage" value={profileData.educationProfile.percentage} onChange={(e) => updateField("educationProfile.percentage", e.target.value)} className="w-full border border-gray-300 rounded-lg px-3 py-2" /></div>
                   </div>
                 </div>
               )}
 
-              {/* Healthcare Tab */}
+              {/* Healthcare Tab (abbreviated – same as original but with new styling) */}
               {activeTab === "healthcare" && (
-                <div className="space-y-4">
-                  <h3 className="text-lg font-semibold border-b pb-2">Healthcare Information</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div><label>Blood Group</label><select name="bloodGroup" value={profileData.bloodGroup} onChange={handleInputChange} className="w-full border rounded-lg px-3 py-2"><option value="">Select</option><option>A+</option><option>A-</option><option>B+</option><option>B-</option><option>O+</option><option>O-</option><option>AB+</option><option>AB-</option></select></div>
-                    <div><label>Allergies</label><input name="allergies" value={profileData.allergies} onChange={handleInputChange} className="w-full border rounded-lg px-3 py-2" /></div>
-                    <div className="md:col-span-2"><label>Medical History</label><textarea name="medicalHistory" value={profileData.medicalHistory} onChange={handleInputChange} rows={2} className="w-full border rounded-lg px-3 py-2" /></div>
-                    <div><label>Emergency Contact Name</label><input value={profileData.emergencyContact.name} onChange={(e) => updateField("emergencyContact.name", e.target.value)} className="w-full border rounded-lg px-3 py-2" /></div>
-                    <div><label>Emergency Contact Relation</label><input value={profileData.emergencyContact.relationship} onChange={(e) => updateField("emergencyContact.relationship", e.target.value)} className="w-full border rounded-lg px-3 py-2" /></div>
-                    <div><label>Emergency Phone</label><input value={profileData.emergencyContact.phone} onChange={(e) => updateField("emergencyContact.phone", e.target.value)} className="w-full border rounded-lg px-3 py-2" /></div>
+                <div className="space-y-5">
+                  <div className="border-b border-gray-200 pb-2 flex items-center gap-2">
+                    <HeartPulse size={20} className="text-[#FF9933]" />
+                    <h3 className="text-lg font-semibold text-gray-800">Health Information</h3>
                   </div>
-                  {/* Doctor specific */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <div><label className="block text-sm font-medium text-gray-700 mb-1">Blood Group</label><select name="bloodGroup" value={profileData.bloodGroup} onChange={handleInputChange} className="w-full border border-gray-300 rounded-lg px-3 py-2"><option value="">Select</option><option>A+</option><option>A-</option><option>B+</option><option>B-</option><option>O+</option><option>O-</option><option>AB+</option><option>AB-</option></select></div>
+                    <div><label className="block text-sm font-medium text-gray-700 mb-1">Allergies</label><input name="allergies" value={profileData.allergies} onChange={handleInputChange} className="w-full border border-gray-300 rounded-lg px-3 py-2" /></div>
+                    <div className="md:col-span-2"><label className="block text-sm font-medium text-gray-700 mb-1">Medical History</label><textarea name="medicalHistory" value={profileData.medicalHistory} onChange={handleInputChange} rows={2} className="w-full border border-gray-300 rounded-lg px-3 py-2" /></div>
+                    <div><label className="block text-sm font-medium text-gray-700 mb-1">Emergency Contact Name</label><input value={profileData.emergencyContact.name} onChange={(e) => updateField("emergencyContact.name", e.target.value)} className="w-full border border-gray-300 rounded-lg px-3 py-2" /></div>
+                    <div><label className="block text-sm font-medium text-gray-700 mb-1">Relationship</label><input value={profileData.emergencyContact.relationship} onChange={(e) => updateField("emergencyContact.relationship", e.target.value)} className="w-full border border-gray-300 rounded-lg px-3 py-2" /></div>
+                    <div><label className="block text-sm font-medium text-gray-700 mb-1">Emergency Phone</label><input value={profileData.emergencyContact.phone} onChange={(e) => updateField("emergencyContact.phone", e.target.value)} className="w-full border border-gray-300 rounded-lg px-3 py-2" /></div>
+                  </div>
                   {user?.role === "DOCTOR" && (
-                    <div className="mt-4 pt-4 border-t">
-                      <h4 className="font-medium">Doctor Profile</h4>
-                      <div className="grid grid-cols-2 gap-4 mt-2">
-                        <div><label>Specialization</label><input value={profileData.doctorProfile.specialization} onChange={(e) => updateField("doctorProfile.specialization", e.target.value)} className="w-full border rounded-lg px-3 py-2" /></div>
-                        <div><label>Experience (years)</label><input type="number" value={profileData.doctorProfile.experienceYears} onChange={(e) => updateField("doctorProfile.experienceYears", parseInt(e.target.value))} className="w-full border rounded-lg px-3 py-2" /></div>
-                        <div><label>Consultation Fee (₹)</label><input type="number" value={profileData.doctorProfile.consultationFee} onChange={(e) => updateField("doctorProfile.consultationFee", parseFloat(e.target.value))} className="w-full border rounded-lg px-3 py-2" /></div>
-                        <div><label>Registration Number</label><input value={profileData.doctorProfile.registrationNumber} onChange={(e) => updateField("doctorProfile.registrationNumber", e.target.value)} className="w-full border rounded-lg px-3 py-2" /></div>
+                    <div className="mt-5 pt-4 border-t border-gray-200">
+                      <h4 className="font-semibold text-gray-800 mb-3">Doctor Professional Details</h4>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                        <div><label className="block text-sm font-medium text-gray-700 mb-1">Specialization</label><input value={profileData.doctorProfile.specialization} onChange={(e) => updateField("doctorProfile.specialization", e.target.value)} className="w-full border border-gray-300 rounded-lg px-3 py-2" /></div>
+                        <div><label className="block text-sm font-medium text-gray-700 mb-1">Experience (years)</label><input type="number" value={profileData.doctorProfile.experienceYears} onChange={(e) => updateField("doctorProfile.experienceYears", parseInt(e.target.value))} className="w-full border border-gray-300 rounded-lg px-3 py-2" /></div>
+                        <div><label className="block text-sm font-medium text-gray-700 mb-1">Consultation Fee (₹)</label><input type="number" value={profileData.doctorProfile.consultationFee} onChange={(e) => updateField("doctorProfile.consultationFee", parseFloat(e.target.value))} className="w-full border border-gray-300 rounded-lg px-3 py-2" /></div>
+                        <div><label className="block text-sm font-medium text-gray-700 mb-1">Registration Number</label><input value={profileData.doctorProfile.registrationNumber} onChange={(e) => updateField("doctorProfile.registrationNumber", e.target.value)} className="w-full border border-gray-300 rounded-lg px-3 py-2" /></div>
                       </div>
                     </div>
                   )}
                   {user?.role === "TEACHER" && (
-                    <div className="mt-4 pt-4 border-t">
-                      <h4 className="font-medium">Teacher Profile</h4>
-                      <div className="grid grid-cols-2 gap-4 mt-2">
-                        <div><label>Specialization</label><input value={profileData.teacherProfile.specialization} onChange={(e) => updateField("teacherProfile.specialization", e.target.value)} className="w-full border rounded-lg px-3 py-2" /></div>
-                        <div><label>Experience (years)</label><input type="number" value={profileData.teacherProfile.experienceYears} onChange={(e) => updateField("teacherProfile.experienceYears", parseInt(e.target.value))} className="w-full border rounded-lg px-3 py-2" /></div>
-                        <div className="col-span-2"><label>Qualifications (comma separated)</label><input value={profileData.teacherProfile.qualifications.join(",")} onChange={(e) => handleArrayChange("teacherProfile.qualifications", e.target.value)} className="w-full border rounded-lg px-3 py-2" /></div>
+                    <div className="mt-5 pt-4 border-t border-gray-200">
+                      <h4 className="font-semibold text-gray-800 mb-3">Teacher Professional Details</h4>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                        <div><label className="block text-sm font-medium text-gray-700 mb-1">Specialization</label><input value={profileData.teacherProfile.specialization} onChange={(e) => updateField("teacherProfile.specialization", e.target.value)} className="w-full border border-gray-300 rounded-lg px-3 py-2" /></div>
+                        <div><label className="block text-sm font-medium text-gray-700 mb-1">Experience (years)</label><input type="number" value={profileData.teacherProfile.experienceYears} onChange={(e) => updateField("teacherProfile.experienceYears", parseInt(e.target.value))} className="w-full border border-gray-300 rounded-lg px-3 py-2" /></div>
+                        <div className="md:col-span-2"><label className="block text-sm font-medium text-gray-700 mb-1">Qualifications (comma separated)</label><input value={profileData.teacherProfile.qualifications.join(",")} onChange={(e) => handleArrayChange("teacherProfile.qualifications", e.target.value)} className="w-full border border-gray-300 rounded-lg px-3 py-2" /></div>
                       </div>
                     </div>
                   )}
@@ -434,79 +458,97 @@ export default function ProfilePage() {
 
               {/* Agriculture Tab */}
               {activeTab === "agriculture" && (
-                <div className="space-y-4">
-                  <h3 className="text-lg font-semibold border-b pb-2">Agriculture / Farmer Profile</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div><label>Land Size (acres)</label><input type="number" value={profileData.farmerProfile.landSize} onChange={(e) => updateField("farmerProfile.landSize", parseFloat(e.target.value))} className="w-full border rounded-lg px-3 py-2" /></div>
-                    <div><label>Crops (comma separated)</label><input value={profileData.farmerProfile.crops.join(",")} onChange={(e) => handleArrayChange("farmerProfile.crops", e.target.value)} className="w-full border rounded-lg px-3 py-2" /></div>
-                    <div><label>Farming Type</label><select value={profileData.farmerProfile.farmingType} onChange={(e) => updateField("farmerProfile.farmingType", e.target.value)} className="w-full border rounded-lg px-3 py-2"><option value="conventional">Conventional</option><option value="organic">Organic</option><option value="mixed">Mixed</option></select></div>
-                    <div><label className="flex items-center gap-2"><input type="checkbox" checked={profileData.farmerProfile.isContractFarmer} onChange={(e) => updateField("farmerProfile.isContractFarmer", e.target.checked)} /> Contract Farmer</label></div>
-                    <div><label>Farm Location</label><input value={profileData.farmerProfile.farmLocation} onChange={(e) => updateField("farmerProfile.farmLocation", e.target.value)} className="w-full border rounded-lg px-3 py-2" /></div>
-                    <div><label>Irrigation Type</label><input value={profileData.farmerProfile.irrigationType} onChange={(e) => updateField("farmerProfile.irrigationType", e.target.value)} className="w-full border rounded-lg px-3 py-2" /></div>
+                <div className="space-y-5">
+                  <div className="border-b border-gray-200 pb-2 flex items-center gap-2">
+                    <Sprout size={20} className="text-[#FF9933]" />
+                    <h3 className="text-lg font-semibold text-gray-800">Farmer / Agriculture Profile</h3>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <div><label className="block text-sm font-medium text-gray-700 mb-1">Land Size (acres)</label><input type="number" value={profileData.farmerProfile.landSize} onChange={(e) => updateField("farmerProfile.landSize", parseFloat(e.target.value))} className="w-full border border-gray-300 rounded-lg px-3 py-2" /></div>
+                    <div><label className="block text-sm font-medium text-gray-700 mb-1">Crops (comma separated)</label><input value={profileData.farmerProfile.crops.join(",")} onChange={(e) => handleArrayChange("farmerProfile.crops", e.target.value)} className="w-full border border-gray-300 rounded-lg px-3 py-2" /></div>
+                    <div><label className="block text-sm font-medium text-gray-700 mb-1">Farming Type</label><select value={profileData.farmerProfile.farmingType} onChange={(e) => updateField("farmerProfile.farmingType", e.target.value)} className="w-full border border-gray-300 rounded-lg px-3 py-2"><option value="conventional">Conventional</option><option value="organic">Organic</option><option value="mixed">Mixed</option></select></div>
+                    <div className="flex items-center pt-6"><label className="flex items-center gap-2"><input type="checkbox" checked={profileData.farmerProfile.isContractFarmer} onChange={(e) => updateField("farmerProfile.isContractFarmer", e.target.checked)} className="w-4 h-4 text-[#FF9933]" /> <span className="text-sm text-gray-700">Contract Farmer</span></label></div>
+                    <div><label className="block text-sm font-medium text-gray-700 mb-1">Farm Location</label><input value={profileData.farmerProfile.farmLocation} onChange={(e) => updateField("farmerProfile.farmLocation", e.target.value)} className="w-full border border-gray-300 rounded-lg px-3 py-2" /></div>
+                    <div><label className="block text-sm font-medium text-gray-700 mb-1">Irrigation Type</label><input value={profileData.farmerProfile.irrigationType} onChange={(e) => updateField("farmerProfile.irrigationType", e.target.value)} className="w-full border border-gray-300 rounded-lg px-3 py-2" /></div>
                   </div>
                 </div>
               )}
 
               {/* Finance & Bank Tab */}
               {activeTab === "finance" && (
-                <div className="space-y-4">
-                  <h3 className="text-lg font-semibold border-b pb-2">Bank Account Details</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div><label>Account Holder Name</label><input value={profileData.bankAccount.accountHolderName} onChange={(e) => updateField("bankAccount.accountHolderName", e.target.value)} className="w-full border rounded-lg px-3 py-2" /></div>
-                    <div><label>Account Number</label><input value={profileData.bankAccount.accountNumber} onChange={(e) => updateField("bankAccount.accountNumber", e.target.value)} className="w-full border rounded-lg px-3 py-2" /></div>
-                    <div><label>IFSC Code</label><input value={profileData.bankAccount.ifsc} onChange={(e) => updateField("bankAccount.ifsc", e.target.value)} className="w-full border rounded-lg px-3 py-2" /></div>
-                    <div><label>Bank Name</label><input value={profileData.bankAccount.bankName} onChange={(e) => updateField("bankAccount.bankName", e.target.value)} className="w-full border rounded-lg px-3 py-2" /></div>
+                <div className="space-y-5">
+                  <div className="border-b border-gray-200 pb-2 flex items-center gap-2">
+                    <Wallet size={20} className="text-[#FF9933]" />
+                    <h3 className="text-lg font-semibold text-gray-800">Bank Account Details</h3>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <div><label className="block text-sm font-medium text-gray-700 mb-1">Account Holder Name</label><input value={profileData.bankAccount.accountHolderName} onChange={(e) => updateField("bankAccount.accountHolderName", e.target.value)} className="w-full border border-gray-300 rounded-lg px-3 py-2" /></div>
+                    <div><label className="block text-sm font-medium text-gray-700 mb-1">Account Number</label><input value={profileData.bankAccount.accountNumber} onChange={(e) => updateField("bankAccount.accountNumber", e.target.value)} className="w-full border border-gray-300 rounded-lg px-3 py-2" /></div>
+                    <div><label className="block text-sm font-medium text-gray-700 mb-1">IFSC Code</label><input value={profileData.bankAccount.ifsc} onChange={(e) => updateField("bankAccount.ifsc", e.target.value)} className="w-full border border-gray-300 rounded-lg px-3 py-2" /></div>
+                    <div><label className="block text-sm font-medium text-gray-700 mb-1">Bank Name</label><input value={profileData.bankAccount.bankName} onChange={(e) => updateField("bankAccount.bankName", e.target.value)} className="w-full border border-gray-300 rounded-lg px-3 py-2" /></div>
                   </div>
                 </div>
               )}
 
               {/* IT Tab */}
               {activeTab === "it" && (
-                <div className="space-y-4">
-                  <h3 className="text-lg font-semibold border-b pb-2">IT / Development Profile</h3>
-                  <div className="grid grid-cols-1 gap-4">
-                    <div><label>Project Type</label><input value={profileData.itProfile.projectType} onChange={(e) => updateField("itProfile.projectType", e.target.value)} className="w-full border rounded-lg px-3 py-2" /></div>
-                    <div><label>Tech Stack</label><input value={profileData.itProfile.techStack} onChange={(e) => updateField("itProfile.techStack", e.target.value)} className="w-full border rounded-lg px-3 py-2" /></div>
-                    <div><label>Experience Level</label><input value={profileData.itProfile.experience} onChange={(e) => updateField("itProfile.experience", e.target.value)} className="w-full border rounded-lg px-3 py-2" /></div>
+                <div className="space-y-5">
+                  <div className="border-b border-gray-200 pb-2 flex items-center gap-2">
+                    <MonitorSmartphone size={20} className="text-[#FF9933]" />
+                    <h3 className="text-lg font-semibold text-gray-800">IT / Development Profile</h3>
+                  </div>
+                  <div className="grid grid-cols-1 gap-5">
+                    <div><label className="block text-sm font-medium text-gray-700 mb-1">Project Type</label><input value={profileData.itProfile.projectType} onChange={(e) => updateField("itProfile.projectType", e.target.value)} className="w-full border border-gray-300 rounded-lg px-3 py-2" /></div>
+                    <div><label className="block text-sm font-medium text-gray-700 mb-1">Tech Stack</label><input value={profileData.itProfile.techStack} onChange={(e) => updateField("itProfile.techStack", e.target.value)} className="w-full border border-gray-300 rounded-lg px-3 py-2" /></div>
+                    <div><label className="block text-sm font-medium text-gray-700 mb-1">Experience Level</label><input value={profileData.itProfile.experience} onChange={(e) => updateField("itProfile.experience", e.target.value)} className="w-full border border-gray-300 rounded-lg px-3 py-2" /></div>
                   </div>
                 </div>
               )}
 
               {/* Social & Media Tab */}
               {activeTab === "social" && (
-                <div className="space-y-4">
-                  <h3 className="text-lg font-semibold border-b pb-2">Social & Media Profile</h3>
-                  <div className="grid grid-cols-1 gap-4">
-                    <div><label>Username</label><input value={profileData.socialProfile.username} onChange={(e) => updateField("socialProfile.username", e.target.value)} className="w-full border rounded-lg px-3 py-2" /></div>
-                    <div><label>Bio</label><textarea rows={2} value={profileData.socialProfile.bio} onChange={(e) => updateField("socialProfile.bio", e.target.value)} className="w-full border rounded-lg px-3 py-2" /></div>
-                    <div><label>Interests</label><input value={profileData.socialProfile.interests} onChange={(e) => updateField("socialProfile.interests", e.target.value)} className="w-full border rounded-lg px-3 py-2" /></div>
+                <div className="space-y-5">
+                  <div className="border-b border-gray-200 pb-2 flex items-center gap-2">
+                    <Users size={20} className="text-[#FF9933]" />
+                    <h3 className="text-lg font-semibold text-gray-800">Social & Media Profile</h3>
                   </div>
-                  <div className="mt-4 pt-4 border-t">
-                    <label className="flex items-center gap-2"><input type="checkbox" checked={profileData.mediaCreatorProfile.isCreator} onChange={(e) => updateField("mediaCreatorProfile.isCreator", e.target.checked)} /> Enable Media Creator (Post news / videos)</label>
-                    {profileData.mediaCreatorProfile.isCreator && <input placeholder="Media Creator Bio" value={profileData.mediaCreatorProfile.bio} onChange={(e) => updateField("mediaCreatorProfile.bio", e.target.value)} className="mt-2 w-full border rounded-lg px-3 py-2" />}
+                  <div className="grid grid-cols-1 gap-5">
+                    <div><label className="block text-sm font-medium text-gray-700 mb-1">Username</label><input value={profileData.socialProfile.username} onChange={(e) => updateField("socialProfile.username", e.target.value)} className="w-full border border-gray-300 rounded-lg px-3 py-2" /></div>
+                    <div><label className="block text-sm font-medium text-gray-700 mb-1">Bio</label><textarea rows={2} value={profileData.socialProfile.bio} onChange={(e) => updateField("socialProfile.bio", e.target.value)} className="w-full border border-gray-300 rounded-lg px-3 py-2" /></div>
+                    <div><label className="block text-sm font-medium text-gray-700 mb-1">Interests</label><input value={profileData.socialProfile.interests} onChange={(e) => updateField("socialProfile.interests", e.target.value)} className="w-full border border-gray-300 rounded-lg px-3 py-2" /></div>
+                  </div>
+                  <div className="mt-4 pt-4 border-t border-gray-200">
+                    <label className="flex items-center gap-2"><input type="checkbox" checked={profileData.mediaCreatorProfile.isCreator} onChange={(e) => updateField("mediaCreatorProfile.isCreator", e.target.checked)} className="w-4 h-4 text-[#FF9933]" /> <span className="text-sm font-medium text-gray-700">Enable Media Creator (Post news / videos)</span></label>
+                    {profileData.mediaCreatorProfile.isCreator && <div className="mt-3"><label className="block text-sm font-medium text-gray-700 mb-1">Media Creator Bio</label><input placeholder="Tell about your media work" value={profileData.mediaCreatorProfile.bio} onChange={(e) => updateField("mediaCreatorProfile.bio", e.target.value)} className="w-full border border-gray-300 rounded-lg px-3 py-2" /></div>}
                   </div>
                 </div>
               )}
 
               {/* Seller Tab */}
               {activeTab === "seller" && (
-                <div className="space-y-4">
-                  <h3 className="text-lg font-semibold border-b pb-2">E‑commerce Seller Profile</h3>
+                <div className="space-y-5">
+                  <div className="border-b border-gray-200 pb-2 flex items-center gap-2">
+                    <Store size={20} className="text-[#FF9933]" />
+                    <h3 className="text-lg font-semibold text-gray-800">E‑commerce Seller Profile</h3>
+                  </div>
                   <div className="space-y-4">
-                    <label className="flex items-center gap-2"><input type="checkbox" checked={profileData.sellerProfile.isSeller} onChange={(e) => updateField("sellerProfile.isSeller", e.target.checked)} /> I want to sell products on the platform</label>
+                    <label className="flex items-center gap-2"><input type="checkbox" checked={profileData.sellerProfile.isSeller} onChange={(e) => updateField("sellerProfile.isSeller", e.target.checked)} className="w-4 h-4 text-[#FF9933]" /> <span className="text-sm font-medium text-gray-700">I want to sell products on the platform</span></label>
                     {profileData.sellerProfile.isSeller && (
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div><label>Store Name</label><input value={profileData.sellerProfile.storeName} onChange={(e) => updateField("sellerProfile.storeName", e.target.value)} className="w-full border rounded-lg px-3 py-2" /></div>
-                        <div><label>GST Number</label><input value={profileData.sellerProfile.gstNumber} onChange={(e) => updateField("sellerProfile.gstNumber", e.target.value)} className="w-full border rounded-lg px-3 py-2" /></div>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                        <div><label className="block text-sm font-medium text-gray-700 mb-1">Store Name</label><input value={profileData.sellerProfile.storeName} onChange={(e) => updateField("sellerProfile.storeName", e.target.value)} className="w-full border border-gray-300 rounded-lg px-3 py-2" /></div>
+                        <div><label className="block text-sm font-medium text-gray-700 mb-1">GST Number</label><input value={profileData.sellerProfile.gstNumber} onChange={(e) => updateField("sellerProfile.gstNumber", e.target.value)} className="w-full border border-gray-300 rounded-lg px-3 py-2" /></div>
                       </div>
                     )}
                   </div>
                 </div>
               )}
-
-              {/* Hidden submit button for form submission (already handled by main save button) */}
             </form>
           </div>
+        </div>
+
+        {/* Footer note */}
+        <div className="mt-8 text-center text-xs text-gray-400 border-t border-gray-200 pt-4">
+          <p>Samraddh Bharat Foundation – Digital India Initiative | Secure & Encrypted</p>
         </div>
       </div>
     </div>

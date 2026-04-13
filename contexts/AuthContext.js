@@ -4,10 +4,9 @@ import { createContext, useState, useContext, useEffect } from "react";
 import api from "@/config/api";
 
 const AuthContext = createContext();
-
 export const useAuth = () => useContext(AuthContext);
 
-// Get initial user from localStorage synchronously
+// Read initial user from localStorage synchronously (no delay)
 const getInitialUser = () => {
   if (typeof window === "undefined") return null;
   const stored = localStorage.getItem("user");
@@ -35,7 +34,7 @@ export function AuthProvider({ children }) {
 
       api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
 
-      // Try to refresh user data from backend (optional)
+      // Optional: refresh user data from backend – but never clear on error
       try {
         const res = await api.get("/users/profile");
         if (res.data.user) {
@@ -43,13 +42,8 @@ export function AuthProvider({ children }) {
           localStorage.setItem("user", JSON.stringify(res.data.user));
         }
       } catch (err) {
-        console.warn("Profile fetch failed, keeping stored user:", err.message);
-        // If token is invalid (401), clear storage
-        if (err.response?.status === 401) {
-          localStorage.clear();
-          delete api.defaults.headers.common["Authorization"];
-          setUser(null);
-        }
+        console.warn("Profile refresh failed, keeping stored user:", err.message);
+        // Keep the existing user from localStorage – do NOT logout
       } finally {
         setLoading(false);
       }
@@ -57,20 +51,6 @@ export function AuthProvider({ children }) {
 
     verifyToken();
   }, []);
-
-  const register = async (userData) => {
-    try {
-      const res = await api.post("/users/register", userData);
-      const { token, user } = res.data;
-      localStorage.setItem("token", token);
-      localStorage.setItem("user", JSON.stringify(user));
-      api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-      setUser(user);
-      return { success: true };
-    } catch (error) {
-      return { success: false, error: error?.response?.data?.message || "Registration failed" };
-    }
-  };
 
   const login = async (email, password) => {
     try {
@@ -90,6 +70,20 @@ export function AuthProvider({ children }) {
     localStorage.clear();
     delete api.defaults.headers.common["Authorization"];
     setUser(null);
+  };
+
+  const register = async (userData) => {
+    try {
+      const res = await api.post("/users/register", userData);
+      const { token, user } = res.data;
+      localStorage.setItem("token", token);
+      localStorage.setItem("user", JSON.stringify(user));
+      api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+      setUser(user);
+      return { success: true };
+    } catch (error) {
+      return { success: false, error: error?.response?.data?.message || "Registration failed" };
+    }
   };
 
   return (
