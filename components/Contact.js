@@ -1,264 +1,254 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import React, { useState } from "react";
+import {
+    FaPhoneAlt,
+    FaEnvelope,
+    FaMapMarkerAlt,
+    FaClock,
+    FaTractor,
+    FaGraduationCap,
+    FaWallet,
+    FaHeartbeat,
+    FaLaptopCode,
+    FaNewspaper,
+} from "react-icons/fa";
 
-export default function ContactContent() {
+export default function ContactPage() {
     const [formData, setFormData] = useState({
-        name: '',
-        email: '',
-        subject: '',
-        message: ''
+        name: "",
+        email: "",
+        module: "",
+        message: "",
     });
-    const [formStatus, setFormStatus] = useState({ submitted: false, error: false, message: '' });
-    const [activeFAQ, setActiveFAQ] = useState(null);
+    const [status, setStatus] = useState("");
 
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
 
-    const handleSubmit = async (e) => {
+    const handleSubmit = (e) => {
         e.preventDefault();
         if (!formData.name || !formData.email || !formData.message) {
-            setFormStatus({ submitted: true, error: true, message: 'Please fill in all required fields.' });
+            setStatus("Please fill all required fields.");
             return;
         }
-        setFormStatus({ submitted: true, error: false, message: 'Sending...' });
-        try {
-            await new Promise(resolve => setTimeout(resolve, 1000));
-            console.log('Form submitted:', formData);
-            setFormStatus({ submitted: true, error: false, message: 'Thank you! Your message has been sent.' });
-            setFormData({ name: '', email: '', subject: '', message: '' });
-            setTimeout(() => setFormStatus({ submitted: false, error: false, message: '' }), 5000);
-        } catch (err) {
-            setFormStatus({ submitted: true, error: true, message: 'Something went wrong. Please try again later.' });
-        }
+        setStatus("Sending...");
+        setTimeout(() => {
+            setStatus("Your message has been sent. Our team will respond within 24 hours.");
+            setFormData({ name: "", email: "", module: "", message: "" });
+        }, 800);
     };
 
-    const faqData = [
-        {
-            question: 'What are the operating hours of the helpline?',
-            answer: 'Our helpline (1800-123-4567) is available 24/7, 365 days a year to assist you with any government services.'
-        },
-        {
-            question: 'How quickly can I expect a response to my email?',
-            answer: 'We strive to respond to all email inquiries within 24-48 business hours. For urgent matters, please call our helpline.'
-        },
-        {
-            question: 'Is Samraddh Bharat Foundation an official government body?',
-            answer: 'Yes, Samraddh Bharat Foundation is a Government of India initiative dedicated to providing accessible citizen services.'
-        },
-        {
-            question: 'What services can I avail through this portal?',
-            answer: 'You can access various government schemes, apply for certificates, track application status, and get assistance with public welfare programs.'
-        },
-        {
-            question: 'Are there any charges for using the helpline or email support?',
-            answer: 'All our support services are completely free of charge. We are here to help citizens without any cost.'
-        }
+    const modules = [
+        { name: "Agriculture", icon: FaTractor, color: "orange", desc: "Crop advisories, market prices, subsidies" },
+        { name: "Education", icon: FaGraduationCap, color: "orange", desc: "Courses, scholarships, digital classrooms" },
+        { name: "Finance", icon: FaWallet, color: "orange", desc: "Loans, banking, insurance schemes" },
+        { name: "Healthcare", icon: FaHeartbeat, color: "orange", desc: "Telemedicine, records, wellness programs" },
+        { name: "IT Services", icon: FaLaptopCode, color: "orange", desc: "E-governance, digital infrastructure" },
+        { name: "News", icon: FaNewspaper, color: "orange", desc: "Real-time updates, policy announcements" },
     ];
 
-    const toggleFAQ = (index) => {
-        setActiveFAQ(activeFAQ === index ? null : index);
-    };
-
     return (
-        <section id="contact" className="px-4 bg-white">
-            <div className="container mx-auto max-w-5xl">
-                {/* Hero Section */}
-                <motion.div
-                    initial={{ opacity: 0, y: 30 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.6 }}
-                    viewport={{ once: true }}
-                    className="text-center mb-12"
-                >
-                    <h2 className="text-4xl md:text-5xl font-bold text-[#1e3a5f] mb-4">Need Assistance?</h2>
-                    <p className="text-gray-600 text-lg max-w-2xl mx-auto">
-                        Samraddh Bharat Helpline is available 24/7 to assist you with any government services
+        <div className="bg-white min-h-screen">
+            <div className="relative bg-gray-900 text-white overflow-hidden">
+                <div className="max-w-7xl mx-auto px-6 py-20 md:py-28 flex justify-center">
+
+                    <div className="max-w-3xl text-center">
+
+                        <div className="inline-flex items-center justify-center gap-2 rounded-full px-4 py-1.5 mb-6">
+                            <span className="w-2 h-2 rounded-full bg-orange-500"></span>
+                            <span className="text-xs font-bold tracking-wider text-orange-300">
+                                SUPPORT HUB
+                            </span>
+                        </div>
+
+                        <h1 className="text-3xl md:text-5xl font-extrabold leading-tight">
+                            We're Here to <span className="text-orange-400">Support You</span>
+                        </h1>
+
+                        <div className="w-20 h-1 bg-orange-500 my-6 mx-auto"></div>
+
+                        <p className="text-gray-300 text-lg max-w-2xl mx-auto">
+                            Dedicated assistance for all six pillars of Samraddh Bharat. Whether you're a farmer, student,
+                            entrepreneur, or citizen – our team is ready to help.
+                        </p>
+
+                    </div>
+                </div>
+            </div>
+
+            {/* Module Support Cards */}
+            <div className="max-w-7xl mx-auto px-6 py-16">
+                <div className="text-center mb-12">
+                    <h2 className="text-3xl md:text-4xl font-bold text-gray-900">
+                        Support for Every <span className="text-orange-600">Module</span>
+                    </h2>
+                    <div className="w-16 h-0.5 bg-orange-500 mx-auto mt-4 mb-4"></div>
+                    <p className="text-gray-600 max-w-2xl mx-auto">
+                        Choose your service below – get specialised help for your specific needs.
                     </p>
-                </motion.div>
+                </div>
 
-                {/* Quick Contact Buttons */}
-                <motion.div
-                    className="grid md:grid-cols-2 gap-6 mb-16"
-                    initial={{ opacity: 0, y: 20 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5, delay: 0.1 }}
-                    viewport={{ once: true }}
-                >
-                    <a
-                        href="tel:18001234567"
-                        className="bg-gradient-to-r from-[#ff8c42] to-[#ff6b22] text-white px-8 py-4 rounded-xl font-semibold text-lg shadow-lg hover:shadow-xl transition-all text-center"
-                    >
-                        📞 Call Helpline: 1800-123-4567
-                    </a>
-                    <a
-                        href="mailto:support@samraddhbharat.gov.in"
-                        className="border-2 border-[#1e3a5f] text-[#1e3a5f] px-8 py-4 rounded-xl font-semibold text-lg hover:bg-[#1e3a5f] hover:text-white transition-all text-center"
-                    >
-                        ✉️ Send Email
-                    </a>
-                </motion.div>
-
-                {/* Contact Form & Info Grid */}
-                <div className="grid md:grid-cols-2 gap-12 mb-20">
-                    {/* Form Section */}
-                    <motion.div
-                        className="bg-white rounded-2xl shadow-xl p-6 md:p-8 border border-gray-100"
-                        initial={{ opacity: 0, x: -30 }}
-                        whileInView={{ opacity: 1, x: 0 }}
-                        transition={{ duration: 0.6, delay: 0.2 }}
-                        viewport={{ once: true }}
-                    >
-                        <h3 className="text-2xl font-bold text-[#1e3a5f] mb-6">Send us a Message</h3>
-                        <form onSubmit={handleSubmit} className="space-y-5">
-                            <div>
-                                <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
-                                    Full Name <span className="text-red-500">*</span>
-                                </label>
-                                <input
-                                    type="text"
-                                    id="name"
-                                    name="name"
-                                    value={formData.name}
-                                    onChange={handleChange}
-                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#ff8c42] focus:border-transparent transition"
-                                    required
-                                />
-                            </div>
-                            <div>
-                                <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
-                                    Email Address <span className="text-red-500">*</span>
-                                </label>
-                                <input
-                                    type="email"
-                                    id="email"
-                                    name="email"
-                                    value={formData.email}
-                                    onChange={handleChange}
-                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#ff8c42] focus:border-transparent transition"
-                                    required
-                                />
-                            </div>
-                            <div>
-                                <label htmlFor="subject" className="block text-sm font-medium text-gray-700 mb-1">
-                                    Subject
-                                </label>
-                                <input
-                                    type="text"
-                                    id="subject"
-                                    name="subject"
-                                    value={formData.subject}
-                                    onChange={handleChange}
-                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#ff8c42] focus:border-transparent transition"
-                                />
-                            </div>
-                            <div>
-                                <label htmlFor="message" className="block text-sm font-medium text-gray-700 mb-1">
-                                    Message <span className="text-red-500">*</span>
-                                </label>
-                                <textarea
-                                    id="message"
-                                    name="message"
-                                    rows="5"
-                                    value={formData.message}
-                                    onChange={handleChange}
-                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#ff8c42] focus:border-transparent transition"
-                                    required
-                                ></textarea>
-                            </div>
-                            <button
-                                type="submit"
-                                className="w-full bg-gradient-to-r from-[#1e3a5f] to-[#2c4e7a] text-white font-semibold py-3 rounded-lg hover:shadow-lg transition-all transform hover:scale-[1.02]"
+                <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {modules.map((mod, idx) => {
+                        const Icon = mod.icon;
+                        return (
+                            <div
+                                key={idx}
+                                className="group shadow-xl   bg-white border border-gray-200 rounded-2xl p-6 hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
                             >
-                                Send Message
-                            </button>
-                            {formStatus.submitted && (
-                                <div className={`text-center p-3 rounded-lg ${formStatus.error ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'}`}>
-                                    {formStatus.message}
+                                <div className="flex items-center gap-4 mb-4">
+                                    <div className="w-12 h-12 rounded-xl bg-orange-100 flex items-center justify-center text-orange-600 group-hover:bg-orange-500 group-hover:text-white transition">
+                                        <Icon className="w-6 h-6" />
+                                    </div>
+                                    <h3 className="text-xl font-bold text-gray-800">{mod.name}</h3>
                                 </div>
-                            )}
-                        </form>
-                    </motion.div>
+                                <p className="text-gray-500 text-sm leading-relaxed mb-4">{mod.desc}</p>
+                                <button className="text-orange-600 text-sm font-semibold flex items-center gap-1 group-hover:gap-2 transition-all">
+                                </button>
+                            </div>
+                        );
+                    })}
+                </div>
+            </div>
 
-                    {/* Info Card */}
-                    <motion.div
-                        className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-2xl p-6 md:p-8 shadow-xl"
-                        initial={{ opacity: 0, x: 30 }}
-                        whileInView={{ opacity: 1, x: 0 }}
-                        transition={{ duration: 0.6, delay: 0.3 }}
-                        viewport={{ once: true }}
-                    >
-                        <h3 className="text-2xl font-bold text-[#1e3a5f] mb-6">Get in Touch</h3>
-                        <div className="space-y-6">
-                            <div className="flex items-start gap-4">
-                                <div className="bg-[#ff8c42] p-3 rounded-full text-white">📍</div>
+            {/* Contact Options – Form + Info Cards (equal height) */}
+            <div className="bg-gray-50 py-20">
+                <div className="max-w-7xl mx-auto px-6">
+                    <div className="grid lg:grid-cols-2 gap-10 items-stretch">
+                        {/* Contact Form */}
+                        <div className="bg-white rounded-2xl shadow-md p-6 md:p-8 border border-gray-100 flex flex-col h-full">
+                            <div className="mb-6">
+                                <h3 className="text-2xl font-bold text-gray-800">Send us a Message</h3>
+                                <div className="w-12 h-0.5 bg-orange-500 mt-2"></div>
+                            </div>
+                            <form onSubmit={handleSubmit} className="flex flex-col gap-5 flex-1">
                                 <div>
-                                    <h4 className="font-semibold text-gray-800">Visit Us</h4>
-                                    <p className="text-gray-600">Samraddh Bharat Foundation,<br />Government of India,<br />New Delhi - 110001</p>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Full Name *</label>
+                                    <input
+                                        type="text"
+                                        name="name"
+                                        value={formData.name}
+                                        onChange={handleChange}
+                                        className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-400 focus:border-orange-400 outline-none transition"
+                                        required
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Email Address *</label>
+                                    <input
+                                        type="email"
+                                        name="email"
+                                        value={formData.email}
+                                        onChange={handleChange}
+                                        className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-400 focus:border-orange-400 outline-none transition"
+                                        required
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Select Module</label>
+                                    <select
+                                        name="module"
+                                        value={formData.module}
+                                        onChange={handleChange}
+                                        className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-400 outline-none"
+                                    >
+                                        <option value="">General Inquiry</option>
+                                        <option value="Agriculture">Agriculture Support</option>
+                                        <option value="Education">Education Support</option>
+                                        <option value="Finance">Finance Support</option>
+                                        <option value="Healthcare">Healthcare Support</option>
+                                        <option value="IT">IT Services Support</option>
+                                        <option value="News">News & Media Support</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Message *</label>
+                                    <textarea
+                                        rows="2"
+                                        name="message"
+                                        value={formData.message}
+                                        onChange={handleChange}
+                                        className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-400 outline-none resize-none"
+                                        required
+                                    ></textarea>
+                                </div>
+                                <button
+                                    type="submit"
+                                    className="w-full bg-orange-600 hover:bg-orange-700 text-white font-semibold py-3 rounded-lg transition transform hover:scale-[1.01] shadow-md"
+                                >
+                                    Submit Query
+                                </button>
+                                {status && (
+                                    <p className="text-sm text-center text-gray-600 bg-gray-100 p-2 rounded">{status}</p>
+                                )}
+                            </form>
+                        </div>
+
+                        {/* Contact Info Cards – equal height via flex column */}
+                        <div className="flex flex-col gap-5 h-full">
+                            <div className="bg-white rounded-2xl shadow-md p-6 flex items-start gap-4 border border-gray-100 hover:shadow-lg transition">
+                                <div className="bg-orange-100 p-3 rounded-full text-orange-600">
+                                    <FaPhoneAlt className="w-5 h-5" />
+                                </div>
+                                <div>
+                                    <h4 className="font-bold text-gray-800 text-lg">Helpline Numbers</h4>
+                                    <p className="text-gray-600 text-sm mt-1">
+                                        Toll Free: <span className="font-semibold">1800-123-4567</span><br />
+                                        Direct: +91-11-23456789
+                                    </p>
                                 </div>
                             </div>
-                            <div className="flex items-start gap-4">
-                                <div className="bg-[#ff8c42] p-3 rounded-full text-white">📞</div>
+
+                            <div className="bg-white rounded-2xl shadow-md p-6 flex items-start gap-4 border border-gray-100 hover:shadow-lg transition">
+                                <div className="bg-orange-100 p-3 rounded-full text-orange-600">
+                                    <FaEnvelope className="w-5 h-5" />
+                                </div>
                                 <div>
-                                    <h4 className="font-semibold text-gray-800">Helpline Numbers</h4>
-                                    <p className="text-gray-600">Toll Free: 1800-123-4567<br />Office: +91-11-23456789</p>
+                                    <h4 className="font-bold text-gray-800 text-lg">Email Support</h4>
+                                    <p className="text-gray-600 text-sm mt-1 break-all">
+                                        support@samraddhbharat.gov.in<br />
+                                        grievance@samraddhbharat.gov.in
+                                    </p>
                                 </div>
                             </div>
-                            <div className="flex items-start gap-4">
-                                <div className="bg-[#ff8c42] p-3 rounded-full text-white">✉️</div>
+
+                            <div className="bg-white rounded-2xl shadow-md p-6 flex items-start gap-4 border border-gray-100 hover:shadow-lg transition">
+                                <div className="bg-orange-100 p-3 rounded-full text-orange-600">
+                                    <FaMapMarkerAlt className="w-5 h-5" />
+                                </div>
                                 <div>
-                                    <h4 className="font-semibold text-gray-800">Email Support</h4>
-                                    <p className="text-gray-600">support@samraddhbharat.gov.in<br />grievance@samraddhbharat.gov.in</p>
+                                    <h4 className="font-bold text-gray-800 text-lg">Central Office</h4>
+                                    <p className="text-gray-600 text-sm mt-1">
+                                        Samraddh Bharat Foundation<br />
+                                        Chhatisgarh - 110001
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div className="bg-white rounded-2xl shadow-md p-6 flex items-start gap-4 border border-gray-100 hover:shadow-lg transition">
+                                <div className="bg-orange-100 p-3 rounded-full text-orange-600">
+                                    <FaClock className="w-5 h-5" />
+                                </div>
+                                <div>
+                                    <h4 className="font-bold text-gray-800 text-lg">Working Hours</h4>
+                                    <p className="text-gray-600 text-sm mt-1">
+                                        Mon – Sat: 9:00 AM – 8:00 PM IST<br />
+                                        Sunday: Closed (Emergency helpline active)
+                                    </p>
                                 </div>
                             </div>
                         </div>
-                    </motion.div>
-                </div>
-
-                {/* FAQ Section */}
-                <motion.div
-                    className="mt-16"
-                    initial={{ opacity: 0, y: 30 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.6, delay: 0.4 }}
-                    viewport={{ once: true }}
-                >
-                    <h3 className="text-3xl font-bold text-center text-[#1e3a5f] mb-4">Frequently Asked Questions</h3>
-                    <p className="text-center text-gray-600 mb-12">Find quick answers to common queries</p>
-                    <div className="max-w-3xl mx-auto space-y-4">
-                        {faqData.map((faq, index) => (
-                            <div key={index} className="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden">
-                                <button
-                                    className="w-full text-left px-6 py-4 font-semibold text-gray-800 flex justify-between items-center hover:bg-gray-50 transition"
-                                    onClick={() => toggleFAQ(index)}
-                                >
-                                    <span>{faq.question}</span>
-                                    <span className="text-[#ff8c42] text-xl">
-                                        {activeFAQ === index ? '−' : '+'}
-                                    </span>
-                                </button>
-                                <AnimatePresence>
-                                    {activeFAQ === index && (
-                                        <motion.div
-                                            initial={{ height: 0, opacity: 0 }}
-                                            animate={{ height: 'auto', opacity: 1 }}
-                                            exit={{ height: 0, opacity: 0 }}
-                                            transition={{ duration: 0.3 }}
-                                            className="border-t border-gray-100"
-                                        >
-                                            <div className="px-6 py-4 text-gray-600 bg-gray-50">
-                                                {faq.answer}
-                                            </div>
-                                        </motion.div>
-                                    )}
-                                </AnimatePresence>
-                            </div>
-                        ))}
                     </div>
-                </motion.div>
+                </div>
             </div>
-        </section>
+
+            {/* Footer / Trust Badge */}
+            <div className="border-t border-gray-200 py-8 text-center text-gray-500 text-sm">
+                <p>🇮🇳 Samraddh Bharat – A Government of India Initiative | Digital India Partner</p>
+                <p className="mt-1">Secure, transparent, and citizen‑first support.</p>
+            </div>
+        </div>
     );
 }
