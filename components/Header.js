@@ -168,7 +168,7 @@ const Header = () => {
                             {/* ── Desktop Auth Buttons — hidden on mobile ── */}
                             <div className="hidden md:flex items-center gap-2">
                                 {isAuthenticated ? (
-                                    <>
+                                    <div>
                                         <button onClick={() => go("/services")}
                                             className="px-4 py-2 text-sm font-semibold text-white bg-[#138808] rounded-lg hover:bg-[#0a5c06] transition-colors focus:outline-none focus:ring-2 focus:ring-[#138808]">
                                             Dashboard
@@ -177,7 +177,7 @@ const Header = () => {
                                             className="px-4 py-2 text-sm font-semibold text-white bg-red-500 rounded-lg hover:bg-red-600 transition-colors focus:outline-none focus:ring-2 focus:ring-red-400">
                                             Logout
                                         </button>
-                                    </>
+                                    </div>
                                 ) : (
                                     <>
                                         <button onClick={() => go("/login")}
