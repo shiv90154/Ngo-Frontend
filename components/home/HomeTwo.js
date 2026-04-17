@@ -2,96 +2,71 @@
 import React from 'react';
 
 const STATS = [
-    { label: 'Live Users', value: '2,34,567+', icon: '👥' },
-    { label: "Today's Services", value: '1,23,456', icon: '⚡' },
-    { label: 'Satisfaction', value: '98.5%', icon: '😊' },
-    { label: 'Villages Covered', value: '1,25,000+', icon: '🏘️' },
+    { label: 'Active Citizen Records', value: '2,345,671', change: 'Aadhaar Verified' },
+    { label: 'Total Services Dispatched', value: '1,234,560', change: 'Across All Sectors' },
+    { label: 'Gram Panchayats Reached', value: '125,043', change: 'Nationwide Network' },
+    { label: 'Grievance Resolution', value: '98.5%', change: 'Under SLA Limits' },
 ];
 
 const HomeTwo = () => (
-    <>
-        {/* ── Stats Bar ── */}
-        <section className="relative -mt-14 z-20 container mx-auto px-4">
-            <div className="bg-white/95 backdrop-blur-md rounded-2xl shadow-2xl border border-gray-100 p-5 md:p-8">
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-6 divide-x-0 md:divide-x divide-gray-100">
-                    {STATS.map(({ label, value, icon }, idx) => (
-                        <div key={idx} className="text-center group px-4">
-                            <div className="text-3xl mb-1.5 group-hover:scale-110 transition-transform duration-200">
-                                {icon}
-                            </div>
-                            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">{label}</p>
-                            <p className="text-2xl md:text-3xl font-black text-[#138808]">{value}</p>
+    <div className="bg-white">
+
+        {/* Analytics Ribbon */}
+        <section className="bg-gray-100 border-b border-gray-300">
+            <div className="govt-container">
+                <div className="flex items-center gap-2 py-3 border-b border-gray-200">
+                    <span className="w-2.5 h-2.5 rounded-full bg-[#FF7B00] animate-pulse" />
+                    <span className="text-[11px] font-bold text-gray-800 uppercase tracking-widest">Public Service Delivery Metrics</span>
+                </div>
+                <div className="grid grid-cols-2 lg:grid-cols-4 divide-x divide-y lg:divide-y-0 divide-gray-300">
+                    {STATS.map(({ label, value, change }, idx) => (
+                        <div key={idx} className="p-5 text-left bg-white lg:bg-transparent">
+                            <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-1.5">{label}</p>
+                            <p className="text-2xl font-black text-[#FF7B00] mb-1">{value}</p>
+                            <p className="text-[10px] text-gray-600 font-semibold">{change}</p>
                         </div>
                     ))}
                 </div>
             </div>
         </section>
 
-        {/* ── Mission Section ── */}
-        <section className="py-24 px-4 bg-white">
-            <div className="container mx-auto max-w-6xl">
-                <div className="grid md:grid-cols-2 gap-16 items-center">
-                    <div>
-                        {/* Tricolor accent */}
-                        <div className="flex gap-1 mb-5">
-                            <span className="w-10 h-1.5 rounded-full bg-[#FF9933]" />
-                            <span className="w-10 h-1.5 rounded-full bg-gray-200" />
-                            <span className="w-10 h-1.5 rounded-full bg-[#138808]" />
-                        </div>
-                        <h2 className="text-4xl md:text-5xl font-black text-gray-900 mb-6 leading-tight">
-                            Welcome to<br />
-                            <span className="text-[#138808]">Samraddh Bharat</span><br />
-                            Foundation
+        {/* Vision Statement */}
+        <section className="py-16 govt-container">
+            <div className="govt-card p-10 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] bg-gray-50 border-t-8 border-t-[#1e293b]">
+                <div className="flex flex-col lg:flex-row gap-10 items-start">
+
+                    <div className="lg:w-1/3">
+                        <div className="h-2 w-16 bg-[#FF7B00] mb-5" />
+                        <h2 className="text-3xl font-bold text-gray-900 leading-tight uppercase tracking-tight">
+                            Core Mission <br />& Objective
                         </h2>
-                        <p className="text-gray-600 leading-relaxed text-lg mb-6">
-                            A unified digital ecosystem integrating <strong className="text-gray-800">Education, Healthcare,
-                                Agriculture, Finance, NGO operations,</strong> and Media into a single platform.
+                    </div>
+
+                    <div className="lg:w-2/3">
+                        <p className="text-sm font-semibold text-gray-700 leading-relaxed mb-4">
+                            The Samraddh Bharat Foundation operates a unified digital infrastructure dedicated to providing seamless, transparent, and direct service delivery to every Indian citizen.
                         </p>
-                        <p className="text-gray-600 leading-relaxed">
-                            Our mission is to provide seamless, transparent, and efficient delivery of services
-                            from village to state level, ensuring{' '}
-                            <strong className="text-[#FF9933]">"Sabka Saath, Sabka Vikas, Sabka Vishwas"</strong>{' '}
-                            through technology-driven governance.
+                        <p className="text-[13px] text-gray-600 leading-relaxed mb-8">
+                            We bridge the accessibility gap between urban administration and rural participation. By concentrating exclusively on 6 high-impact sectors, we guarantee that administrative efficiency reaches the Gram Panchayat level without discrepancy.
                         </p>
 
-                        <div className="mt-8 grid grid-cols-2 gap-4">
+                        <div className="flex justify-around gap-6 pt-6 border-t border-gray-300">
                             {[
-                                { num: '50+', txt: 'Digital Services' },
-                                { num: '8', txt: 'Core Modules' },
-                                { num: '28+', txt: 'States Covered' },
-                                { num: '24/7', txt: 'Support Active' },
+                                { num: '06', txt: 'Core Focus Sectors' },
+                                { num: 'DBT', txt: 'Direct Benefit Enabled' },
                             ].map(({ num, txt }) => (
-                                <div key={txt} className="flex items-center gap-3 bg-gray-50 rounded-xl px-4 py-3">
-                                    <span className="text-2xl font-black text-[#FF9933]">{num}</span>
-                                    <span className="text-sm font-semibold text-gray-600">{txt}</span>
+                                <div key={txt} className="flex flex-col">
+                                    <span className="block text-2xl font-black text-gray-900">{num}</span>
+                                    <span className="block text-[9px] font-bold text-[#FF7B00] uppercase tracking-widest mt-1">{txt}</span>
                                 </div>
                             ))}
                         </div>
                     </div>
 
-                    <div className="relative">
-                        <div className="rounded-2xl overflow-hidden shadow-2xl">
-                            <img
-                                src="https://images.pexels.com/photos/2284166/pexels-photo-2284166.jpeg?auto=compress&cs=tinysrgb&w=1200"
-                                alt="Indian village community"
-                                className="w-full h-auto object-cover hover:scale-105 transition-transform duration-700"
-                                loading="lazy"
-                            />
-                        </div>
-                        {/* Floating badge */}
-                        <div className="absolute -bottom-5 -left-5 bg-[#FF9933] text-white rounded-2xl p-4 shadow-xl">
-                            <p className="text-2xl font-black">2024</p>
-                            <p className="text-xs font-bold opacity-90">Founded</p>
-                        </div>
-                        <div className="absolute -top-5 -right-5 bg-[#138808] text-white rounded-2xl p-4 shadow-xl">
-                            <p className="text-2xl font-black">🏆</p>
-                            <p className="text-xs font-bold opacity-90">Govt. Certified</p>
-                        </div>
-                    </div>
                 </div>
             </div>
         </section>
-    </>
+    </div>
 );
 
 export default HomeTwo;

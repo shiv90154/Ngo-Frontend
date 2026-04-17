@@ -1,93 +1,59 @@
 'use client';
-import React, { useCallback } from 'react';
+import React from 'react';
 import { useRouter } from 'next/navigation';
-
-const ScrollIndicator = () => (
-    <div className="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce">
-        <div className="w-6 h-10 border-2 border-white/70 rounded-full flex justify-center pt-2">
-            <div className="w-1 h-2 bg-white/80 rounded-full" />
-        </div>
-    </div>
-);
 
 const HomeOne = () => {
     const router = useRouter();
 
-    const handleExplore = useCallback(() => {
-        document.getElementById('modules')?.scrollIntoView({ behavior: 'smooth' });
-    }, []);
-
-    const handleRegister = useCallback(() => router.push('/register'), [router]);
-
     return (
-        <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
-            {/* Background */}
-            <div className="absolute inset-0">
+        <section className="relative min-h-[75svh] flex items-center bg-gray-900 overflow-hidden">
+            
+            {/* Background Image requested by user */}
+            <div className="absolute inset-0 z-0">
                 <img
-                    src="https://images.pexels.com/photos/1261728/pexels-photo-1261728.jpeg?auto=compress&cs=tinysrgb&w=1600"
-                    alt="Indian village landscape"
-                    className="w-full h-full object-cover"
-                    loading="eager"
+                    src="https://images.pexels.com/photos/1261730/pexels-photo-1261730.jpeg?auto=compress&cs=tinysrgb&w=1920"
+                    alt="Indian context background"
+                    className="w-full h-full object-cover opacity-30"
                 />
-                {/* Dark gradient overlay */}
-                <div className="absolute inset-0 bg-gradient-to-br from-black/70 via-[#138808]/50 to-black/60" />
-                {/* Tricolor bottom glow */}
-                <div className="absolute bottom-0 left-0 right-0 h-1 flex">
-                    <div className="flex-1 bg-[#FF9933]" />
-                    <div className="flex-1 bg-white/60" />
-                    <div className="flex-1 bg-[#138808]" />
-                </div>
+                {/* Official Orange/Dark Overlay */}
+                <div className="absolute inset-0 bg-gradient-to-r from-gray-900 via-gray-900/90 to-transparent" />
+                <div className="absolute top-0 right-0 w-1/2 h-full bg-gradient-to-l from-[#FF7B00]/20 to-transparent mix-blend-multiply" />
             </div>
 
-            <div className="container mx-auto px-4 text-center relative z-10">
-                <div className="max-w-4xl mx-auto">
-                    {/* Badge */}
-                    <span className="inline-flex items-center mt-10 gap-2 px-5 py-2 bg-white/15 backdrop-blur-sm rounded-full text-white text-xs font-bold mb-8 tracking-widest uppercase border border-white/20">
-                        🇮🇳 Government of India Initiative
+            <div className="govt-container relative z-10 py-16">
+                <div className="max-w-2xl">
+                    <span className="inline-block px-3 py-1 mb-6 text-[10px] font-bold text-white bg-[#FF7B00] uppercase tracking-widest border border-[#cc6200] rounded-sm">
+                        National Integration Portal
                     </span>
 
-                    {/* Headline */}
-                    <h1 className="text-5xl sm:text-6xl md:text-8xl font-black text-white drop-shadow-2xl mb-4 leading-none tracking-tight">
-                        Samraddh<br />
-                        <span className="text-[#FF9933]">Bharat</span>
+                    <h1 className="text-4xl md:text-5xl lg:text-6xl font-black text-white leading-[1.1] mb-6 uppercase tracking-tight">
+                        Samraddh Bharat <br />
+                        <span className="text-[#FF7B00]">Foundation</span>
                     </h1>
 
-                    <p className="text-2xl md:text-3xl font-light text-white/90 mb-2 tracking-wide">
-                        समृद्ध भारत · विकसित भारत
-                    </p>
-                    <p className="text-base md:text-lg text-gray-200 mb-2 font-medium">
-                        Integrated Digital Management System
-                    </p>
-                    <p className="text-sm text-gray-300 mb-10">
-                        Web Portal + Mobile Application &nbsp;|&nbsp; Village to State Level Digital Governance
+                    <p className="text-lg text-gray-300 font-medium mb-12 max-w-xl leading-relaxed border-l-4 border-[#FF7B00] pl-4">
+                        A unified digital gateway providing transparent, high-speed administrative solutions and essential services to the rural and urban grass-roots level.
                     </p>
 
-                    {/* CTA Buttons */}
-                    <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                    <div className="flex flex-col sm:flex-row items-center gap-4">
                         <button
-                            onClick={handleExplore}
-                            className="px-8 py-3.5 rounded-xl font-bold text-base bg-white text-[#138808] hover:bg-gray-100 shadow-2xl transition-all duration-300 hover:scale-105 active:scale-95">
-                            Explore Modules ↓
+                            onClick={() => router.push('/register')}
+                            className="w-full sm:w-auto px-8 py-3.5 bg-[#FF7B00] text-white text-sm font-bold uppercase tracking-widest border-2 border-[#FF7B00] hover:bg-transparent hover:text-[#FF7B00] transition-colors rounded-sm"
+                        >
+                            Complete Registration
                         </button>
                         <button
-                            onClick={handleRegister}
-                            className="px-8 py-3.5 rounded-xl font-bold text-base border-2 border-white text-white hover:bg-white hover:text-[#138808] transition-all duration-300 hover:scale-105">
-                            Get Started Free →
+                            onClick={() => document.getElementById('modules')?.scrollIntoView({ behavior: 'smooth' })}
+                            className="w-full sm:w-auto px-8 py-3.5 bg-white/10 backdrop-blur-sm text-white text-sm font-bold uppercase tracking-widest border border-white/30 hover:bg-white hover:text-gray-900 transition-colors rounded-sm"
+                        >
+                            View Core Services
                         </button>
-                    </div>
-
-                    {/* Trust badges */}
-                    <div className="mt-12 flex flex-wrap justify-center gap-6">
-                        {['ISO 27001 Certified', '256-bit Encrypted', 'CERT-In Compliant'].map((badge) => (
-                            <span key={badge} className="flex items-center gap-1.5 text-xs text-white/80 bg-white/10 backdrop-blur-sm px-3 py-1.5 rounded-full border border-white/20">
-                                <span className="text-[#FF9933]">✓</span> {badge}
-                            </span>
-                        ))}
                     </div>
                 </div>
             </div>
 
-            <ScrollIndicator />
+            {/* Bottom Border */}
+            <div className="absolute bottom-0 left-0 right-0 h-[6px] bg-[#FF7B00] z-20" />
         </section>
     );
 };

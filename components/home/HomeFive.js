@@ -1,104 +1,82 @@
 'use client';
-import React, { useCallback } from 'react';
+import React from 'react';
 import { useRouter } from 'next/navigation';
 
 const INITIATIVES = [
-    { title: 'Digital Literacy Mission', desc: 'Empowering rural India with digital skills and computer education.', tag: 'Education', icon: '💻' },
-    { title: 'Ayushman Telehealth', desc: 'Affordable healthcare consultations via video and AI support.', tag: 'Healthcare', icon: '🏥' },
-    { title: 'Smart Kisan Samriddhi', desc: 'Real-time crop advisories and direct market access for farmers.', tag: 'Agriculture', icon: '🚜' },
-    { title: 'Jan Dhan Fintech', desc: 'Banking, AEPS, and micro-loans for every village citizen.', tag: 'Finance', icon: '💰' },
-    { title: 'Gramin Media Network', desc: 'Local news, live events, and monetization for content creators.', tag: 'Media', icon: '📡' },
-    { title: 'e-Panchayat ERP', desc: 'GST billing, project tracking, and digital governance for local bodies.', tag: 'CRM & IT', icon: '🏛️' },
+    { code: 'AGR-DBT', title: 'Farmer Subsidy Linkage', sector: 'Agriculture', status: 'Active' },
+    { code: 'EDU-RUR', title: 'Smart Class Deployment', sector: 'Education', status: 'In Progress' },
+    { code: 'HLT-TELE', title: 'Tele-Medicine Hubs', sector: 'Healthcare', status: 'Active' },
+    { code: 'FIN-AEPS', title: 'Aadhaar Payment Systems', sector: 'Finance', status: 'Active' },
 ];
-
-const TAG_COLORS = {
-    Education: { bg: '#FFF3E0', text: '#8B3A00' },
-    Healthcare: { bg: '#E8F5E9', text: '#0a5c06' },
-    Agriculture: { bg: '#FFF3E0', text: '#8B3A00' },
-    Finance: { bg: '#E8F5E9', text: '#0a5c06' },
-    Media: { bg: '#FFF3E0', text: '#8B3A00' },
-    'CRM & IT': { bg: '#E8F5E9', text: '#0a5c06' },
-};
-
-const InitiativeCard = React.memo(({ title, desc, tag, icon }) => {
-    const colors = TAG_COLORS[tag] || { bg: '#f3f4f6', text: '#374151' };
-    return (
-        <div className="bg-white rounded-2xl p-6 shadow-md hover:shadow-xl transition-all duration-300 group cursor-pointer border border-transparent hover:border-gray-100">
-            <div className="flex items-start gap-4">
-                <div className="text-3xl group-hover:scale-110 transition-transform duration-200 shrink-0">{icon}</div>
-                <div>
-                    <span className="inline-block text-[10px] font-black px-2.5 py-1 rounded-full tracking-wider uppercase"
-                        style={{ backgroundColor: colors.bg, color: colors.text }}>
-                        {tag}
-                    </span>
-                    <h3 className="text-base font-bold mt-2 mb-1 text-gray-800">{title}</h3>
-                    <p className="text-gray-500 text-sm leading-relaxed">{desc}</p>
-                </div>
-            </div>
-        </div>
-    );
-});
-InitiativeCard.displayName = 'InitiativeCard';
 
 const HomeFive = () => {
     const router = useRouter();
-    const goFranchise = useCallback(() => router.push('/franchise'), [router]);
 
     return (
-        <>
-            {/* ── Flagship Initiatives ── */}
-            <section className="py-24 px-4 bg-white">
-                <div className="container mx-auto">
-                    <div className="text-center mb-14">
-                        <div className="inline-flex gap-1.5 mb-5">
-                            <span className="w-8 h-1.5 rounded-full bg-[#FF9933]" />
-                            <span className="w-8 h-1.5 rounded-full bg-gray-200" />
-                            <span className="w-8 h-1.5 rounded-full bg-[#138808]" />
-                        </div>
-                        <h2 className="text-4xl md:text-5xl font-black text-gray-900 mb-4">Flagship Initiatives</h2>
-                        <p className="text-gray-500 max-w-2xl mx-auto text-lg">
-                            Transforming India — One initiative at a time
-                        </p>
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {INITIATIVES.map((item) => <InitiativeCard key={item.title} {...item} />)}
-                    </div>
-                </div>
-            </section>
-
-            {/* ── Franchise Highlight ── */}
-            <section className="py-16 px-4 bg-[#E8F5E9]">
-                <div className="container mx-auto max-w-4xl">
-                    <div className="bg-white rounded-3xl p-10 shadow-2xl text-center relative overflow-hidden">
-                        {/* Decorative circles */}
-                        <div className="absolute -top-10 -right-10 w-40 h-40 rounded-full bg-[#FF9933]/10" />
-                        <div className="absolute -bottom-10 -left-10 w-40 h-40 rounded-full bg-[#138808]/10" />
-
-                        <div className="relative z-10">
-                            <div className="inline-flex items-center justify-center w-16 h-16 bg-[#FF9933]/10 rounded-2xl mb-5 text-4xl">
-                                🤝
-                            </div>
-                            <h2 className="text-3xl md:text-4xl font-black text-gray-900 mb-3">
-                                Franchise & MLM System
-                            </h2>
-                            <p className="text-gray-500 text-lg mb-2">Multi-level income distribution</p>
-                            <div className="flex flex-wrap justify-center gap-4 mb-8 text-sm">
-                                {['Weekly Payouts', 'Team Hierarchy Earnings', 'Passive Income', 'Nationwide Network'].map((f) => (
-                                    <span key={f} className="flex items-center gap-1.5 bg-gray-50 border border-gray-100 px-3 py-1.5 rounded-full text-gray-600 font-medium">
-                                        <span className="text-[#138808]">✓</span> {f}
-                                    </span>
-                                ))}
-                            </div>
-                            <button onClick={goFranchise}
-                                className="px-10 py-3.5 rounded-xl font-bold text-white bg-gradient-to-r from-[#138808] to-[#0a5c06] hover:shadow-xl hover:scale-105 transition-all duration-300">
-                                Become a Partner →
+        <section className="bg-white py-16 border-b border-gray-300">
+            <div className="govt-container">
+                
+                {/* PPP Model Explanation */}
+                <div className="mb-12">
+                    <div className="flex flex-col md:flex-row bg-[#FF7B00] text-white rounded-sm overflow-hidden shadow-sm">
+                        <div className="md:w-3/4 p-8">
+                            <span className="block text-[10px] uppercase tracking-widest font-bold mb-2 text-white/80">Public-Private Partnership</span>
+                            <h2 className="text-2xl font-black mb-4 uppercase">Gram Panchayat Service Hubs</h2>
+                            <p className="text-sm font-medium mb-6 max-w-3xl leading-relaxed text-white/90">
+                                The Samraddh Bharat Foundation authorizes local individuals to serve as official nodal points. These Franchise hubs are empowered to distribute our 6 core services directly to the rural populace, ensuring last-mile delivery while earning official commission structures.
+                            </p>
+                            <button 
+                                onClick={() => router.push('/services/franchise')}
+                                className="px-6 py-2.5 bg-white text-[#FF7B00] text-xs font-bold uppercase tracking-widest hover:bg-gray-100 transition-colors rounded-sm"
+                            >
+                                Submit Hub Application
                             </button>
                         </div>
+                        <div className="md:w-1/4 bg-[#cc6200] p-8 flex flex-col justify-center border-l-4 border-white/20">
+                            <h3 className="text-4xl font-black mb-2">15,000+</h3>
+                            <p className="text-[11px] uppercase tracking-wider font-bold">Authorized Centers<br/>Nationwide</p>
+                        </div>
                     </div>
                 </div>
-            </section>
-        </>
+
+                {/* Status Table */}
+                <div>
+                    <h3 className="text-lg font-bold text-gray-900 uppercase mb-4 pl-2 border-l-4 border-[#FF7B00]">Real-Time Sector Deployments</h3>
+                    <div className="overflow-x-auto border border-gray-300 rounded-sm">
+                        <table className="w-full text-left bg-white">
+                            <thead className="bg-gray-100 border-b border-gray-300">
+                                <tr>
+                                    <th className="p-3 text-[11px] font-bold text-gray-700 uppercase tracking-wider border-r border-gray-200">Scheme Code</th>
+                                    <th className="p-3 text-[11px] font-bold text-gray-700 uppercase tracking-wider border-r border-gray-200">Initiative Detail</th>
+                                    <th className="p-3 text-[11px] font-bold text-gray-700 uppercase tracking-wider border-r border-gray-200">Associated Module</th>
+                                    <th className="p-3 text-[11px] font-bold text-gray-700 uppercase tracking-wider">Deployment Status</th>
+                                </tr>
+                            </thead>
+                            <tbody className="divide-y divide-gray-200">
+                                {INITIATIVES.map((item, idx) => (
+                                    <tr key={idx} className="hover:bg-gray-50">
+                                        <td className="p-3 text-gray-600 font-mono text-[11px] font-bold border-r border-gray-200">{item.code}</td>
+                                        <td className="p-3 font-bold text-gray-900 border-r border-gray-200 text-[13px] uppercase">{item.title}</td>
+                                        <td className="p-3 border-r border-gray-200">
+                                            <span className="bg-gray-100 px-2 py-1 text-[9px] font-bold tracking-widest text-[#FF7B00] uppercase border border-[#FF7B00]/20 rounded-sm">
+                                                {item.sector}
+                                            </span>
+                                        </td>
+                                        <td className="p-3">
+                                            <span className={`text-[10px] font-bold uppercase tracking-widest flex items-center gap-1.5 ${item.status === 'Active' ? 'text-green-700' : 'text-blue-700'}`}>
+                                                <div className={`w-2 h-2 rounded-full ${item.status === 'Active' ? 'bg-green-600' : 'bg-blue-600'}`} />
+                                                {item.status}
+                                            </span>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+        </section>
     );
 };
 

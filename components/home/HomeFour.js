@@ -1,135 +1,68 @@
 'use client';
-import React, { useCallback } from 'react';
-import { useRouter } from 'next/navigation';
+import React from 'react';
 
-const STEPS = [
-    { step: 1, title: 'Register', desc: 'Sign up with your mobile number or Aadhaar', icon: '📝', color: '#FF9933' },
-    { step: 2, title: 'Choose Service', desc: 'Select from 50+ digital services', icon: '🔍', color: '#138808' },
-    { step: 3, title: 'Get Benefits', desc: 'Receive certificates, payments, or assistance', icon: '🎁', color: '#FF9933' },
-];
-
-const PLANS = [
-    {
-        name: 'Education Plan', price: '₹300 – ₹600',
-        icon: '📚', popular: false,
-        features: ['Full course access', 'Live classes', 'Test series', 'Certificates'],
-        path: '/services/education',
-    },
-    {
-        name: 'Health Plan', price: '₹200 – ₹2200',
-        icon: '🩺', popular: true,
-        features: ['Doctor consultations', 'Health records', 'AI diagnostics', 'Medicine delivery'],
-        path: '/services/healthcare',
-    },
-    {
-        name: 'Agriculture Plan', price: '₹1200+',
-        icon: '🌾', popular: false,
-        features: ['Crop advisory', 'Market linkage', 'AI disease detection', 'Contract farming'],
-        path: '/services/agriculture',
-    },
+const WORKFLOW_STEPS = [
+    { num: 'Step I', phase: 'Enrollment', title: 'Aadhaar Based KYC', desc: 'Secure digital registration using biometric or OTP verification through UIADI protocols.' },
+    { num: 'Step II', phase: 'Selection', title: 'Sector Designation', desc: 'Identify required services across the 6 major hubs (Agriculture, Health, Edu, etc.).' },
+    { num: 'Step III', phase: 'Processing', title: 'Nodal Verification', desc: 'Applications are routed to the respective departmental desk for strict compliance checks.' },
+    { num: 'Step IV', phase: 'Execution', title: 'Direct Fulfillment', desc: 'Service execution, status updates, and digital certificates are issued to the citizen vault.' },
 ];
 
 const HomeFour = () => {
-    const router = useRouter();
-    const go = useCallback((path) => router.push(path), [router]);
-
     return (
-        <>
-            {/* ── How It Works ── */}
-            <section className="py-24 px-4 bg-white">
-                <div className="container mx-auto max-w-6xl">
-                    <div className="grid md:grid-cols-2 gap-16 items-center">
-                        <div>
-                            <div className="inline-flex gap-1.5 mb-5">
-                                <span className="w-8 h-1.5 rounded-full bg-[#FF9933]" />
-                                <span className="w-8 h-1.5 rounded-full bg-gray-200" />
-                                <span className="w-8 h-1.5 rounded-full bg-[#138808]" />
-                            </div>
-                            <h2 className="text-4xl md:text-5xl font-black text-gray-900 mb-4">How It Works</h2>
-                            <p className="text-gray-500 mb-10 text-lg">Simple steps to access government services online</p>
+        <section className="bg-gray-50 py-16 border-b border-gray-300">
+            <div className="govt-container">
+                
+                <div className="flex flex-col lg:flex-row gap-12 items-start">
+                    
+                    {/* Header Context */}
+                    <div className="lg:w-1/3">
+                        <div className="sticky top-24">
+                            <h2 className="text-2xl font-black text-gray-900 uppercase tracking-tight mb-4">
+                                Citizen Access <br />Workflow
+                            </h2>
+                            <p className="text-sm text-gray-600 font-medium mb-6">
+                                Strict administrative protocols ensure that all requests are verified, tracked, and delivered with 100% transparency. There are no hidden tiers; all verified citizens have equal access.
+                            </p>
+                            <ul className="space-y-3">
+                                {['No Intermediaries', 'End-to-End Encryption', 'SLAs strictly enforced'].map((item, i) => (
+                                    <li key={i} className="flex items-center gap-2 text-[11px] font-bold text-gray-700 uppercase tracking-wider">
+                                        <div className="w-2 h-2 bg-[#FF7B00]" /> {item}
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
+                    </div>
 
-                            <div className="space-y-5">
-                                {STEPS.map(({ step, title, desc, icon, color }) => (
-                                    <div key={step}
-                                        className="flex items-center gap-5 p-5 bg-gray-50 rounded-2xl shadow-sm hover:shadow-md transition-all group border border-transparent hover:border-gray-200">
-                                        <div className="relative shrink-0">
-                                            <div className="w-14 h-14 rounded-2xl flex items-center justify-center text-2xl group-hover:scale-110 transition-transform"
-                                                style={{ backgroundColor: `${color}18` }}>
-                                                {icon}
-                                            </div>
-                                            <span className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full text-white text-[10px] font-black flex items-center justify-center"
-                                                style={{ backgroundColor: color }}>
-                                                {step}
-                                            </span>
+                    {/* Timeline */}
+                    <div className="lg:w-2/3 w-full">
+                        <div className="bg-white border border-gray-300 rounded-sm shadow-sm">
+                            <div className="flex bg-[#1e293b] text-white p-4 border-b border-[#334155]">
+                                <h3 className="text-[12px] font-bold uppercase tracking-widest w-1/4">Phase</h3>
+                                <h3 className="text-[12px] font-bold uppercase tracking-widest w-3/4">Procedure Description</h3>
+                            </div>
+                            
+                            <div className="flex flex-col divide-y divide-gray-200">
+                                {WORKFLOW_STEPS.map((step, idx) => (
+                                    <div key={idx} className="flex flex-col sm:flex-row p-6 hover:bg-gray-50 transition-colors">
+                                        <div className="sm:w-1/4 mb-2 sm:mb-0">
+                                            <span className="block text-[10px] font-bold text-[#FF7B00] uppercase tracking-widest">{step.num}</span>
+                                            <span className="block text-sm font-bold text-gray-900">{step.phase}</span>
                                         </div>
-                                        <div>
-                                            <h3 className="text-lg font-bold text-gray-800">{title}</h3>
-                                            <p className="text-gray-500 text-sm">{desc}</p>
+                                        <div className="sm:w-3/4 border-l-0 sm:border-l-2 sm:border-[#FF7B00] sm:pl-5">
+                                            <h4 className="text-[15px] font-bold text-gray-900 mb-1">{step.title}</h4>
+                                            <p className="text-[13px] text-gray-600 font-medium">{step.desc}</p>
                                         </div>
                                     </div>
                                 ))}
                             </div>
                         </div>
-
-                        <div className="rounded-2xl overflow-hidden shadow-2xl">
-                            <img
-                                src="https://images.pexels.com/photos/4100010/pexels-photo-4100010.jpeg?auto=compress&cs=tinysrgb&w=1200"
-                                alt="Farmer using smartphone"
-                                className="w-full h-auto object-cover hover:scale-105 transition-transform duration-700"
-                                loading="lazy"
-                            />
-                        </div>
                     </div>
+
                 </div>
-            </section>
 
-            {/* ── Subscription Plans ── */}
-            <section className="py-24 px-4 ">
-                <div className="container mx-auto">
-                    <div className="text-center mb-14">
-                        <div className="inline-flex gap-1.5 mb-5">
-                            <span className="w-8 h-1.5 rounded-full bg-white" />
-                            <span className="w-8 h-1.5 rounded-full bg-white/50" />
-                            <span className="w-8 h-1.5 rounded-full bg-white" />
-                        </div>
-                        <h2 className="text-4xl md:text-5xl font-black  mb-4">Membership & Plans</h2>
-                        <p className="text- max-w-2xl mx-auto text-lg">
-                            Affordable plans for every citizen — Education, Health, Agriculture
-                        </p>
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
-                        {PLANS.map(({ name, price, icon, popular, features, path }) => (
-                            <div key={name}
-                                className={`relative bg-white rounded-2xl overflow-hidden shadow-xl transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl
-                                    ${popular ? 'ring-4 ring-white/60 scale-[1.02]' : ''}`}>
-                                {popular && (
-                                    <div className="absolute top-0 right-0 bg-[#138808] text-white text-[10px] font-black px-3 py-1.5 rounded-bl-xl tracking-widest uppercase">
-                                        Most Popular
-                                    </div>
-                                )}
-                                <div className="p-7 text-center">
-                                    <div className="text-5xl mb-3">{icon}</div>
-                                    <h3 className="text-xl font-black text-gray-800 mb-1">{name}</h3>
-                                    <div className="text-3xl font-black text-[#FF9933] my-3">{price}</div>
-                                    <ul className="text-left space-y-2 my-5">
-                                        {features.map((f) => (
-                                            <li key={f} className="flex items-center gap-2 text-sm text-gray-600">
-                                                <span className="text-[#138808] font-bold">✓</span> {f}
-                                            </li>
-                                        ))}
-                                    </ul>
-                                    <button onClick={() => go(path)}
-                                        className="w-full py-3 rounded-xl font-bold text-white bg-gradient-to-r from-[#FF9933] to-[#e6891c] hover:shadow-lg hover:scale-[1.02] transition-all duration-300">
-                                        Subscribe Now
-                                    </button>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            </section>
-        </>
+            </div>
+        </section>
     );
 };
 
