@@ -8,7 +8,6 @@ import {
   Sprout,
   Package,
   ShoppingCart,
-  IndianRupee,
   Loader2,
   ArrowRight,
   Activity,
@@ -16,6 +15,8 @@ import {
   Leaf,
   Store,
   ShieldCheck,
+  ScanSearch,
+  Brain,
 } from "lucide-react";
 
 export default function AgricultureHome() {
@@ -57,54 +58,10 @@ export default function AgricultureHome() {
     );
   }
 
-  const stats = dashboardData?.stats || {
-    totalCrops: 0,
-    totalProducts: 0,
-    totalOrders: 0,
-    totalRevenue: 0,
-  };
-
   const recentCrops = dashboardData?.recentCrops || [];
   const recentOrders = dashboardData?.recentOrders || [];
-  const activeProductsCount = dashboardData?.activeProducts || 0;
 
-  // Only contract farmers can see seller option
   const isContractFarmer = Boolean(user?.farmerProfile?.isContractFarmer);
-
-  const statCards = [
-    {
-      title: "Crops",
-      value: stats.totalCrops,
-      icon: Sprout,
-      iconBg: "bg-green-100",
-      iconColor: "text-green-700",
-      border: "border-green-200",
-    },
-    {
-      title: "Products",
-      value: activeProductsCount,
-      icon: Package,
-      iconBg: "bg-emerald-100",
-      iconColor: "text-emerald-700",
-      border: "border-emerald-200",
-    },
-    {
-      title: "Orders",
-      value: stats.totalOrders,
-      icon: ShoppingCart,
-      iconBg: "bg-lime-100",
-      iconColor: "text-lime-700",
-      border: "border-lime-200",
-    },
-    {
-      title: "Revenue",
-      value: `₹${Number(stats.totalRevenue || 0).toLocaleString()}`,
-      icon: IndianRupee,
-      iconBg: "bg-green-200",
-      iconColor: "text-green-800",
-      border: "border-green-300",
-    },
-  ];
 
   const quickActions = [
     {
@@ -131,49 +88,51 @@ export default function AgricultureHome() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#f4fbf4] via-[#f7faf7] to-[#eef8ee]">
-      <div className="flex h-1 w-full">
-        <div className="w-1/3 bg-[#FF9933]" />
-        <div className="w-1/3 bg-white" />
-        <div className="w-1/3 bg-[#138808]" />
-      </div>
-
-      <header className="border-b border-green-100 bg-white/95 backdrop-blur">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6 lg:px-8">
-          <div className="flex items-center gap-3">
-            <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#138808] shadow-sm">
-              <Sprout className="text-white" size={22} />
-            </div>
-
-            <div>
-              <h1 className="text-lg font-bold text-gray-900 sm:text-xl">
-                Agriculture Hub
-              </h1>
-              <p className="text-sm text-gray-600">
-                Welcome back,{" "}
-                <span className="font-semibold text-[#138808]">
-                  {user?.name || "Farmer"}
-                </span>
-              </p>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-3">
-            {isContractFarmer && (
-              <button
-                onClick={() => router.push("agriculture/seller/dashboard")}
-                className="inline-flex items-center gap-2 rounded-xl bg-[#138808] px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-green-700"
-              >
-                <ShieldCheck size={16} />
-                Seller Panel
-              </button>
-            )}
-
-            <button className="rounded-xl border border-green-100 bg-white p-2.5 text-gray-600 shadow-sm transition hover:bg-green-50">
-              <Bell size={17} />
-            </button>
-          </div>
+      <div className="sticky top-0 z-50">
+        <div className="flex h-1 w-full">
+          <div className="w-1/3 bg-[#FF9933]" />
+          <div className="w-1/3 bg-white" />
+          <div className="w-1/3 bg-[#138808]" />
         </div>
-      </header>
+
+        <header className="border-b border-green-100 bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/85">
+          <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6 lg:px-8">
+            <div className="flex items-center gap-3">
+              <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#138808] shadow-sm">
+                <Sprout className="text-white" size={22} />
+              </div>
+
+              <div>
+                <h1 className="text-lg font-bold text-gray-900 sm:text-xl">
+                  Agriculture Hub
+                </h1>
+                <p className="text-sm text-gray-600">
+                  Welcome back,{" "}
+                  <span className="font-semibold text-[#138808]">
+                    {user?.name || "Farmer"}
+                  </span>
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-3">
+              {isContractFarmer && (
+                <button
+                  onClick={() => router.push("agriculture/seller/dashboard")}
+                  className="inline-flex items-center gap-2 rounded-xl bg-[#138808] px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-green-700"
+                >
+                  <ShieldCheck size={16} />
+                  Seller Panel
+                </button>
+              )}
+
+              <button className="rounded-xl border border-green-100 bg-white p-2.5 text-gray-600 shadow-sm transition hover:bg-green-50">
+                <Bell size={17} />
+              </button>
+            </div>
+          </div>
+        </header>
+      </div>
 
       <main className="mx-auto max-w-7xl space-y-4 px-4 py-4 sm:px-6 lg:px-8">
         <section className="rounded-2xl border border-[#dbe7d8] bg-gradient-to-r from-[#eef8ee] to-[#fff8ef] p-4 shadow-sm">
@@ -184,42 +143,14 @@ export default function AgricultureHome() {
                 Dashboard Overview
               </p>
               <h2 className="text-lg font-bold text-gray-900 sm:text-xl">
-                Manage crops, products, and orders in one place
+                Manage crops, marketplace, and smart farming tools in one place
               </h2>
               <p className="mt-1 max-w-2xl text-sm text-gray-600">
-                Track activity and access important actions quickly.
+                Access day-to-day farming actions and upcoming AI-powered
+                features quickly.
               </p>
             </div>
           </div>
-        </section>
-
-        <section className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          {statCards.map((item, index) => {
-            const Icon = item.icon;
-            return (
-              <div
-                key={index}
-                className={`rounded-2xl border ${item.border} bg-white p-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md`}
-              >
-                <div className="flex items-start justify-between gap-2">
-                  <div className="min-w-0">
-                    <p className="truncate text-sm font-medium text-gray-500">
-                      {item.title}
-                    </p>
-                    <h3 className="mt-1 truncate text-lg font-bold text-gray-900 xl:text-xl">
-                      {item.value}
-                    </h3>
-                  </div>
-
-                  <div
-                    className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${item.iconBg}`}
-                  >
-                    <Icon className={item.iconColor} size={18} />
-                  </div>
-                </div>
-              </div>
-            );
-          })}
         </section>
 
         <section className="rounded-2xl border border-green-100 bg-white p-4 shadow-sm">
@@ -259,6 +190,33 @@ export default function AgricultureHome() {
                 </button>
               );
             })}
+          </div>
+        </section>
+
+        <section className="rounded-2xl border border-emerald-100 bg-gradient-to-r from-[#f3fff4] via-white to-[#eefcf0] p-4 shadow-sm">
+          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+            <div className="max-w-2xl">
+              <p className="mb-2 inline-flex items-center gap-2 rounded-full bg-white px-3 py-1 text-xs font-semibold text-emerald-700 shadow-sm">
+                <Brain size={14} />
+                AI Analysis
+              </p>
+              <h2 className="text-lg font-bold text-gray-900 sm:text-xl">
+                Detect crop diseases with AI
+              </h2>
+              <p className="mt-1 text-sm text-gray-600">
+                Upload crop images and get AI-assisted disease insights,
+                detection support, and faster action recommendations. This tool
+                can help farmers identify possible crop issues early.
+              </p>
+            </div>
+
+            <button
+              onClick={() => router.push("/agriculture/crop-disease-detection")}
+              className="inline-flex items-center justify-center gap-2 rounded-2xl bg-[#138808] px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-green-700"
+            >
+              <ScanSearch size={18} />
+              Open AI Disease Detection
+            </button>
           </div>
         </section>
 

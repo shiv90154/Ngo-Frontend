@@ -40,6 +40,15 @@ export default function EditSellerProductView() {
         imageUrl: "",
         isOrganic: false
     });
+    const unitOptions = [
+        "kg",
+        "litre",
+        "piece",
+        "bundle",
+        "dozen",
+        "tonne",
+        "bag"
+    ];
 
     useEffect(() => {
         if (authLoading) return;
@@ -206,18 +215,22 @@ export default function EditSellerProductView() {
                         </div>
 
                         <div>
-                            <label className="mb-2 block text-sm font-semibold text-slate-700">
+                            <label className="mb-1.5 block text-sm font-semibold text-slate-700">
                                 Unit
                             </label>
-                            <input
-                                type="text"
+                            <select
                                 name="unit"
                                 value={formData.unit}
                                 onChange={handleChange}
-                                placeholder="kg, litre, piece"
-                                className="h-11 w-full rounded-xl border border-slate-200 bg-white px-4 text-sm outline-none focus:border-[#2f6b45] focus:ring-4 focus:ring-[#2f6b45]/10"
-                                required
-                            />
+                                className="h-11 w-full rounded-xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-[#2f6b45] focus:ring-4 focus:ring-[#2f6b45]/10"
+                            >
+                                {unitOptions.map((item) => (
+                                    <option key={item} value={item}>
+                                        {item.charAt(0).toUpperCase() + item.slice(1)}
+                                    </option>
+                                ))}
+                            </select>
+
                         </div>
 
                         <div>

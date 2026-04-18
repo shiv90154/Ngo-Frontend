@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import axios from 'axios';
 import { toast, ToastContainer } from 'react-toastify';
@@ -79,6 +79,11 @@ const Marketplace = ({
     const [error, setError] = useState(null);
     const [wishlist, setWishlist] = useState([]);
 
+    // Quantity modal state
+    const [showQuantityModal, setShowQuantityModal] = useState(false);
+    const [quantityProduct, setQuantityProduct] = useState(null);
+    const [quantityInput, setQuantityInput] = useState(1);
+
     const authToken =
         token || (typeof window !== 'undefined' ? localStorage.getItem('token') : null);
 
@@ -136,6 +141,7 @@ const Marketplace = ({
         fetchCart();
     }, []);
 
+    // --- STOCK-VALIDATED ADD TO CART ---
     const addToCart = async (product, quantity = 1) => {
         if (!authToken) {
             toast.warning('Please login to add items to cart');
@@ -143,13 +149,28 @@ const Marketplace = ({
             return;
         }
 
-        const safeQuantity = Math.max(1, toNumber(quantity, 1));
-        const productId = product.id || product._id;
-        const existing = cart.find(item => item.productId === productId);
+        const safeQuantity = Math.max(1, Math.floor(toNumber(quantity, 1)));
+        const productId = String(product.id || product._id);
+        const availableStock = toNumber(product.quantity, 0);
+
+        if (safeQuantity > availableStock) {
+            toast.error(`Only ${availableStock} ${product.unit} available. Cannot add ${safeQuantity}.`);
+            return;
+        }
+
+        const existing = cart.find(
+            item => String(item.productId) === productId
+        );
+        const existingQuantity = existing ? toNumber(existing.quantity, 0) : 0;
+
+        if (existing && existingQuantity + safeQuantity > availableStock) {
+            toast.error(`You already have ${existingQuantity} in cart. Only ${availableStock - existingQuantity} more available.`);
+            return;
+        }
 
         if (existing) {
-            await updateCartItem(productId, existing.quantity + safeQuantity);
-            toast.success(`Updated quantity for ${product.name}`);
+            await updateCartItem(productId, existingQuantity + safeQuantity);
+            toast.success(`Added ${safeQuantity} more ${product.name} to cart`);
             return;
         }
 
@@ -165,10 +186,20 @@ const Marketplace = ({
             });
 
             if (data.success) {
-                const normalized = normalizeCartItem(data.data, product);
+                const normalized = normalizeCartItem(
+                    {
+                        ...data.data,
+                        product,
+                        productId,
+                        quantity: safeQuantity, // force selected quantity
+                        price: toNumber(product.price, 0),
+                        name: product.name
+                    },
+                    product
+                );
 
                 setCart(prev => [...prev, normalized]);
-                toast.success(`${product.name} added to cart`);
+                toast.success(`${safeQuantity} × ${product.name} added to cart`);
             }
         } catch (err) {
             console.error(err);
@@ -252,6 +283,36 @@ const Marketplace = ({
         setWishlist(prev =>
             prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]
         );
+    };
+
+    // Quantity modal handlers
+    const openQuantityModal = (product) => {
+        setQuantityProduct(product);
+        setQuantityInput(1);
+        setShowQuantityModal(true);
+    };
+
+    const closeQuantityModal = () => {
+        setShowQuantityModal(false);
+        setQuantityProduct(null);
+        setQuantityInput(1);
+    };
+
+    const handleQuantityConfirm = () => {
+        if (!quantityProduct) return;
+        const qty = Math.max(1, Math.floor(toNumber(quantityInput, 1)));
+        addToCart(quantityProduct, qty);
+        closeQuantityModal();
+    };
+
+    // Helper to get max available for modal (respecting current cart)
+    const getMaxAvailableForProduct = (product) => {
+        const availableStock = toNumber(product?.quantity, 0);
+        const productId = product?.id || product?._id;
+        const existingCartItem = cart.find(item => item.productId === productId);
+        const alreadyInCart = existingCartItem ? toNumber(existingCartItem.quantity, 0) : 0;
+        // User can add up to (stock - alreadyInCart)
+        return Math.max(0, availableStock - alreadyInCart);
     };
 
     const filteredProducts = useMemo(() => {
@@ -384,7 +445,7 @@ const Marketplace = ({
                                     >
                                         <option value="all">All Categories</option>
                                         {categories.map(cat => (
-                                            <option key={cat} value={cat}>{cat}</option>
+                                            <option key={cat} value={cat}>{cat.charAt(0).toUpperCase() + cat.slice(1)}</option>
                                         ))}
                                     </select>
                                 </div>
@@ -436,6 +497,8 @@ const Marketplace = ({
                                     const productId = product.id || product._id;
                                     const inCart = cart.some(i => i.productId === productId);
                                     const inWish = wishlist.includes(productId);
+                                    const availableStock = toNumber(product.quantity, 0);
+                                    const isOutOfStock = availableStock === 0;
 
                                     return (
                                         <div
@@ -477,6 +540,12 @@ const Marketplace = ({
                                                         In cart
                                                     </span>
                                                 )}
+
+                                                {isOutOfStock && (
+                                                    <span className="absolute inset-x-0 bottom-0 bg-black/60 py-1 text-center text-[10px] font-bold text-white backdrop-blur-sm">
+                                                        Out of Stock
+                                                    </span>
+                                                )}
                                             </div>
 
                                             <div className="flex flex-col gap-1 p-3">
@@ -510,13 +579,17 @@ const Marketplace = ({
                                                     </div>
                                                     <div className="flex items-center gap-1.5 text-[11px] text-slate-600">
                                                         <Package size={11} />
-                                                        {toNumber(product.quantity, 0)} {product.unit} left
+                                                        {availableStock} {product.unit} left
                                                     </div>
                                                 </div>
 
                                                 <button
-                                                    onClick={() => addToCart(product, 1)}
-                                                    className="flex min-h-[38px] w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-b from-[#2f6b45] to-[#234d36] px-3 py-2 text-xs font-bold text-white shadow-sm transition hover:-translate-y-0.5 sm:text-sm"
+                                                    onClick={() => !isOutOfStock && openQuantityModal(product)}
+                                                    disabled={isOutOfStock}
+                                                    className={`flex min-h-[38px] w-full items-center justify-center gap-2 rounded-xl px-3 py-2 text-xs font-bold text-white shadow-sm transition hover:-translate-y-0.5 sm:text-sm ${isOutOfStock
+                                                        ? 'cursor-not-allowed bg-slate-400'
+                                                        : 'bg-gradient-to-b from-[#2f6b45] to-[#234d36]'
+                                                        }`}
                                                 >
                                                     {inCart ? (
                                                         <>
@@ -538,6 +611,80 @@ const Marketplace = ({
                         )}
                     </div>
                 </div>
+
+                {/* Quantity Selection Modal with Stock Limit */}
+                {showQuantityModal && quantityProduct && (() => {
+                    const maxAvailable = getMaxAvailableForProduct(quantityProduct);
+                    const isDisabled = !quantityInput || quantityInput <= 0 || quantityInput > maxAvailable;
+                    return (
+                        <div
+                            className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-sm"
+                            onClick={closeQuantityModal}
+                        >
+                            <div
+                                className="w-full max-w-sm rounded-2xl bg-white p-5 shadow-2xl"
+                                onClick={e => e.stopPropagation()}
+                            >
+                                <div className="mb-4 flex items-center justify-between">
+                                    <h3 className="text-lg font-bold text-slate-900">
+                                        Select Quantity
+                                    </h3>
+                                    <button
+                                        onClick={closeQuantityModal}
+                                        className="flex h-7 w-7 items-center justify-center rounded-full border border-slate-200 bg-slate-50"
+                                    >
+                                        <X size={14} />
+                                    </button>
+                                </div>
+
+                                <p className="mb-3 text-sm text-slate-600">
+                                    {quantityProduct.name}
+                                </p>
+
+                                <div className="mb-4">
+                                    <label className="mb-1 block text-xs font-semibold text-slate-500">
+                                        Quantity ({quantityProduct.unit})
+                                    </label>
+                                    <input
+                                        type="number"
+                                        min="1"
+                                        max={maxAvailable}
+                                        step="1"
+                                        value={quantityInput}
+                                        onChange={e => setQuantityInput(e.target.value)}
+                                        className="h-12 w-full rounded-xl border border-slate-200 px-4 text-center text-lg font-bold text-slate-900 outline-none focus:border-[#2f6b45] focus:ring-2 focus:ring-[#2f6b45]/20"
+                                    />
+                                    <div className="mt-2 flex justify-between text-[11px]">
+                                        <span className="text-slate-400">
+                                            Available: {maxAvailable} {quantityProduct.unit}
+                                        </span>
+                                        {quantityInput > maxAvailable && (
+                                            <span className="text-red-500">
+                                                Exceeds available stock
+                                            </span>
+                                        )}
+                                    </div>
+                                </div>
+
+                                <div className="flex gap-3">
+                                    <button
+                                        onClick={closeQuantityModal}
+                                        className="flex-1 rounded-xl border border-slate-200 bg-white py-2.5 text-sm font-bold text-slate-600 transition hover:bg-slate-50"
+                                    >
+                                        Cancel
+                                    </button>
+                                    <button
+                                        disabled={isDisabled}
+                                        onClick={handleQuantityConfirm}
+                                        className="flex-1 rounded-xl bg-gradient-to-b from-[#2f6b45] to-[#234d36] py-2.5 text-sm font-bold text-white shadow-sm transition hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-50"
+                                    >
+                                        Add to Cart
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    );
+                })()}
 
                 {showCart && (
                     <div
@@ -584,66 +731,81 @@ const Marketplace = ({
                                         </button>
                                     </div>
                                 ) : (
-                                    cart.map(item => (
-                                        <div
-                                            key={item._id || item.productId}
-                                            className="flex gap-3 rounded-2xl border border-slate-200 bg-white p-3 shadow-sm"
-                                        >
-                                            <div className="flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-gradient-to-b from-green-50 to-slate-100">
-                                                {item.product?.imageUrl ? (
-                                                    <img
-                                                        src={item.product.imageUrl}
-                                                        alt=""
-                                                        className="h-full w-full object-cover"
-                                                    />
-                                                ) : (
-                                                    <Package size={20} className="text-slate-400" />
-                                                )}
-                                            </div>
-
-                                            <div className="min-w-0 flex-1">
-                                                <div className="flex items-start justify-between gap-2">
-                                                    <h4 className="line-clamp-2 text-sm font-bold leading-snug text-slate-900">
-                                                        {item.product?.name || item.name}
-                                                    </h4>
-                                                    <span className="shrink-0 text-sm font-bold text-slate-900">
-                                                        ₹{(toNumber(item.price, 0) * toNumber(item.quantity, 0)).toLocaleString()}
-                                                    </span>
+                                    cart.map(item => {
+                                        const productStock = item.product?.quantity ? toNumber(item.product.quantity, 0) : Infinity;
+                                        return (
+                                            <div
+                                                key={item._id || item.productId}
+                                                className="flex gap-3 rounded-2xl border border-slate-200 bg-white p-3 shadow-sm"
+                                            >
+                                                <div className="flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-gradient-to-b from-green-50 to-slate-100">
+                                                    {item.product?.imageUrl ? (
+                                                        <img
+                                                            src={item.product.imageUrl}
+                                                            alt=""
+                                                            className="h-full w-full object-cover"
+                                                        />
+                                                    ) : (
+                                                        <Package size={20} className="text-slate-400" />
+                                                    )}
                                                 </div>
 
-                                                <p className="mb-2 mt-1 text-[11px] font-semibold text-slate-500">
-                                                    ₹{toNumber(item.price, 0)} / {item.product?.unit || 'kg'}
-                                                </p>
+                                                <div className="min-w-0 flex-1">
+                                                    <div className="flex items-start justify-between gap-2">
+                                                        <h4 className="line-clamp-2 text-sm font-bold leading-snug text-slate-900">
+                                                            {item.product?.name || item.name}
+                                                        </h4>
+                                                        <span className="shrink-0 text-sm font-bold text-slate-900">
+                                                            ₹{(toNumber(item.price, 0) * toNumber(item.quantity, 0)).toLocaleString()}
+                                                        </span>
+                                                    </div>
 
-                                                <div className="flex flex-wrap items-center gap-2">
-                                                    <button
-                                                        className="flex h-7 w-7 items-center justify-center rounded-full border border-slate-200 bg-white"
-                                                        onClick={() => updateCartItem(item.productId, item.quantity - 1)}
-                                                    >
-                                                        <Minus size={11} />
-                                                    </button>
+                                                    <p className="mb-2 mt-1 text-[11px] font-semibold text-slate-500">
+                                                        ₹{toNumber(item.price, 0)} / {item.product?.unit || 'kg'}
+                                                    </p>
 
-                                                    <span className="min-w-[18px] text-center text-sm font-bold text-slate-900">
-                                                        {item.quantity}
-                                                    </span>
+                                                    <div className="flex flex-wrap items-center gap-2">
+                                                        <button
+                                                            className="flex h-7 w-7 items-center justify-center rounded-full border border-slate-200 bg-white"
+                                                            onClick={() => updateCartItem(item.productId, item.quantity - 1)}
+                                                        >
+                                                            <Minus size={11} />
+                                                        </button>
 
-                                                    <button
-                                                        className="flex h-7 w-7 items-center justify-center rounded-full border border-slate-200 bg-white"
-                                                        onClick={() => updateCartItem(item.productId, item.quantity + 1)}
-                                                    >
-                                                        <Plus size={11} />
-                                                    </button>
+                                                        <span className="min-w-[18px] text-center text-sm font-bold text-slate-900">
+                                                            {item.quantity}
+                                                        </span>
 
-                                                    <button
-                                                        onClick={() => removeCartItem(item.productId)}
-                                                        className="ml-auto rounded-lg border border-red-200 bg-red-50 px-2.5 py-1 text-[10px] font-bold text-red-600"
-                                                    >
-                                                        Remove
-                                                    </button>
+                                                        <button
+                                                            className="flex h-7 w-7 items-center justify-center rounded-full border border-slate-200 bg-white"
+                                                            onClick={() => {
+                                                                const newQty = item.quantity + 1;
+                                                                if (newQty <= productStock) {
+                                                                    updateCartItem(item.productId, newQty);
+                                                                } else {
+                                                                    toast.error(`Only ${productStock} available in stock.`);
+                                                                }
+                                                            }}
+                                                        >
+                                                            <Plus size={11} />
+                                                        </button>
+
+                                                        <button
+                                                            onClick={() => removeCartItem(item.productId)}
+                                                            className="ml-auto rounded-lg border border-red-200 bg-red-50 px-2.5 py-1 text-[10px] font-bold text-red-600"
+                                                        >
+                                                            Remove
+                                                        </button>
+                                                    </div>
+                                                    {item.quantity >= productStock && productStock !== Infinity && (
+                                                        <p className="mt-1 text-[10px] text-red-500">
+                                                            Max stock reached
+                                                        </p>
+                                                    )}
                                                 </div>
                                             </div>
-                                        </div>
-                                    ))
+                                        );
+                                    })
                                 )}
                             </div>
 
