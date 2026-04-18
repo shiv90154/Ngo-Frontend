@@ -6,7 +6,6 @@ import api from "@/config/api";
 const AuthContext = createContext();
 export const useAuth = () => useContext(AuthContext);
 
-// Read initial user from localStorage synchronously (no delay)
 const getInitialUser = () => {
   if (typeof window === "undefined") return null;
   const stored = localStorage.getItem("user");
@@ -32,9 +31,9 @@ export function AuthProvider({ children }) {
         return;
       }
 
+      // Set token in API headers
       api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
 
-      // Optional: refresh user data from backend – but never clear on error
       try {
         const res = await api.get("/users/profile");
         if (res.data.user) {
@@ -42,8 +41,16 @@ export function AuthProvider({ children }) {
           localStorage.setItem("user", JSON.stringify(res.data.user));
         }
       } catch (err) {
-        console.warn("Profile refresh failed, keeping stored user:", err.message);
-        // Keep the existing user from localStorage – do NOT logout
+        console.warn("Profile refresh failed:", err.message);
+        
+        // If token is invalid/expired (401), clear localStorage
+        if (err.response?.status === 401) {
+          console.warn("Token expired or invalid. Logging out.");
+          localStorage.clear();
+          delete api.defaults.headers.common["Authorization"];
+          setUser(null);
+        }
+        // For other errors (network, 500), keep the stored user
       } finally {
         setLoading(false);
       }
@@ -62,7 +69,10 @@ export function AuthProvider({ children }) {
       setUser(user);
       return { success: true };
     } catch (error) {
-      return { success: false, error: error?.response?.data?.message || "Login failed" };
+      return { 
+        success: false, 
+        error: error?.response?.data?.message || "Login failed" 
+      };
     }
   };
 
@@ -82,12 +92,24 @@ export function AuthProvider({ children }) {
       setUser(user);
       return { success: true };
     } catch (error) {
-      return { success: false, error: error?.response?.data?.message || "Registration failed" };
+      return { 
+        success: false, 
+        error: error?.response?.data?.message || "Registration failed" 
+      };
     }
   };
 
+  const value = {
+    user,
+    setUser,
+    loading,
+    register,
+    login,
+    logout,
+  };
+
   return (
-    <AuthContext.Provider value={{ user, setUser, loading, register, login, logout }}>
+    <AuthContext.Provider value={value}>
       {children}
     </AuthContext.Provider>
   );

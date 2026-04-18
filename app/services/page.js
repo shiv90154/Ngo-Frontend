@@ -19,16 +19,16 @@ const services = [
     light: "#f3f0ff",
     tag: "Learning"
   },
-  {
-    title: "Finance",
-    desc: "Wallet, transfers & micro-loans.",
-    route: "finance",
-    features: ["Wallet", "Transfer", "Loans"],
-    icon: Wallet,
-    accent: "#0369a1",
-    light: "#e0f2fe",
-    tag: "Banking"
-  },
+{
+  title: "Finance",
+  desc: "Wallet, loans, bill payments & banking.",
+  route: "finance",
+  features: ["Wallet", "Loans", "Bill Pay"],
+  icon: Wallet,
+  accent: "#0369a1",
+  light: "#e0f2fe",
+  tag: "Banking"
+},
   {
     title: "Healthcare",
     desc: "Doctors, records & medicines online.",
