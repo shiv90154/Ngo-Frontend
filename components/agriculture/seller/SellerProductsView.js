@@ -38,9 +38,10 @@ export default function SellerProductsView() {
             router.replace("/login");
             return;
         }
+        const isContractFarmer = user?.farmerProfile?.isContractFarmer === true;
+        console.log(isContractFarmer);
 
-        const allowedRoles = ["contractor", "seller", "vendor", "agri_contractor"];
-        if (!allowedRoles.includes(user.role)) {
+        if (!isContractFarmer) {
             router.replace("/agriculture/marketplace");
             return;
         }

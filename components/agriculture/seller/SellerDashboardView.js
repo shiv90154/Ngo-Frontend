@@ -15,7 +15,7 @@ import {
     IndianRupee
 } from "lucide-react";
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
+const API_BASE = process.env.NEXT_PUBLIC_API_URL;
 
 const StatCard = ({ label, value, icon: Icon, tone = "green" }) => {
     const tones = {
@@ -67,8 +67,8 @@ export default function SellerDashboardView() {
             return;
         }
 
-        const allowedRoles = ["contractor", "seller", "vendor", "agri_contractor"];
-        if (!allowedRoles.includes(user.role)) {
+        const isContractFarmer = user?.farmerProfile?.isContractFarmer === true;
+        if (!isContractFarmer) {
             router.replace("/agriculture/marketplace");
             return;
         }
@@ -147,10 +147,10 @@ export default function SellerDashboardView() {
                                     <div className="flex flex-col items-end gap-1">
                                         <span
                                             className={`rounded-full px-2.5 py-1 text-[11px] font-bold ${item.approvalStatus === "approved"
-                                                    ? "bg-green-50 text-green-700"
-                                                    : item.approvalStatus === "pending"
-                                                        ? "bg-amber-50 text-amber-700"
-                                                        : "bg-red-50 text-red-700"
+                                                ? "bg-green-50 text-green-700"
+                                                : item.approvalStatus === "pending"
+                                                    ? "bg-amber-50 text-amber-700"
+                                                    : "bg-red-50 text-red-700"
                                                 }`}
                                         >
                                             {item.approvalStatus}

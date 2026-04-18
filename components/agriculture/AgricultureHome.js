@@ -15,6 +15,7 @@ import {
   Bell,
   Leaf,
   Store,
+  ShieldCheck,
 } from "lucide-react";
 
 export default function AgricultureHome() {
@@ -67,6 +68,9 @@ export default function AgricultureHome() {
   const recentOrders = dashboardData?.recentOrders || [];
   const activeProductsCount = dashboardData?.activeProducts || 0;
 
+  // Only contract farmers can see seller option
+  const isContractFarmer = Boolean(user?.farmerProfile?.isContractFarmer);
+
   const statCards = [
     {
       title: "Crops",
@@ -114,16 +118,6 @@ export default function AgricultureHome() {
       border: "border-green-200",
     },
     {
-      title: "List Product",
-      subtitle: "Add products for sale",
-      icon: Package,
-      path: "/agriculture/marketplace/products",
-      bg: "bg-emerald-50",
-      iconBg: "bg-emerald-100",
-      iconColor: "text-emerald-700",
-      border: "border-emerald-200",
-    },
-    {
       title: "Marketplace",
       subtitle: "Manage market activity",
       icon: Store,
@@ -163,9 +157,21 @@ export default function AgricultureHome() {
             </div>
           </div>
 
-          <button className="rounded-xl border border-green-100 bg-white p-2.5 text-gray-600 shadow-sm transition hover:bg-green-50">
-            <Bell size={17} />
-          </button>
+          <div className="flex items-center gap-3">
+            {isContractFarmer && (
+              <button
+                onClick={() => router.push("agriculture/seller/dashboard")}
+                className="inline-flex items-center gap-2 rounded-xl bg-[#138808] px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-green-700"
+              >
+                <ShieldCheck size={16} />
+                Seller Panel
+              </button>
+            )}
+
+            <button className="rounded-xl border border-green-100 bg-white p-2.5 text-gray-600 shadow-sm transition hover:bg-green-50">
+              <Bell size={17} />
+            </button>
+          </div>
         </div>
       </header>
 
@@ -187,7 +193,7 @@ export default function AgricultureHome() {
           </div>
         </section>
 
-        <section className="grid grid-cols-4 gap-3">
+        <section className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
           {statCards.map((item, index) => {
             const Icon = item.icon;
             return (
@@ -222,14 +228,14 @@ export default function AgricultureHome() {
             <h2 className="text-base font-bold text-gray-900">Quick Actions</h2>
           </div>
 
-          <div className="grid grid-cols-3 gap-3">
+          <div className="flex flex-col gap-4 md:flex-row md:justify-around">
             {quickActions.map((action, index) => {
               const Icon = action.icon;
               return (
                 <button
                   key={index}
                   onClick={() => router.push(action.path)}
-                  className={`group rounded-2xl border ${action.border} ${action.bg} p-3.5 text-left transition hover:shadow-md`}
+                  className={`group flex-1 rounded-2xl border ${action.border} ${action.bg} p-3.5 text-left transition hover:shadow-md`}
                 >
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0">
@@ -282,7 +288,7 @@ export default function AgricultureHome() {
               <div className="space-y-2.5">
                 {recentCrops.slice(0, 3).map((crop, idx) => (
                   <div
-                    key={idx}
+                    key={crop._id || idx}
                     className="flex items-center justify-between rounded-xl border border-gray-100 bg-[#fafdf9] p-3 transition hover:border-green-200 hover:bg-green-50"
                   >
                     <div className="flex min-w-0 items-center gap-3">
@@ -333,7 +339,7 @@ export default function AgricultureHome() {
               <div className="space-y-2.5">
                 {recentOrders.slice(0, 3).map((order, idx) => (
                   <div
-                    key={idx}
+                    key={order._id || idx}
                     className="flex items-center justify-between rounded-xl border border-gray-100 bg-[#f7fff8] p-3 transition hover:border-emerald-200 hover:bg-emerald-50"
                   >
                     <div className="flex min-w-0 items-center gap-3">

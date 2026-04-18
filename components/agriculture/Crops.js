@@ -34,9 +34,10 @@ export default function Crops() {
       fetchCrops();
     } catch (err) { alert(err.response?.data?.message); }
   };
+  const [confirmId, setConfirmId] = useState(null);
 
   const handleDelete = async (id) => {
-    if (confirm('Delete this crop?')) { await api.delete(`/agriculture/crops/${id}`); fetchCrops(); }
+    setConfirmId(id); // open modal
   };
 
   const openEdit = (crop) => { setEditing(crop); setForm(crop); setShowModal(true); };
@@ -112,7 +113,7 @@ export default function Crops() {
                       </span>
                     </td>
                     <td className="px-6 py-4 text-right">
-                      <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <div className="flex justify-end gap-2 ">
                         <button onClick={() => openEdit(crop)} className="p-2 text-indigo-600 bg-indigo-50 hover:bg-indigo-100 rounded-lg transition-colors"><Edit size={16} /></button>
                         <button onClick={() => handleDelete(crop._id)} className="p-2 text-red-600 bg-red-50 hover:bg-red-100 rounded-lg transition-colors"><Trash2 size={16} /></button>
                       </div>
@@ -124,7 +125,40 @@ export default function Crops() {
           </div>
         )}
       </div>
+      {confirmId && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+          <div className="bg-white rounded-xl shadow-lg p-6 w-[90%] max-w-sm text-center">
 
+            <h2 className="text-lg font-semibold text-gray-800">
+              Delete Crop?
+            </h2>
+
+            <p className="text-sm text-gray-500 mt-2">
+              This action cannot be undone.
+            </p>
+
+            <div className="mt-5 flex justify-center gap-3">
+              <button
+                onClick={() => setConfirmId(null)}
+                className="px-4 py-2 rounded-lg border text-gray-700 hover:bg-gray-100"
+              >
+                Cancel
+              </button>
+
+              <button
+                onClick={async () => {
+                  await api.delete(`/agriculture/crops/${confirmId}`);
+                  fetchCrops();
+                  setConfirmId(null);
+                }}
+                className="px-4 py-2 rounded-lg bg-red-500 text-white hover:bg-red-600"
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
       {/* Glassmorphic Modal */}
       {showModal && (
         <div className="fixed inset-0 bg-gray-900/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
