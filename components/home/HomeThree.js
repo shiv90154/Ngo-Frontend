@@ -2,111 +2,15 @@
 import React, { useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 
+// STRICT 6 MODULE LIMIT as requested: Agriculture, Finance, Education, News and Social, IT, Healthcare
 const MODULES = [
-    { 
-        title: 'Education', 
-        desc: 'Online courses, live classes, test series, certificates, and teacher earnings dashboard.',
-        shortDesc: 'Empowering learners and educators',
-        image: 'https://cdn-icons-png.flaticon.com/512/3050/3050525.png',
-        path: '/services/education' 
-    },
-    { 
-        title: 'Healthcare', 
-        desc: 'Doctor search, video consultation, health records, prescription & AI disease detection.',
-        shortDesc: 'Quality healthcare at your doorstep',
-        image: 'https://cdn-icons-png.flaticon.com/512/2966/2966327.png',
-        path: '/services/healthcare' 
-    },
-    { 
-        title: 'Agriculture', 
-        desc: 'Farmer registration, crop management, product selling, AI crop disease detection.',
-        shortDesc: 'Smart farming for better yield',
-        image: 'https://cdn-icons-png.flaticon.com/512/2950/2950553.png',
-        path: '/services/agriculture' 
-    },
-    { 
-        title: 'Finance', 
-        desc: 'Digital wallet, money transfer, AEPS, bill payments, loans & EMI system.',
-        shortDesc: 'Financial inclusion for all',
-        image: 'https://cdn-icons-png.flaticon.com/512/2949/2949407.png',
-        path: '/services/finance' 
-    },
-    { 
-        title: 'News & Media', 
-        desc: 'News posting, video editing, live streaming, ads & monetization platform.',
-        shortDesc: 'Voice of rural India',
-        image: 'https://cdn-icons-png.flaticon.com/512/2926/2926732.png',
-        path: '/services/media' 
-    },
-    { 
-        title: 'CRM & IT', 
-        desc: 'Client management, GST billing, project tracking, and team management tools.',
-        shortDesc: 'Streamline your business',
-        image: 'https://cdn-icons-png.flaticon.com/512/2784/2784459.png',
-        path: '/services/crm' 
-    },
-    { 
-        title: 'Village Store', 
-        desc: 'Ayurvedic products, agricultural goods, digital services, product exchange system.',
-        shortDesc: 'Local products, global reach',
-        image: 'https://cdn-icons-png.flaticon.com/512/3081/3081755.png',
-        path: '/services/store' 
-    },
-    { 
-        title: 'Franchise & MLM', 
-        desc: 'Multi-level income distribution, weekly payouts, team hierarchy earnings.',
-        shortDesc: 'Grow with us',
-        image: 'https://cdn-icons-png.flaticon.com/512/2991/2991115.png',
-        path: '/services/franchise' 
-    },
+    { id: 'SEC-01', title: 'Agriculture', desc: 'Direct market linkages, crop pricing advisories, subsidy tracking, and farmer registration portals.', icon: '🌾', path: '/services/agriculture' },
+    { id: 'SEC-02', title: 'Finance', desc: 'Micro-loans processing, DBT (Direct Benefit Transfers), AEPS, and rural banking facilitation.', icon: '💰', path: '/services/finance' },
+    { id: 'SEC-03', title: 'Education', desc: 'Syllabus distribution, online learning modules, and rural school integration programs.', icon: '🎓', path: '/services/education' },
+    { id: 'SEC-04', title: 'Healthcare', desc: 'Primary health consultations, e-prescriptions, and maternal health record keeping.', icon: '🏥', path: '/services/healthcare' },
+    { id: 'SEC-05', title: 'IT & CRM', desc: 'Citizen record management, grievance ticketing, and rural IT center administration.', icon: '💻', path: '/services/crm' },
+    { id: 'SEC-06', title: 'News & Social', desc: 'Verified local broadcasts, social welfare updates, and community engagement portals.', icon: '📰', path: '/services/media' },
 ];
-
-const ModuleCard = React.memo(({ title, desc, shortDesc, image, onExplore }) => (
-    <div 
-        className="group bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500 overflow-hidden cursor-pointer transform hover:-translate-y-2"
-        onClick={onExplore}
-    >
-        {/* Image Section */}
-        <div className="relative overflow-hidden h-40 bg-gradient-to-br from-gray-50 to-gray-100">
-            <img 
-                src={image} 
-                alt={title}
-                className="w-full h-full object-contain p-6 transition-transform duration-500 group-hover:scale-110"
-                loading="lazy"
-            />
-            {/* Overlay gradient */}
-            <div className="absolute inset-0 bg-gradient-to-t from-white/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-        </div>
-        
-        <div className="p-5">
-            {/* Title */}
-            <h3 className="text-xl font-bold text-center mb-2 text-gray-800 group-hover:text-[#138808] transition-colors duration-300">
-                {title}
-            </h3>
-            
-            {/* Short Description */}
-            <p className="text-xs text-center text-[#FF9933] font-semibold mb-3 uppercase tracking-wide">
-                {shortDesc}
-            </p>
-            
-            {/* Main Description */}
-            <p className="text-gray-600 text-sm leading-relaxed text-center line-clamp-3">
-                {desc}
-            </p>
-            
-            {/* Button */}
-            <div className="mt-5 flex justify-center">
-                <button
-                    className="px-5 py-2 rounded-lg text-xs font-semibold transition-all duration-300 bg-gray-100 text-gray-700 hover:bg-[#138808] hover:text-white hover:shadow-md"
-                >
-                    Learn More →
-                </button>
-            </div>
-        </div>
-    </div>
-));
-
-ModuleCard.displayName = 'ModuleCard';
 
 const HomeThree = () => {
     const router = useRouter();
@@ -116,43 +20,49 @@ const HomeThree = () => {
     }, [router]);
 
     return (
-        <section id="modules" className="py-20 px-4 bg-gradient-to-b from-gray-50 to-white">
-            <div className="container mx-auto max-w-7xl">
-                {/* Heading Section */}
-                <div className="text-center mb-14">
-                    {/* Simple Accent */}
-                    <div className="flex justify-center mb-4">
-                        <div className="w-16 h-1 bg-[#FF9933] rounded-full"></div>
-                    </div>
-                    
-                    {/* Main Title */}
-                    <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
-                        Our <span className="text-[#138808]">Integrated Core</span> Modules
+        <section id="modules" className="py-16 bg-white border-y border-gray-300">
+            <div className="govt-container">
+                
+                <div className="mb-10 text-center max-w-2xl mx-auto">
+                    <span className="inline-block px-3 py-1 bg-[#fff2e6] text-[#FF7B00] text-[11px] font-bold uppercase tracking-widest border border-[#FF7B00]/30 rounded-sm mb-4">
+                        National Operating Framework
+                    </span>
+                    <h2 className="text-3xl font-black text-gray-900 uppercase">
+                        6 Pillars of Development
                     </h2>
-                    
-                    {/* Subtitle */}
-                    <p className="text-gray-500 text-base md:text-lg max-w-2xl mx-auto">
-                        Complete digital ecosystem for governance and citizen services
+                    <div className="h-1 w-20 bg-[#FF7B00] mx-auto mt-4 mb-4" />
+                    <p className="text-sm text-gray-600 font-medium">
+                        Our services are strictly categorized into six foundational sectors to ensure targeted and efficient delivery to all citizens.
                     </p>
                 </div>
 
-                {/* Modules Grid */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {MODULES.map((mod) => (
-                        <ModuleCard 
-                            key={mod.title} 
-                            {...mod} 
-                            onExplore={() => handleExplore(mod.path)} 
-                        />
+                        <div 
+                            key={mod.id}
+                            onClick={() => handleExplore(mod.path)}
+                            className="bg-white border border-gray-300 hover:border-[#FF7B00] hover:shadow-md cursor-pointer transition-all flex flex-col h-full rounded-sm"
+                        >
+                            <div className="bg-gray-100 p-3 border-b border-gray-300 flex items-center justify-between">
+                                <span className="text-[11px] font-bold text-gray-800 tracking-wider">Sector: {mod.id}</span>
+                                <span className="text-xl opacity-80">{mod.icon}</span>
+                            </div>
+                            
+                            <div className="p-6 flex-1 flex flex-col">
+                                <h3 className="text-lg font-bold text-gray-900 uppercase mb-3">{mod.title}</h3>
+                                <p className="text-[13px] text-gray-600 font-medium leading-relaxed mb-6 flex-1">
+                                    {mod.desc}
+                                </p>
+                                
+                                <div className="mt-auto flex items-center justify-between border-t border-gray-200 pt-4">
+                                    <span className="text-xs font-bold text-gray-500 uppercase tracking-widest">Available Services</span>
+                                    <span className="text-[#FF7B00] text-sm font-bold">→</span>
+                                </div>
+                            </div>
+                        </div>
                     ))}
                 </div>
                 
-                {/* Bottom Section */}
-                <div className="text-center mt-12 pt-6 border-t border-gray-200">
-                    <p className="text-sm text-gray-500">
-                        🚀 Empowering India through digital innovation
-                    </p>
-                </div>
             </div>
         </section>
     );

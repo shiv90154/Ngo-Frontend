@@ -1,14 +1,13 @@
 'use client';
 
 import React from 'react';
-import Header from '@/components/Header';
+import HeadFootLayout from "@/app/headFootLayout";
 import HomeOne from '@/components/home/HomeOne';
 import HomeTwo from '@/components/home/HomeTwo';
 import HomeThree from '@/components/home/HomeThree';
-import HomeFour from '@/components/home/HomeFour';
+
 import HomeFive from '@/components/home/HomeFive';
 import HomeSix from '@/components/home/HomeSix';
-import Footer from '@/components/Footer';
 
 /**
  * Section map:
@@ -22,19 +21,16 @@ import Footer from '@/components/Footer';
 
 const Home = () => (
   <>
-    <Header />
-
-    {/* Page offset — accounts for TopBar (~32px) + MainNav (64px) + tricolor strip (4px) */}
-    <main className="pt-[65px] md:pt-[120px]">
-      <HomeOne />
-      <HomeTwo />
-      <HomeThree />
-      <HomeFour />
-      <HomeFive />
-      <HomeSix />
-    </main>
-
-    <Footer />
+    <HeadFootLayout>
+      <main>
+        <HomeOne />
+        <HomeTwo />
+        <HomeThree />
+       
+        <HomeFive />
+        <HomeSix />
+      </main>
+    </HeadFootLayout>
   </>
 );
 

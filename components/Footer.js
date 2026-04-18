@@ -1,6 +1,15 @@
 "use client";
-import React, { useMemo, memo } from "react";
+import React from "react";
 import Link from "next/link";
+import {
+    FaFacebookF,
+    FaTwitter,
+    FaInstagram,
+    FaLinkedinIn,
+    FaPhoneAlt,
+    FaEnvelope,
+    FaMapMarkerAlt,
+} from "react-icons/fa";
 
 const CURRENT_YEAR = new Date().getFullYear();
 
@@ -18,134 +27,133 @@ const LEGAL_LINKS = [
     { name: "FAQ", path: "/faq" },
 ];
 
-const SOCIAL_ICONS = ["📘", "🐦", "📷", "🔗"];
-const SOCIAL_ARIA_LABELS = ["Facebook", "Twitter", "Instagram", "LinkedIn"];
+const SOCIALS = [
+    { icon: <FaFacebookF />, label: "Facebook" },
+    { icon: <FaTwitter />, label: "Twitter" },
+    { icon: <FaInstagram />, label: "Instagram" },
+    { icon: <FaLinkedinIn />, label: "LinkedIn" },
+];
 
-// Footer Link Component
-const FooterLink = memo(({ href, children }) => (
+// Reusable Link
+const FooterLink = ({ href, children }) => (
     <li>
         <Link
             href={href}
-            className="hover:text-blue-600 hover:translate-x-1 transition-all flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 rounded px-1"
+            className="group flex items-center gap-2 px-3 py-2 rounded-md transition-all hover:bg-gray-800"
         >
-            <span className="text-blue-600" aria-hidden="true">›</span>
-            {children}
+            <span className="text-[#FF9933] transition-transform group-hover:translate-x-1">
+                ›
+            </span>
+            <span className="text-gray-300 group-hover:text-white text-sm">
+                {children}
+            </span>
         </Link>
     </li>
-));
-
-FooterLink.displayName = "FooterLink";
-
-// Social Icon Component
-const SocialIcon = memo(({ icon, label }) => (
-    <button
-        aria-label={label}
-        className="w-9 h-9 flex items-center justify-center rounded-full bg-gray-100 hover:bg-blue-600 hover:text-white cursor-pointer transition-all focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-    >
-        {icon}
-    </button>
-));
-
-SocialIcon.displayName = "SocialIcon";
-
+);
 const Footer = () => {
-    const quickLinksMarkup = useMemo(
-        () => (
-            <ul className="space-y-3 text-sm">
-                {QUICK_LINKS.map((link) => (
-                    <FooterLink key={link.path} href={link.path}>
-                        {link.name}
-                    </FooterLink>
-                ))}
-            </ul>
-        ),
-        []
-    );
-
-    const legalLinksMarkup = useMemo(
-        () => (
-            <ul className="space-y-3 text-sm">
-                {LEGAL_LINKS.map((link) => (
-                    <FooterLink key={link.path} href={link.path}>
-                        {link.name}
-                    </FooterLink>
-                ))}
-            </ul>
-        ),
-        []
-    );
-
-    const socialIconsMarkup = useMemo(
-        () => (
-            <div className="mt-5 flex gap-3">
-                {SOCIAL_ICONS.map((icon, i) => (
-                    <SocialIcon key={i} icon={icon} label={SOCIAL_ARIA_LABELS[i]} />
-                ))}
-            </div>
-        ),
-        []
-    );
-
     return (
-        <footer className="bg-white text-gray-600 pt-14 pb-6 px-4 border-t">
-            <div className="container mx-auto max-w-6xl">
+        <footer className="bg-gray-900 text-gray-300 pt-16 pb-8 px-6 border-t border-gray-800">
+            <div className="max-w-6xl mx-auto">
 
                 {/* Grid */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10 mb-10">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-12 mb-12">
 
-                    {/* Logo */}
+                    {/* Brand */}
                     <div>
-                        <div className="flex items-center gap-3 mb-4">
-                            <div className="w-11 h-11 bg-blue-600 rounded-xl flex items-center justify-center text-white font-bold">
-                                🇮🇳
+                        <div className="flex items-center gap-3 mb-5">
+                            <div className="w-12 h-12 bg-[#FF9933] rounded-lg flex items-center justify-center text-white font-bold text-lg">
+                                SB
                             </div>
                             <div>
-                                <h2 className="text-gray-900 font-semibold text-lg">
-                                    SAMRADDH BHARAT
+                                <h2 className="text-white font-bold text-xl tracking-wide leading-tight">
+                                    Samraddh Bharat
                                 </h2>
-                                <p className="text-xs text-gray-500">
+                                <p className="text-xs text-gray-400 mt-1">
                                     Digital India Initiative
                                 </p>
                             </div>
                         </div>
-                        <p className="text-sm">
-                            Empowering citizens through transparent digital services and smart governance.
+
+                        <p className="text-sm text-gray-400 leading-relaxed">
+                            Empowering citizens with accessible digital services,
+                            transparency, and efficient governance systems across India.
                         </p>
                     </div>
 
                     {/* Quick Links */}
                     <div>
-                        <h3 className="text-gray-900 font-semibold mb-4">Quick Links</h3>
-                        {quickLinksMarkup}
+                        <h3 className="text-white font-semibold text-base mb-5">
+                            Quick Links
+                        </h3>
+                        <ul className="space-y-2">
+                            {QUICK_LINKS.map((link) => (
+                                <FooterLink key={link.path} href={link.path}>
+                                    {link.name}
+                                </FooterLink>
+                            ))}
+                        </ul>
                     </div>
 
                     {/* Legal */}
                     <div>
-                        <h3 className="text-gray-900 font-semibold mb-4">Legal</h3>
-                        {legalLinksMarkup}
+                        <h3 className="text-white font-semibold text-base mb-5">
+                            Legal
+                        </h3>
+                        <ul className="space-y-2">
+                            {LEGAL_LINKS.map((link) => (
+                                <FooterLink key={link.path} href={link.path}>
+                                    {link.name}
+                                </FooterLink>
+                            ))}
+                        </ul>
                     </div>
 
                     {/* Contact */}
                     <div>
-                        <h3 className="text-gray-900 font-semibold mb-4">Contact</h3>
-                        <div className="space-y-3 text-sm">
-                            <p>📞 1800-123-4567</p>
-                            <p>✉️ support@samraddhbharat.gov.in</p>
-                            <p>📍 New Delhi, India</p>
+                        <h3 className="text-white font-semibold text-base mb-5">
+                            Contact
+                        </h3>
+
+                        <div className="space-y-4 text-sm">
+
+                            <div className="flex items-start gap-3 hover:translate-x-[5px]  transition-all">
+                                <a href="tel:18001234567"><FaPhoneAlt className=" mt-1" /><span>1800-123-4567 </span></a>
+                            </div>
+
+                            <div className="flex items-start gap-3 hover:translate-x-[5px] transition-all">
+                                <a href="mailto:support@samraddhbharat.gov.in"><FaEnvelope className=" mt-1" /><span>  support@samraddhbharat.gov.in </span></a>
+                            </div>
+
+                            <div className="flex items-start gap-3">
+                                <FaMapMarkerAlt className=" mt-1" />
+                                <span>New Delhi, India</span>
+                            </div>
+
                         </div>
-                        {socialIconsMarkup}
+
+                        {/* Socials */}
+                        <div className="flex gap-3 mt-6">
+                            {SOCIALS.map((item, i) => (
+                                <button
+                                    key={i}
+                                    aria-label={item.label}
+                                    className="w-9 h-9 flex items-center justify-center rounded-md bg-gray-800 hover:bg-[#c56c14] hover:text-white transition"
+                                >
+                                    {item.icon}
+                                </button>
+                            ))}
+                        </div>
                     </div>
                 </div>
 
                 {/* Bottom */}
-                <div className="border-t pt-5 flex flex-col sm:flex-row justify-between items-center gap-3 text-sm text-gray-500 text-center">
+                <div className="border-t border-gray-800 pt-6 flex flex-col sm:flex-row justify-between items-center gap-3 text-sm text-gray-500 text-center">
                     <p>© {CURRENT_YEAR} Samraddh Bharat Foundation</p>
-                    <p>Built with ❤️ in India</p>
+                    <p className="text-gray-400">Built for Digital India</p>
                 </div>
-
             </div>
         </footer>
     );
 };
 
-export default memo(Footer);
+export default Footer;

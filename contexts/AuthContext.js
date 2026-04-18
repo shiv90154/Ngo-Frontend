@@ -9,6 +9,7 @@ export const useAuth = () => useContext(AuthContext);
 // Read initial user from localStorage synchronously (no delay)
 const getInitialUser = () => {
   if (typeof window === "undefined") return null;
+  if (!localStorage.getItem("token")) return null;
   const stored = localStorage.getItem("user");
   if (stored) {
     try {
@@ -28,6 +29,8 @@ export function AuthProvider({ children }) {
     const verifyToken = async () => {
       const token = localStorage.getItem("token");
       if (!token) {
+        setUser(null);
+        localStorage.removeItem("user");
         setLoading(false);
         return;
       }

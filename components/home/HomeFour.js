@@ -1,6 +1,5 @@
 'use client';
-import React, { useCallback } from 'react';
-import { useRouter } from 'next/navigation';
+import React from 'react';
 
 const STEPS = [
     { step: 1, title: 'Register', desc: 'Sign up with your mobile number or Aadhaar', icon: 'https://cdn-icons-png.flaticon.com/512/2991/2991115.png', color: '#FF9933' },
@@ -33,9 +32,6 @@ const PLANS = [
 ];
 
 const HomeFour = () => {
-    const router = useRouter();
-    const go = useCallback((path) => router.push(path), [router]);
-
     return (
         <>
             {/* ── How It Works Section - Enhanced ── */}
@@ -86,8 +82,8 @@ const HomeFour = () => {
                             </div>
                         ))}
                     </div>
+
                 </div>
-            </section>
 
             {/* ── Subscription Plans Section - Enhanced ── */}
             <section className="py-16 px-4 bg-gradient-to-b from-gray-50 to-white">

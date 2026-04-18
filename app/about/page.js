@@ -1,13 +1,10 @@
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
+import HeadFootLayout from "@/app/headFootLayout";
 import AboutContent from "@/components/About";
 
 export default function AboutPage() {
     return (
-        <>
-            <Header />
+        <HeadFootLayout>
             <AboutContent />
-            <Footer />
-        </>
+        </HeadFootLayout>
     );
 }

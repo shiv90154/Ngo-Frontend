@@ -17,7 +17,9 @@ export default function LoginPage() {
 
   useEffect(() => {
     if (isClient && !authLoading && user) {
-      router.replace("/services");
+      if (localStorage.getItem("token")) {
+        router.replace("/services");
+      }
     }
   }, [isClient, authLoading, user, router]);
 
