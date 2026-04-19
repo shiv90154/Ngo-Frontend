@@ -1,4 +1,3 @@
-// app/(news)/news/page.tsx
 "use client";
 
 import { useEffect, useState, useRef, useCallback } from "react";
@@ -7,7 +6,7 @@ import { mediaAPI } from "@/lib/api";
 import PostCard from "@/components/news/PostCard";
 import { Loader2, Newspaper } from "lucide-react";
 import Link from "next/link";
-import { toast } from "react-toastify";  // 🆕 ADDED
+import { toast } from "react-toastify";
 
 export default function NewsFeedPage() {
   const { user } = useAuth();

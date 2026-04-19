@@ -1,4 +1,3 @@
-// app/(news)/profile/[userId]/page.tsx
 "use client";
 
 import { useEffect, useState } from "react";
@@ -33,59 +32,33 @@ export default function ProfilePage() {
   const fetchAllData = async () => {
     setLoading(true);
     try {
-      // Fetch posts and user info in parallel
       const [postsRes, followStatusRes] = await Promise.allSettled([
         mediaAPI.getUserPosts(userId, { limit: 30 }),
         isOwnProfile ? Promise.resolve(null) : mediaAPI.checkFollowStatus(userId),
       ]);
 
-      // Handle posts
       let fetchedPosts = [];
       if (postsRes.status === "fulfilled") {
         fetchedPosts = postsRes.value.data.posts;
         setPosts(fetchedPosts);
       }
 
-      // Determine profile user
       let userInfo = null;
-
-      // 1. If there are posts, get author from first post
       if (fetchedPosts.length > 0) {
         userInfo = fetchedPosts[0].author;
-      }
-      // 2. If it's own profile, use currentUser from auth
-      else if (isOwnProfile && currentUser) {
+      } else if (isOwnProfile && currentUser) {
         userInfo = currentUser;
-      }
-      // 3. Otherwise, try to fetch user details from followers endpoint (fallback)
-      else {
-        try {
-          const followersRes = await mediaAPI.getFollowers(userId, { limit: 1 });
-          // The followers endpoint returns array of user objects with basic info
-          if (followersRes.data.followers?.length > 0) {
-            // This gives us a follower object; we need the target user, not the follower.
-            // Since the endpoint doesn't directly give user info, we can fetch the user via admin route if available.
-            // For now, we'll use a minimal placeholder.
-            console.warn("User has no posts; displaying limited profile");
-          }
-        } catch (e) {
-          console.warn("Could not fetch profile details", e);
-        }
-      }
-
-      if (userInfo) {
-        setProfileUser(userInfo);
       } else {
-        // Minimal fallback
-        setProfileUser({
+        userInfo = {
           _id: userId,
           fullName: "User",
           email: "",
           mediaCreatorProfile: { totalPosts: 0, totalFollowers: 0, totalFollowing: 0 },
-        });
+        };
       }
 
-      // Set follow status
+      setProfileUser(userInfo);
+
       if (followStatusRes.status === "fulfilled" && followStatusRes.value) {
         setIsFollowing(followStatusRes.value.data.isFollowing);
       }
@@ -118,7 +91,6 @@ export default function ProfilePage() {
     ? posts.filter((post: any) => post.media && post.media.length > 0)
     : posts;
 
-  // Loading skeleton
   if (loading) {
     return (
       <div className="max-w-3xl mx-auto space-y-6">
@@ -151,7 +123,6 @@ export default function ProfilePage() {
 
   return (
     <div className="max-w-3xl mx-auto space-y-6">
-      {/* Profile Header */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
         <div className="h-24 bg-gradient-to-r from-[#1a237e] to-[#283593]"></div>
         <div className="p-6 -mt-12">
@@ -202,7 +173,6 @@ export default function ProfilePage() {
         </div>
       </div>
 
-      {/* Tabs */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-200">
         <div className="border-b border-gray-200 px-5 flex gap-6">
           <button
@@ -227,7 +197,6 @@ export default function ProfilePage() {
           </button>
         </div>
 
-        {/* Posts/Media Grid */}
         <div className="p-4">
           {filteredPosts.length === 0 ? (
             <p className="text-center text-gray-500 py-8">

@@ -1,4 +1,3 @@
-// components/news/NewsNavbar.tsx
 "use client";
 
 import Link from "next/link";
@@ -10,7 +9,6 @@ import {
   User,
   LogOut,
   PlusSquare,
-  Heart,
   Bell,
 } from "lucide-react";
 import { useState, useEffect, useMemo } from "react";
@@ -26,23 +24,19 @@ export default function NewsNavbar() {
     setMounted(true);
   }, []);
 
-  // 🆕 Dynamic navigation items – Profile only appears when mounted & user exists
   const navItems = useMemo(() => {
-    const baseItems = [
+    const base = [
       { name: "Feed", href: "/news", icon: Home },
       { name: "Search", href: "/news/search", icon: Search },
       { name: "Create", href: "/news/create", icon: PlusSquare },
       { name: "Notifications", href: "/news/notifications", icon: Bell },
     ];
-
     if (mounted && user?._id) {
-      baseItems.push({ name: "Profile", href: `/news/profile/${user._id}`, icon: User });
+      base.push({ name: "Profile", href: `/news/profile/${user._id}`, icon: User });
     } else {
-      // Placeholder to avoid layout shift – will be replaced after mount
-      baseItems.push({ name: "Profile", href: "/news/profile", icon: User });
+      base.push({ name: "Profile", href: "/news/profile", icon: User });
     }
-
-    return baseItems;
+    return base;
   }, [mounted, user]);
 
   const isActive = (href: string) => {

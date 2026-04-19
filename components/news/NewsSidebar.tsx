@@ -1,4 +1,3 @@
-// components/news/NewsSidebar.tsx
 "use client";
 
 import Link from "next/link";
@@ -44,7 +43,7 @@ export default function NewsSidebar() {
 
   return (
     <aside className="hidden lg:block w-80 bg-white border-r border-gray-200 min-h-[calc(100vh-97px)] sticky top-[97px] p-4">
-      {/* User Summary – only show real content after mount */}
+      {/* User Summary */}
       {mounted ? (
         <Link href={`/news/profile/${user?._id}`} className="flex items-center gap-3 p-3 mb-4 bg-gradient-to-r from-[#1a237e]/5 to-transparent rounded-xl">
           <div className="w-12 h-12 bg-gradient-to-br from-[#1a237e] to-[#283593] rounded-full flex items-center justify-center text-white font-medium text-lg">
