@@ -1,17 +1,19 @@
 import axios from 'axios';
 
 const api = axios.create({
-    baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api',
-    timeout: 10000,
+    baseURL: process.env.NEXT_PUBLIC_API_URL,
 });
 
-// Request interceptor to add token (already done in AuthContext, but safe)
 api.interceptors.request.use((config) => {
-    const token = localStorage.getItem('token');
-    if (token) {
-        config.headers.Authorization = `Bearer ${token}`;
+    if (typeof window !== "undefined") {
+        const token = localStorage.getItem("token");
+        if (token) {
+            config.headers.Authorization = `Bearer ${token}`;
+        }
     }
     return config;
+}, (error) => {
+    return Promise.reject(error);
 });
 
 export default api;
