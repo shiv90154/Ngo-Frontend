@@ -110,17 +110,10 @@ const Footer = () => {
             </ul>
             {/* Newsletter (static) */}
             <div>
-              <p className="text-sm font-medium mb-2">Subscribe to updates</p>
-              <div className="flex">
-                <input
-                  type="email"
-                  placeholder="Your email"
-                  className="flex-1 px-3 py-2 text-sm text-gray-800 rounded-l-lg focus:outline-none"
-                />
-                <button className="bg-[#FF9933] hover:bg-[#e88720] px-4 py-2 rounded-r-lg text-sm font-medium transition">
-                  Subscribe
-                </button>
-              </div>
+              
+             
+               
+            
             </div>
           </div>
         </div>

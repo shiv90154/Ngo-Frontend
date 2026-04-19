@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState } from "react";
@@ -53,35 +54,35 @@ const Header = () => {
               </div>
             </Link>
 
-            {/* Desktop Navigation */}
+            {/* Desktop Navigation - Font Size Increased */}
             <nav className="hidden md:flex items-center space-x-6">
               {navItems.map((item) => (
                 <Link
                   key={item.name}
                   href={item.href}
-                  className="text-gray-700 hover:text-[#1a237e] font-medium text-sm transition"
+                  className="text-gray-700 hover:text-[#1a237e] font-semibold text-lg transition"
                 >
                   {item.name}
                 </Link>
               ))}
             </nav>
 
-            {/* Auth Buttons */}
+            {/* Auth Buttons - Font Size Increased */}
             <div className="hidden md:flex items-center gap-3">
               {user ? (
                 <>
                   <Link
                     href="/profile"
-                    className="flex items-center gap-1.5 text-gray-700 hover:text-[#1a237e] text-sm font-medium"
+                    className="flex items-center gap-1.5 text-gray-700 hover:text-[#1a237e] text-base font-medium"
                   >
-                    <User size={16} />
+                    <User size={30} />
                     {user.fullName?.split(" ")[0] || "Profile"}
                   </Link>
                   <button
                     onClick={handleLogout}
-                    className="flex items-center gap-1.5 text-red-600 hover:text-red-700 text-sm font-medium"
+                    className="flex items-center gap-1.5 text-red-600 hover:text-red-700 text-base font-medium"
                   >
-                    <LogOut size={16} />
+                    <LogOut size={30} />
                     Logout
                   </button>
                 </>
@@ -89,13 +90,13 @@ const Header = () => {
                 <>
                   <Link
                     href="/login"
-                    className="text-[#1a237e] hover:bg-[#1a237e]/10 px-4 py-1.5 rounded-md text-sm font-medium border border-[#1a237e]/30 transition"
+                    className="text-[#1a237e] hover:bg-[#1a237e]/10 px-4 py-1.5 rounded-md text-base font-medium border border-[#1a237e]/30 transition"
                   >
                     Sign In
                   </Link>
                   <Link
                     href="/register"
-                    className="bg-[#1a237e] text-white hover:bg-[#0d1757] px-4 py-1.5 rounded-md text-sm font-medium transition"
+                    className="bg-[#1a237e] text-white hover:bg-[#0d1757] px-4 py-1.5 rounded-md text-base font-medium transition"
                   >
                     Register
                   </Link>
@@ -113,7 +114,7 @@ const Header = () => {
           </div>
         </div>
 
-        {/* Mobile Navigation */}
+        {/* Mobile Navigation - Font Size Increased */}
         {mobileMenuOpen && (
           <div className="md:hidden bg-white border-t border-gray-200 py-3 px-4">
             <nav className="flex flex-col space-y-3">
@@ -121,7 +122,7 @@ const Header = () => {
                 <Link
                   key={item.name}
                   href={item.href}
-                  className="text-gray-700 hover:text-[#1a237e] font-medium py-1"
+                  className="text-gray-700 hover:text-[#1a237e] font-semibold text-lg py-1"
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   {item.name}
@@ -132,33 +133,33 @@ const Header = () => {
                   <>
                     <Link
                       href="/profile"
-                      className="flex items-center gap-2 text-gray-700"
+                      className="flex items-center gap-2 text-gray-700 text-base"
                       onClick={() => setMobileMenuOpen(false)}
                     >
-                      <User size={16} /> Profile
+                      <User size={18} /> Profile
                     </Link>
                     <button
                       onClick={() => {
                         handleLogout();
                         setMobileMenuOpen(false);
                       }}
-                      className="flex items-center gap-2 text-red-600"
+                      className="flex items-center gap-2 text-red-600 text-base"
                     >
-                      <LogOut size={16} /> Logout
+                      <LogOut size={18} /> Logout
                     </button>
                   </>
                 ) : (
                   <>
                     <Link
                       href="/login"
-                      className="text-center border border-[#1a237e] text-[#1a237e] py-2 rounded-md"
+                      className="text-center border border-[#1a237e] text-[#1a237e] py-2 rounded-md text-base"
                       onClick={() => setMobileMenuOpen(false)}
                     >
                       Sign In
                     </Link>
                     <Link
                       href="/register"
-                      className="text-center bg-[#1a237e] text-white py-2 rounded-md"
+                      className="text-center bg-[#1a237e] text-white py-2 rounded-md text-base"
                       onClick={() => setMobileMenuOpen(false)}
                     >
                       Register

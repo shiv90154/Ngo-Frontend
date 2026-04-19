@@ -13,76 +13,145 @@ import {
   Award,
   Clock,
   ChevronRight,
+  CheckCircle2,
+  Play,
+  Building2,
 } from "lucide-react";
 import Link from "next/link";
 
 export default function Home() {
   const services = [
-    { title: "Education", icon: GraduationCap, color: "#7c3aed", desc: "Courses, live classes & certificates", href: "/education" },
-    { title: "Finance", icon: Wallet, color: "#0369a1", desc: "Wallet, loans, bill payments", href: "/finance" },
-    { title: "Healthcare", icon: HeartPulse, color: "#be123c", desc: "Doctors, records & medicines", href: "/healthcare" },
-    { title: "News", icon: Newspaper, color: "#b45309", desc: "Live local news & stories", href: "/news" },
-    { title: "Agriculture", icon: Sprout, color: "#15803d", desc: "AI crop tips & market prices", href: "/agriculture" },
-    { title: "IT Services", icon: MonitorSmartphone, color: "#0f766e", desc: "Billing, projects & CRM", href: "/it" },
+    { 
+      title: "Education", 
+      icon: GraduationCap, 
+      color: "#7c3aed", 
+      desc: "Scholarships, DIKSHA, SWAYAM, NPTEL Courses", 
+      href: "/education",
+      badge: "NEP 2020"
+    },
+    { 
+      title: "Finance", 
+      icon: Wallet, 
+      color: "#0369a1", 
+      desc: "PM Jan Dhan, Atal Pension, Sukanya Samriddhi", 
+      href: "/finance",
+      badge: "RBI Regulated"
+    },
+    { 
+      title: "Healthcare", 
+      icon: HeartPulse, 
+      color: "#be123c", 
+      desc: "Ayushman Bharat, e-Sanjeevani, CoWIN", 
+      href: "/healthcare",
+      badge: "MoHFW"
+    },
+    { 
+      title: "Agriculture", 
+      icon: Sprout, 
+      color: "#15803d", 
+      desc: "PM KISAN, e-NAM, Soil Health Card", 
+      href: "/agriculture",
+      badge: "MoA&FW"
+    },
+    { 
+      title: "Digital Services", 
+      icon: MonitorSmartphone, 
+      color: "#0f766e", 
+      desc: "DigiLocker, UMANG, GeM Portal", 
+      href: "/it",
+      badge: "MeitY"
+    },
+    { 
+      title: "News & Info", 
+      icon: Newspaper, 
+      color: "#b45309", 
+      desc: "PIB, MyGov, DD News, Mann Ki Baat", 
+      href: "/news",
+      badge: "GoI Official"
+    },
   ];
 
   const stats = [
-    { value: "2.5 Cr+", label: "Registered Users", icon: Users },
-    { value: "50+", label: "Integrated Services", icon: Shield },
-    { value: "24/7", label: "Support Available", icon: Clock },
-    { value: "ISO 27001", label: "Certified Security", icon: Award },
+    { value: "147 Cr+", label: "Aadhaar Authenticated Citizens", icon: Users, color: "#FF9933" },
+    { value: "2,000+", label: "Integrated Govt. Schemes", icon: Shield, color: "#1a237e" },
+    { value: "24x7", label: "National Helpline Support", icon: Clock, color: "#138808" },
+    { value: "ISO 27001", label: "CERT-In Certified", icon: Award, color: "#be123c" },
   ];
+
+  const features = [
+    "Aadhaar-based Single Sign-On Authentication",
+    "Real-time Application Status Tracking",
+    "12 Official Indian Languages Support",
+    "Secure Payment Gateway (RBI Approved)",
+    "24x7 National Citizen Helpline",
+    "DigiLocker & UMANG Integration",
+  ];
+
+  // Video configuration - Replace with actual YouTube video ID
+  const YOUTUBE_VIDEO_ID = "PLACE_YOUR_YOUTUBE_VIDEO_ID_HERE";
 
   return (
     <>
       <Header />
-      <main className="flex-1 bg-[#f8fafc]">
+      <main className="flex-1 bg-gradient-to-b from-[#f8fafc] to-white">
         {/* Hero Section */}
-        <section className="relative bg-gradient-to-br from-[#1a237e] via-[#283593] to-[#1a237e] text-white">
-          {/* Tricolor overlay at bottom */}
-          <div className="absolute bottom-0 left-0 right-0 h-1.5 flex">
-            <div className="w-1/3 bg-[#FF9933]"></div>
-            <div className="w-1/3 bg-white"></div>
-            <div className="w-1/3 bg-[#138808]"></div>
+        <section className="relative bg-gradient-to-br from-[#0a1550] via-[#1a237e] to-[#0f1a5c] text-white overflow-hidden">
+          <div className="absolute inset-0 opacity-5">
+            <div className="absolute top-20 left-10 w-80 h-80 bg-[#FF9933] rounded-full blur-3xl"></div>
+            <div className="absolute bottom-20 right-10 w-96 h-96 bg-[#138808] rounded-full blur-3xl"></div>
           </div>
 
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-20">
-            <div className="grid md:grid-cols-2 gap-10 items-center">
-              <div>
-                <div className="inline-block bg-white/20 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-medium mb-4">
-                  🇮🇳 Digital India Initiative
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-24 relative">
+            <div className="grid lg:grid-cols-2 gap-12 items-center">
+              <div className="relative z-10">
+                <div className="inline-flex items-center gap-2 bg-white/15 backdrop-blur-sm px-4 py-2 rounded-full text-sm font-medium mb-6 border border-white/20">
+                  <Building2 size={16} className="text-[#FF9933]" />
+                  <span>Government of India</span>
+                  <span className="w-1 h-1 bg-[#FF9933] rounded-full"></span>
+                  <span className="text-blue-200">National e-Governance Portal</span>
                 </div>
-                <h1 className="text-3xl md:text-5xl font-bold font-serif leading-tight mb-4">
-                  One Portal.<br />
-                  <span className="text-[#FF9933]">All Government Services.</span>
+                
+                <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold font-serif leading-tight mb-4">
+                  Samraddh Bharat
                 </h1>
-                <p className="text-blue-100 text-lg mb-6 max-w-lg">
-                  Access schemes and services across education, health, agriculture, finance, and more — all in one unified platform.
+                
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="h-0.5 w-12 bg-[#FF9933]"></div>
+                  <p className="text-xl md:text-2xl text-white/90 font-serif italic">One Nation • One Portal</p>
+                  <div className="h-0.5 w-12 bg-[#138808]"></div>
+                </div>
+                
+                <p className="text-blue-100 text-lg mb-8 max-w-lg leading-relaxed border-l-4 border-[#FF9933] pl-5">
+                  A unified platform under the National e-Governance Plan providing seamless access to all Central & State Government services.
                 </p>
+                
                 <div className="flex flex-wrap gap-4">
                   <Link
                     href="/services"
-                    className="bg-[#FF9933] hover:bg-[#e88720] text-white px-6 py-3 rounded-lg font-medium inline-flex items-center gap-2 transition shadow-lg"
+                    className="group bg-[#FF9933] hover:bg-[#e88720] text-white px-7 py-3.5 rounded-xl font-semibold text-lg inline-flex items-center gap-2 transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5"
                   >
-                    Explore Services <ArrowRight size={18} />
+                    Explore Services 
+                    <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
                   </Link>
                   <Link
                     href="/register"
-                    className="bg-white/10 backdrop-blur-sm hover:bg-white/20 text-white border border-white/30 px-6 py-3 rounded-lg font-medium inline-flex items-center gap-2 transition"
+                    className="bg-white/10 backdrop-blur-sm hover:bg-white/20 text-white border-2 border-white/30 px-7 py-3.5 rounded-xl font-semibold text-lg inline-flex items-center gap-2 transition-all shadow-lg hover:shadow-xl"
                   >
                     Register Now
                   </Link>
                 </div>
               </div>
-              <div className="hidden md:flex justify-center">
+
+              <div className="hidden lg:block">
                 <div className="relative">
-                  <div className="w-64 h-64 bg-white/10 rounded-full absolute -top-8 -left-8 blur-3xl"></div>
-                  <div className="relative bg-white/10 backdrop-blur-md p-8 rounded-2xl border border-white/20">
-                    <div className="grid grid-cols-2 gap-4">
-                      {services.slice(0, 4).map((s, i) => (
-                        <div key={i} className="bg-white/10 rounded-xl p-4 text-center">
-                          <s.icon size={32} className="mx-auto mb-2 text-[#FF9933]" />
-                          <p className="text-sm font-medium">{s.title}</p>
+                  <div className="absolute inset-0 bg-gradient-to-r from-[#FF9933]/20 to-[#138808]/20 rounded-3xl blur-2xl"></div>
+                  <div className="relative bg-white/10 backdrop-blur-xl p-8 rounded-3xl border border-white/30">
+                    <div className="grid grid-cols-2 gap-5">
+                      {services.slice(0, 4).map((service, i) => (
+                        <div key={i} className="bg-white/10 rounded-xl p-5 text-center border border-white/20 hover:scale-105 transition-transform">
+                          <service.icon size={32} className="mx-auto mb-3 text-[#FF9933]" />
+                          <p className="text-sm font-semibold">{service.title}</p>
+                          <p className="text-xs text-blue-200 mt-1">{service.badge}</p>
                         </div>
                       ))}
                     </div>
@@ -94,117 +163,139 @@ export default function Home() {
         </section>
 
         {/* Stats Section */}
-        <section className="py-12 bg-white border-b border-gray-200">
+        <section className="py-14 bg-white border-b border-gray-200">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
               {stats.map((stat, idx) => (
-                <div key={idx} className="text-center">
-                  <div className="inline-flex p-3 bg-gray-100 rounded-full mb-3">
-                    <stat.icon className="text-[#1a237e]" size={24} />
+                <div key={idx} className="text-center group">
+                  <div className="inline-flex p-4 bg-gradient-to-br from-gray-50 to-white rounded-2xl mb-4 shadow-md border border-gray-200 group-hover:shadow-lg transition-all">
+                    <stat.icon size={28} style={{ color: stat.color }} />
                   </div>
                   <div className="text-2xl md:text-3xl font-bold text-[#1a237e]">{stat.value}</div>
-                  <div className="text-sm text-gray-600">{stat.label}</div>
+                  <div className="text-sm font-medium text-gray-600 mt-1">{stat.label}</div>
                 </div>
               ))}
             </div>
           </div>
         </section>
 
-        {/* Services Overview */}
-        <section className="py-16 bg-[#f0f2f5]">
+        {/* Services Section */}
+        <section className="py-20 bg-gradient-to-b from-gray-50 to-white">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="text-center mb-10">
-              <h2 className="text-3xl font-bold text-[#1a237e] font-serif mb-2">
-                Our Integrated Services
+            <div className="text-center mb-14">
+              <span className="text-[#FF9933] font-semibold text-sm uppercase tracking-wider bg-[#FF9933]/10 px-4 py-1.5 rounded-full">
+                Digital Services
+              </span>
+              <h2 className="text-3xl md:text-4xl font-bold text-[#1a237e] font-serif mt-4 mb-4">
+                Integrated Government Services
               </h2>
               <p className="text-gray-600 max-w-2xl mx-auto">
-                Seamlessly access all government and public services through a single, secure platform.
+                Single access point to all Central & State Government digital services
               </p>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {services.map((service, idx) => (
                 <Link
                   key={idx}
                   href={service.href}
-                  className="group bg-white rounded-xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden border border-gray-200 hover:border-[#1a237e]/50 hover:-translate-y-1"
+                  className="group bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden border border-gray-200 hover:border-[#1a237e]/50 hover:-translate-y-2 relative"
                 >
+                  {service.badge && (
+                    <div className="absolute top-4 right-4 z-10">
+                      <span className="px-3 py-1 bg-gradient-to-r from-[#1a237e] to-[#283593] text-white text-xs font-bold rounded-full">
+                        {service.badge}
+                      </span>
+                    </div>
+                  )}
                   <div className="p-6">
                     <div className="flex items-start justify-between mb-4">
                       <div
-                        className="w-12 h-12 rounded-xl flex items-center justify-center"
+                        className="w-14 h-14 rounded-xl flex items-center justify-center shadow-md group-hover:scale-110 transition-transform"
                         style={{ backgroundColor: `${service.color}15` }}
                       >
-                        <service.icon size={24} style={{ color: service.color }} />
+                        <service.icon size={26} style={{ color: service.color }} />
                       </div>
-                      <ChevronRight className="text-gray-400 group-hover:text-[#1a237e] group-hover:translate-x-1 transition-all" />
+                      <ChevronRight className="text-gray-400 group-hover:text-[#1a237e] group-hover:translate-x-1 transition-all" size={22} />
                     </div>
-                    <h3 className="text-xl font-bold text-gray-800 mb-1">{service.title}</h3>
+                    <h3 className="text-xl font-bold text-gray-800 mb-2">{service.title}</h3>
                     <p className="text-gray-500 text-sm">{service.desc}</p>
                   </div>
-                  <div className="h-1 w-full bg-gradient-to-r from-[#FF9933] via-white to-[#138808] opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                  <div className="h-1.5 w-full bg-gradient-to-r from-[#FF9933] via-white to-[#138808] opacity-0 group-hover:opacity-100 transition-opacity"></div>
                 </Link>
               ))}
             </div>
 
-            <div className="text-center mt-10">
+            <div className="text-center mt-12">
               <Link
                 href="/services"
-                className="inline-flex items-center gap-2 text-[#1a237e] font-medium hover:underline"
+                className="inline-flex items-center gap-2 px-8 py-3 bg-[#1a237e] text-white rounded-xl font-semibold hover:bg-[#0d1757] transition-all shadow-lg hover:shadow-xl"
               >
-                View All Services <ArrowRight size={16} />
+                View All Services <ArrowRight size={18} />
               </Link>
             </div>
           </div>
         </section>
 
-        {/* Features / Why Choose Us */}
-        <section className="py-16 bg-white">
+        {/* Why Choose Us Section */}
+        <section className="py-20 bg-white border-t border-gray-200">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="grid md:grid-cols-2 gap-10 items-center">
+            <div className="grid lg:grid-cols-2 gap-12 items-center">
               <div>
-                <span className="text-[#FF9933] font-semibold text-sm uppercase tracking-wider">
-                  Why Samraddh Bharat?
+                <span className="text-[#FF9933] font-semibold text-sm uppercase tracking-wider bg-[#FF9933]/10 px-4 py-1.5 rounded-full">
+                  Why Samraddh Bharat
                 </span>
-                <h2 className="text-3xl font-bold text-[#1a237e] font-serif mt-2 mb-4">
-                  Citizen‑First Digital Governance
+                <h2 className="text-3xl md:text-4xl font-bold text-[#1a237e] font-serif mt-4 mb-6">
+                  Citizen-Centric Digital Governance
                 </h2>
-                <p className="text-gray-600 mb-6">
-                  We bring all government services under one roof with a focus on accessibility, transparency, and efficiency.
+                <p className="text-gray-600 text-lg mb-8 leading-relaxed">
+                  Built on the principles of transparency, efficiency, and accessibility under the National e-Governance Plan.
                 </p>
+                
                 <ul className="space-y-4">
-                  {[
-                    "Single Sign‑On with Aadhaar‑based authentication",
-                    "Real‑time application tracking and status updates",
-                    "Multilingual support in 12 Indian languages",
-                    "Secure payment gateway for fees and bills",
-                    "24x7 citizen support helpline",
-                  ].map((item, i) => (
+                  {features.map((item, i) => (
                     <li key={i} className="flex items-start gap-3">
-                      <div className="w-5 h-5 rounded-full bg-green-100 text-green-600 flex items-center justify-center flex-shrink-0 mt-0.5">
-                        ✓
+                      <div className="w-6 h-6 rounded-full bg-green-100 text-green-600 flex items-center justify-center flex-shrink-0 mt-0.5">
+                        <CheckCircle2 size={14} />
                       </div>
                       <span className="text-gray-700">{item}</span>
                     </li>
                   ))}
                 </ul>
               </div>
-              <div className="bg-[#f0f2f5] p-6 rounded-2xl">
-                <div className="aspect-video bg-gray-300 rounded-lg flex items-center justify-center">
-                  <span className="text-gray-500">[ Official Tutorial Video ]</span>
-                </div>
-                <div className="mt-4 grid grid-cols-3 gap-3">
-                  <div className="bg-white p-3 rounded-lg text-center shadow-sm">
-                    <div className="font-bold text-[#1a237e]">Aadhaar</div>
-                    <div className="text-xs text-gray-500">Verified</div>
+
+              {/* Video Section with YouTube Embed */}
+              <div className="relative">
+                <div className="absolute inset-0 bg-gradient-to-br from-[#1a237e]/5 to-[#FF9933]/5 rounded-3xl blur-3xl"></div>
+                <div className="relative bg-gradient-to-br from-[#f0f2f5] to-white p-8 rounded-3xl shadow-xl border border-gray-200">
+                  <h3 className="text-xl font-bold text-[#1a237e] mb-4 flex items-center gap-2">
+                    <Play size={20} className="text-[#FF9933]" fill="#FF9933" />
+                    Official Tutorial Video
+                  </h3>
+                  
+                  {/* YouTube Video Embed */}
+                  <div className="aspect-video rounded-xl overflow-hidden shadow-lg border-2 border-white bg-gray-900">
+                    <iframe 
+                      width="100%" 
+                      height="100%" 
+                      src={`https://youtube.com/shorts/AR3IuNG5Uj4?si=Llaeg82yhbVvUoaU`}
+                      title="Samraddh Bharat Official Tutorial"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+                      allowFullScreen
+                      className="w-full h-full"
+                      loading="lazy"
+                    />
                   </div>
-                  <div className="bg-white p-3 rounded-lg text-center shadow-sm">
-                    <div className="font-bold text-[#1a237e]">DigiLocker</div>
-                    <div className="text-xs text-gray-500">Integrated</div>
-                  </div>
-                  <div className="bg-white p-3 rounded-lg text-center shadow-sm">
-                    <div className="font-bold text-[#1a237e]">UMANG</div>
-                    <div className="text-xs text-gray-500">App</div>
+
+                  <div className="mt-6 grid grid-cols-3 gap-3">
+                    {["Aadhaar", "DigiLocker", "UMANG"].map((item, i) => (
+                      <div key={i} className="bg-white p-3 rounded-lg text-center shadow-sm border border-gray-200">
+                        <div className="font-bold text-[#1a237e] text-sm">{item}</div>
+                        <div className="text-xs text-gray-500 mt-0.5">
+                          {i === 0 ? "Verified" : i === 1 ? "Integrated" : "App"}
+                        </div>
+                      </div>
+                    ))}
                   </div>
                 </div>
               </div>
@@ -213,28 +304,31 @@ export default function Home() {
         </section>
 
         {/* CTA Section */}
-        <section className="py-16 bg-gradient-to-r from-[#1a237e] to-[#283593] text-white">
+        <section className="py-20 bg-gradient-to-br from-[#0a1550] via-[#1a237e] to-[#0f1a5c] text-white">
           <div className="max-w-4xl mx-auto text-center px-4">
-            <h2 className="text-2xl md:text-3xl font-bold font-serif mb-4">
-              Join the Digital India Movement
+            <h2 className="text-3xl md:text-4xl font-bold font-serif mb-4">
+              Join the Digital India Mission
             </h2>
-            <p className="text-blue-100 mb-8 max-w-2xl mx-auto">
+            <p className="text-blue-100 text-lg mb-10 max-w-2xl mx-auto">
               Register today and access hundreds of government services from the comfort of your home.
             </p>
-            <div className="flex flex-wrap justify-center gap-4">
+            <div className="flex flex-wrap justify-center gap-5">
               <Link
                 href="/register"
-                className="bg-[#FF9933] hover:bg-[#e88720] text-white px-8 py-3 rounded-lg font-medium text-lg transition shadow-lg"
+                className="bg-[#FF9933] hover:bg-[#e88720] text-white px-10 py-4 rounded-xl font-semibold text-lg transition-all shadow-xl hover:shadow-2xl hover:-translate-y-1"
               >
-                Create Account
+                Create Free Account
               </Link>
               <Link
                 href="/login"
-                className="bg-transparent hover:bg-white/10 text-white border border-white px-8 py-3 rounded-lg font-medium text-lg transition"
+                className="bg-transparent hover:bg-white/10 text-white border-2 border-white/40 px-10 py-4 rounded-xl font-semibold text-lg transition-all"
               >
                 Sign In
               </Link>
             </div>
+            <p className="text-blue-200 text-sm mt-8">
+              📞 National Helpline: 1800-XXX-XXXX | 🔒 256-bit SSL Secured
+            </p>
           </div>
         </section>
       </main>
