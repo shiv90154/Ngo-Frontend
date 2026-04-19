@@ -126,7 +126,7 @@ export default function Services() {
                 )}
               </div>
               <button
-                onClick={() => router.push('/profile')}
+                onClick={() => router.push('/profile/view')}
                 className="flex items-center gap-2 bg-[#1a237e]/10 hover:bg-[#1a237e]/20 text-[#1a237e] px-4 py-2 rounded-lg transition text-sm font-medium border border-[#1a237e]/30"
               >
                 <User size={14} /> My Profile
