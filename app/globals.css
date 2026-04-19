@@ -1,1 +1,42 @@
 @import "tailwindcss";
+
+@layer base {
+  :root {
+    --brand-orange: #FF7B00;
+    --brand-orange-dark: #cc6200;
+    --brand-orange-light: #fff2e6;
+  }
+}
+
+@layer utilities {
+  .govt-heading {
+    @apply font-bold text-gray-900 tracking-tight;
+  }
+
+  .govt-btn-primary {
+    @apply bg-[var(--brand-orange)] hover:bg-[var(--brand-orange-dark)] text-white font-bold uppercase rounded-sm border border-[var(--brand-orange-dark)] transition-colors shadow-sm;
+  }
+
+  .govt-btn-secondary {
+    @apply bg-white hover:bg-gray-50 text-gray-800 font-bold uppercase rounded-sm border border-gray-300 transition-colors shadow-sm;
+  }
+
+  .govt-card {
+    @apply bg-white border-t-4 border-[var(--brand-orange)] rounded-sm shadow-sm border-l border-r border-b border-gray-200;
+  }
+
+  .govt-container {
+    @apply container mx-auto px-4 lg:px-8 max-w-7xl;
+  }
+}
+
+body {
+  font-family: var(--font-outfit), sans-serif;
+  background-color: #f8fafc;
+  color: #334155;
+  -webkit-font-smoothing: antialiased;
+}
+
+::-webkit-scrollbar {
+  width: 0px;
+}

@@ -1,0 +1,31 @@
+# Agriculture Backend API Requirements Blueprint
+
+This document outlines every single route and HTTP method required for the **Agriculture Feature** (extracted natively from your frontend).
+
+## Base URL Structure
+All routes below are prefixed by your `NEXT_PUBLIC_API_URL` (e.g., `http://localhost:5000/api`). Protective routes expect an Authorization Header (`Bearer <token>`).
+
+---
+
+## 1. Agriculture & Inputs Marketplace (`/agriculture`)
+
+| Method | Endpoint | Description & Expected Payload | Expected Return |
+| :--- | :--- | :--- | :--- |
+| `GET`  | `/agriculture/dashboard` | Main metrics overview for agri portal. | `{ data: { stats: { totalCrops... } } }`|
+| `GET`  | `/agriculture/profile` | Fetches farmer/dealer specific profile fields. | `{ data: { ... } }` |
+| `PUT`  | `/agriculture/profile` | Updates farmer/dealer specific fields. | `{ success: true }` |
+| `GET`  | `/agriculture/crops` | Gets logged-in farmer's crops. | `{ data: [ ...crops ] }` |
+| `POST` | `/agriculture/crops` | Adds a crop output record. | `{ success: true }` |
+| `PUT`  | `/agriculture/crops/:id` | Edits crop output. | `{ success: true }` |
+| `DELETE`| `/agriculture/crops/:id` | Deletes crop output. | `{ success: true }` |
+| `GET`  | `/agriculture/my-products` | Gets inputs/listings posted by dealer. | `{ data: [ ...products ] }` |
+| `POST` | `/agriculture/my-products` | Adds an input listing (e.g. Fertilizer). | `{ success: true }` |
+| `PUT`  | `/agriculture/my-products/:id` | Edits an input listing. | `{ success: true }` |
+| `DELETE`| `/agriculture/my-products/:id` | Deletes an input listing. | `{ success: true }` |
+| `GET`  | `/agriculture/products` | The Public Marketplace listings. | `{ data: [ ...products ] }` |
+| `GET`  | `/agriculture/products/:id` | Detailed view for one specific marketplace item. | `{ data: { ...productDetails } }`|
+| `GET`  | `/agriculture/cart` | Gets user's current shopping cart. | `{ data: [ ...cartItems ] }` |
+| `POST` | `/agriculture/cart` | Adds item to cart. Payload: `{ productId, quantity, price }` | `{ success: true }` |
+| `PUT`  | `/agriculture/cart/:productId` | Updates item quantity. Payload: `{ quantity }` | `{ success: true }` |
+| `DELETE`| `/agriculture/cart/:productId` | Removes item from cart. | `{ success: true }` |
+| `POST` | `/agriculture/checkout`| Finalizes cart purchase. | `{ success: true }` |
