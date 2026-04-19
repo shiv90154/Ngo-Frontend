@@ -126,7 +126,7 @@ export const healthcareAPI = {
     limit?: number;
   }) => api.get("/healthcare/doctors/search", { params }),
 
-  getDoctorById: (id: string) => api.get(`/users/${id}`), // uses admin/user route
+  getDoctorById: (id: string) => api.get(`/users/${id}`),
 };
 
 // ======================
@@ -174,6 +174,55 @@ export const mediaAPI = {
 
   // Become creator
   becomeCreator: () => api.post("/media/become-creator"),
+};
+
+// ======================
+// FINANCE API (🆕 ADDED)
+// ======================
+export const financeAPI = {
+  // Dashboard
+  getDashboard: () => api.get("/finance/dashboard"),
+
+  // Wallet
+  getWallet: () => api.get("/finance/wallet"),
+  createWalletOrder: (amount: number) => api.post("/finance/wallet/add-order", { amount }),
+  verifyPayment: (data: {
+    razorpay_order_id: string;
+    razorpay_payment_id: string;
+    razorpay_signature: string;
+  }) => api.post("/finance/wallet/verify", data),
+  transferFunds: (toUserId: string, amount: number, description?: string) =>
+    api.post("/finance/wallet/transfer", { toUserId, amount, description }),
+
+  // Loans
+  getMyLoans: () => api.get("/finance/loans"),
+  applyLoan: (amount: number, tenureMonths: number) =>
+    api.post("/finance/loans/apply", { amount, tenureMonths }),
+  repayEMI: (loanId: string) => api.post(`/finance/loans/${loanId}/repay`),
+
+  // Bills
+  getBillHistory: () => api.get("/finance/bills/history"),
+  payBill: (billType: string, billNumber: string, amount: number) =>
+    api.post("/finance/bills/pay", { billType, billNumber, amount }),
+
+  // Bank Account
+  getBankAccount: () => api.get("/finance/bank-account"),
+  updateBankAccount: (data: {
+    accountNumber?: string;
+    ifsc?: string;
+    bankName?: string;
+    accountHolderName?: string;
+  }) => api.put("/finance/bank-account", data),
+  verifyBankAccount: (data: {
+    accountNumber: string;
+    ifsc: string;
+    accountHolderName?: string;
+    bankName?: string;
+  }) => api.post("/finance/bank-account/verify", data),
+
+  // AEPS
+  aepsWithdraw: (aadhaarNumber: string, amount: number, bankIIN?: string) =>
+    api.post("/finance/aeps/withdraw", { aadhaarNumber, amount, bankIIN }),
 };
 
 // ======================
