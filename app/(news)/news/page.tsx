@@ -7,6 +7,7 @@ import { mediaAPI } from "@/lib/api";
 import PostCard from "@/components/news/PostCard";
 import { Loader2, Newspaper } from "lucide-react";
 import Link from "next/link";
+import { toast } from "react-toastify";  // 🆕 ADDED
 
 export default function NewsFeedPage() {
   const { user } = useAuth();
