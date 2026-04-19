@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { mediaAPI } from "@/lib/api";
 import { useAuth } from "@/contexts/AuthContext";
@@ -33,7 +33,7 @@ export default function PostDetailPage() {
     } catch (error) {
       console.error("Failed to fetch post:", error);
       toast.error("Post not found");
-      router.push("/news/feed");
+      router.push("/news");
     } finally {
       setLoading(false);
     }
@@ -89,7 +89,6 @@ export default function PostDetailPage() {
     <div className="max-w-2xl mx-auto space-y-6">
       <PostCard post={post} onUpdate={(id: string, data: any) => setPost({ ...post, ...data })} />
 
-      {/* Add Comment */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
         <form onSubmit={handleAddComment} className="flex items-center gap-3">
           <div className="w-8 h-8 bg-[#1a237e] rounded-full flex items-center justify-center text-white text-sm">
@@ -108,7 +107,6 @@ export default function PostDetailPage() {
         </form>
       </div>
 
-      {/* Comments List */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 divide-y">
         {comments.length === 0 ? (
           <p className="p-6 text-center text-gray-500">No comments yet.</p>

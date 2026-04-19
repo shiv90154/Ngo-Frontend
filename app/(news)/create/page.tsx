@@ -3,7 +3,7 @@
 import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { mediaAPI } from "@/lib/api";
-import { ImagePlus, X, Loader2, MapPin } from "lucide-react";
+import { ImagePlus, X, Loader2 } from "lucide-react";
 import { toast } from "react-toastify";
 
 export default function CreatePostPage() {
@@ -47,7 +47,7 @@ export default function CreatePostPage() {
       mediaFiles.forEach((file) => formData.append("media", file));
       await mediaAPI.createPost(formData);
       toast.success("Post created!");
-      router.push("/news/feed");
+      router.push("/news");
     } catch (error: any) {
       toast.error(error.response?.data?.message || "Failed to create post");
     } finally {
@@ -67,7 +67,6 @@ export default function CreatePostPage() {
             rows={4}
             className="w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#1a237e] resize-none"
           />
-
           <div className="flex gap-2">
             <input
               type="text"
@@ -84,18 +83,12 @@ export default function CreatePostPage() {
               className="flex-1 p-3 border border-gray-200 rounded-xl"
             />
           </div>
-
-          {/* Media Previews */}
           {mediaPreviews.length > 0 && (
             <div className="grid grid-cols-3 gap-2">
               {mediaPreviews.map((preview, idx) => (
                 <div key={idx} className="relative">
                   {mediaFiles[idx].type.startsWith("image/") ? (
-                    <img
-                      src={preview}
-                      alt=""
-                      className="w-full h-24 object-cover rounded-lg"
-                    />
+                    <img src={preview} alt="" className="w-full h-24 object-cover rounded-lg" />
                   ) : (
                     <video src={preview} className="w-full h-24 object-cover rounded-lg" />
                   )}
@@ -110,8 +103,6 @@ export default function CreatePostPage() {
               ))}
             </div>
           )}
-
-          {/* Upload Button */}
           <div
             onClick={() => fileInputRef.current?.click()}
             className="border-2 border-dashed border-gray-300 rounded-xl p-6 text-center cursor-pointer hover:border-[#1a237e] transition"
@@ -127,7 +118,6 @@ export default function CreatePostPage() {
             className="hidden"
             onChange={handleFileSelect}
           />
-
           <div className="flex justify-end gap-3 pt-4">
             <button
               type="button"

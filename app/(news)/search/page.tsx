@@ -42,10 +42,7 @@ export default function SearchPage() {
               className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-[#1a237e]"
             />
           </div>
-          <button
-            type="submit"
-            className="px-6 py-3 bg-[#1a237e] text-white rounded-xl font-medium hover:bg-[#0d1757]"
-          >
+          <button type="submit" className="px-6 py-3 bg-[#1a237e] text-white rounded-xl font-medium hover:bg-[#0d1757]">
             Search
           </button>
         </form>

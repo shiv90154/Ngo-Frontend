@@ -38,15 +38,15 @@ const services = [
     accent: "#be123c",
     tag: "Wellness"
   },
-  {
+{
     title: "News",
     desc: "Live local news & community stories.",
-    route: "news",
+    route: "news",           
     features: ["Live Feed", "Videos", "Local"],
     icon: Newspaper,
     accent: "#b45309",
     tag: "Media"
-  },
+},
   {
     title: "Agriculture",
     desc: "AI crop tips & smart market prices.",

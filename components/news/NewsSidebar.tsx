@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, Search, User, Users, TrendingUp } from "lucide-react";
+import { Home, Search, User, TrendingUp } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useEffect, useState } from "react";
 import { mediaAPI } from "@/lib/api";
@@ -13,7 +13,6 @@ export default function NewsSidebar() {
   const [suggestedCreators, setSuggestedCreators] = useState([]);
 
   useEffect(() => {
-    // Fetch popular creators for suggestions
     const fetchSuggestions = async () => {
       try {
         const res = await mediaAPI.searchCreators("", { limit: 3 });
@@ -26,12 +25,13 @@ export default function NewsSidebar() {
   }, []);
 
   const navLinks = [
-    { name: "Feed", href: "/news/feed", icon: Home },
+    { name: "Feed", href: "/news", icon: Home },
     { name: "Search Creators", href: "/news/search", icon: Search },
     { name: "My Profile", href: `/news/profile/${user?._id}`, icon: User },
   ];
 
   const isActive = (href: string) => {
+    if (href === "/news" && pathname === "/news") return true;
     return pathname === href || pathname.startsWith(href + "/");
   };
 
@@ -58,7 +58,6 @@ export default function NewsSidebar() {
         })}
       </nav>
 
-      {/* Suggested Creators */}
       <div className="mt-8">
         <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3 flex items-center gap-1">
           <TrendingUp className="w-3 h-3" /> Suggested Creators
