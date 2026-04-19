@@ -10,7 +10,7 @@ import {
   GraduationCap, HeartPulse, Sprout, Wallet, Banknote,
   MonitorSmartphone, Users, Video, Store, Save, Camera, X,
   Loader2, Eye, EyeOff, CheckCircle, AlertCircle, IndianRupee, Briefcase,
-  Shield, Globe, Award, ChevronDown, Edit3
+  Shield, Globe, Award, ChevronDown, Edit3, ArrowLeft
 } from "lucide-react";
 
 export default function ProfilePage() {
@@ -252,7 +252,6 @@ export default function ProfilePage() {
   // ========== COMPACT GOVERNMENT PORTAL STYLE ==========
   return (
     <div className="min-h-screen bg-[#f0f2f5] flex flex-col">
-     
       {/* Main Content */}
       <div className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 w-full">
         {/* Page Header with integrated profile photo */}
@@ -294,15 +293,25 @@ export default function ProfilePage() {
                 </div>
               </div>
             </div>
-            
-            <button
-              onClick={handleSubmit}
-              disabled={saving}
-              className="flex items-center gap-2 bg-[#1a237e] hover:bg-[#0d1757] text-white font-medium px-5 py-2.5 rounded-lg shadow-sm transition disabled:opacity-50 text-sm"
-            >
-              {saving ? <Loader2 className="animate-spin" size={16} /> : <Save size={16} />}
-              {saving ? "Saving..." : "Save Changes"}
-            </button>
+
+            {/* Action Buttons */}
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => router.push("/services")}
+                className="flex items-center gap-2 text-gray-700 hover:text-[#1a237e] font-medium transition border border-gray-300 hover:border-[#1a237e] px-4 py-2.5 rounded-lg text-sm"
+              >
+                <ArrowLeft size={16} />
+                Back to Services
+              </button>
+              <button
+                onClick={handleSubmit}
+                disabled={saving}
+                className="flex items-center gap-2 bg-[#1a237e] hover:bg-[#0d1757] text-white font-medium px-5 py-2.5 rounded-lg shadow-sm transition disabled:opacity-50 text-sm"
+              >
+                {saving ? <Loader2 className="animate-spin" size={16} /> : <Save size={16} />}
+                {saving ? "Saving..." : "Save Changes"}
+              </button>
+            </div>
           </div>
         </div>
 
@@ -532,13 +541,6 @@ export default function ProfilePage() {
               </div>
             )}
           </form>
-        </div>
-
-        {/* Official Footer */}
-        <div className="mt-8 text-center text-xs text-gray-400 border-t border-gray-200 pt-4">
-          <p>Content owned and managed by Samraddh Bharat Foundation (Government of India)</p>
-          <p>Designed & Developed by National Informatics Centre</p>
-          <p className="mt-1">© Samraddh Bharat Foundation | Secure & Encrypted</p>
         </div>
       </div>
     </div>
