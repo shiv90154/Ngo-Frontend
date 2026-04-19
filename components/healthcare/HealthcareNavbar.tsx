@@ -16,7 +16,7 @@ import {
   Stethoscope,
   Pill,
 } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 
 export default function HealthcareNavbar() {
@@ -24,6 +24,11 @@ export default function HealthcareNavbar() {
   const { user, logout } = useAuth();
   const [showMobileMenu, setShowMobileMenu] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const navItems = [
     { name: "Dashboard", href: "/healthcare/dashboard", icon: Heart },
@@ -37,6 +42,12 @@ export default function HealthcareNavbar() {
     if (href === "/healthcare/dashboard" && pathname === "/healthcare") return true;
     return pathname === href || pathname.startsWith(href + "/");
   };
+
+  // Prevent hydration mismatch by not rendering user-specific content until mounted
+  const userInitial = mounted && user?.fullName ? user.fullName.charAt(0) : "";
+  const userFullName = mounted && user?.fullName ? user.fullName : "";
+  const userEmail = mounted && user?.email ? user.email : "";
+  const userRole = mounted && user?.role ? user.role.replace(/_/g, " ") : "";
 
   return (
     <header className="sticky top-0 z-50 bg-white border-b border-gray-200 shadow-sm">
@@ -95,54 +106,56 @@ export default function HealthcareNavbar() {
               <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
             </button>
 
-            {/* User Profile */}
-            <div className="relative">
-              <button
-                onClick={() => setShowUserMenu(!showUserMenu)}
-                className="flex items-center gap-2 p-1.5 text-gray-600 hover:bg-gray-50 rounded-lg transition"
-              >
-                <div className="w-8 h-8 bg-gradient-to-br from-[#1a237e] to-[#283593] rounded-full flex items-center justify-center text-white font-medium text-sm">
-                  {user?.fullName?.charAt(0) || "U"}
-                </div>
-                <ChevronDown className="w-4 h-4 hidden sm:block" />
-              </button>
-
-              {showUserMenu && (
-                <div className="absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-lg border border-gray-200 py-2 z-50">
-                  <div className="px-4 py-3 border-b border-gray-100">
-                    <p className="text-sm font-medium text-gray-800">{user?.fullName}</p>
-                    <p className="text-xs text-gray-500 truncate">{user?.email}</p>
-                    <span className="inline-block mt-1 text-xs bg-[#1a237e]/10 text-[#1a237e] px-2 py-0.5 rounded-full">
-                      {user?.role?.replace(/_/g, " ")}
-                    </span>
+            {/* User Profile - Only show when mounted */}
+            {mounted && (
+              <div className="relative">
+                <button
+                  onClick={() => setShowUserMenu(!showUserMenu)}
+                  className="flex items-center gap-2 p-1.5 text-gray-600 hover:bg-gray-50 rounded-lg transition"
+                >
+                  <div className="w-8 h-8 bg-gradient-to-br from-[#1a237e] to-[#283593] rounded-full flex items-center justify-center text-white font-medium text-sm">
+                    {userInitial || "U"}
                   </div>
-                  <Link
-                    href="/profile"
-                    className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50"
-                    onClick={() => setShowUserMenu(false)}
-                  >
-                    <User className="w-4 h-4" /> My Profile
-                  </Link>
-                  <Link
-                    href="/services"
-                    className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50"
-                    onClick={() => setShowUserMenu(false)}
-                  >
-                    <Heart className="w-4 h-4" /> All Services
-                  </Link>
-                  <hr className="my-1 border-gray-100" />
-                  <button
-                    onClick={() => {
-                      setShowUserMenu(false);
-                      logout();
-                    }}
-                    className="flex items-center gap-3 w-full px-4 py-2.5 text-sm text-red-600 hover:bg-red-50"
-                  >
-                    <LogOut className="w-4 h-4" /> Logout
-                  </button>
-                </div>
-              )}
-            </div>
+                  <ChevronDown className="w-4 h-4 hidden sm:block" />
+                </button>
+
+                {showUserMenu && (
+                  <div className="absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-lg border border-gray-200 py-2 z-50">
+                    <div className="px-4 py-3 border-b border-gray-100">
+                      <p className="text-sm font-medium text-gray-800">{userFullName}</p>
+                      <p className="text-xs text-gray-500 truncate">{userEmail}</p>
+                      <span className="inline-block mt-1 text-xs bg-[#1a237e]/10 text-[#1a237e] px-2 py-0.5 rounded-full">
+                        {userRole}
+                      </span>
+                    </div>
+                    <Link
+                      href="/profile"
+                      className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50"
+                      onClick={() => setShowUserMenu(false)}
+                    >
+                      <User className="w-4 h-4" /> My Profile
+                    </Link>
+                    <Link
+                      href="/services"
+                      className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50"
+                      onClick={() => setShowUserMenu(false)}
+                    >
+                      <Heart className="w-4 h-4" /> All Services
+                    </Link>
+                    <hr className="my-1 border-gray-100" />
+                    <button
+                      onClick={() => {
+                        setShowUserMenu(false);
+                        logout();
+                      }}
+                      className="flex items-center gap-3 w-full px-4 py-2.5 text-sm text-red-600 hover:bg-red-50"
+                    >
+                      <LogOut className="w-4 h-4" /> Logout
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
 
             {/* Mobile Menu Button */}
             <button
