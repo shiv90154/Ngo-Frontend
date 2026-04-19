@@ -54,45 +54,11 @@ export default function LoginPage() {
   if (!isClient) return null;
 
   return (
-    <div className="min-h-screen bg-[#f0f2f5] flex flex-col">
-      {/* Government Header Bar */}
-      <div className="bg-[#1a237e] text-white py-2 px-4">
-        <div className="max-w-7xl mx-auto flex justify-between items-center text-xs md:text-sm">
-          <div className="flex items-center gap-4">
-            <span>भारत सरकार | Government of India</span>
-            <span className="hidden sm:inline">|</span>
-            <span className="hidden sm:inline">Ministry of Electronics & IT</span>
-          </div>
-          <div className="flex items-center gap-3">
-            <button className="flex items-center gap-1 hover:text-gray-300">
-              <FaLanguage size={14} />
-              <span className="hidden sm:inline">हिन्दी</span>
-            </button>
-            <span className="hidden sm:inline">|</span>
-            <span>Skip to main content</span>
-          </div>
-        </div>
-      </div>
-
-      {/* Tricolor Strip */}
-      <div className="h-1 flex">
-        <div className="w-1/3 bg-[#FF9933]"></div>
-        <div className="w-1/3 bg-white"></div>
-        <div className="w-1/3 bg-[#138808]"></div>
-      </div>
-
+    <div className="min-h-screen bg-[#f0f2f5] flex flex-col">   
       <div className="flex-1 flex items-center justify-center p-4 py-8">
         <div className="w-full max-w-6xl">
           {/* National Emblem & Title */}
           <div className="text-center mb-6">
-            <div className="inline-flex items-center justify-center gap-3">
-              <div className="w-16 h-16 bg-[#1a237e] rounded-full flex items-center justify-center border-2 border-[#FF9933]">
-                <div className="text-white text-2xl font-serif">अ</div>
-              </div>
-              <div className="w-16 h-16 bg-[#1a237e] rounded-full flex items-center justify-center border-2 border-[#FF9933]">
-                <div className="text-white text-2xl font-serif">₹</div>
-              </div>
-            </div>
             <h1 className="text-3xl md:text-4xl font-bold text-[#1a237e] mt-3 font-serif">Samraddh Bharat</h1>
             <p className="text-gray-600 mt-1 text-sm md:text-base">डिजिटल इंडिया - एकीकृत सेवा पोर्टल</p>
             <p className="text-gray-500 text-xs md:text-sm">Digital India - Unified Service Portal</p>
@@ -101,15 +67,12 @@ export default function LoginPage() {
           <div className="bg-white rounded-xl shadow-2xl overflow-hidden border border-gray-200">
             <div className="grid md:grid-cols-2">
               {/* Left Panel - Official Information */}
-              <div className="bg-gradient-to-br from-[#1a237e] to-[#283593] text-white p-8 hidden md:block">
+              <div className="bg-gradient-to-br from-[#1a237e] to-[#283593] text-white p-8 hidden  md:block">
                 <div className="h-full flex flex-col">
                   <div className="mb-6">
-                    <div className="w-20 h-20 bg-white/10 rounded-full flex items-center justify-center mb-4">
-                      <div className="text-4xl">🇮🇳</div>
-                    </div>
-                    <h2 className="text-2xl font-bold mb-2">National Portal</h2>
+                                        <h2 className="text-2xl font-bold mb-2">Samraddh Bharat</h2>
                     <p className="text-blue-100 text-sm leading-relaxed">
-                      Access government schemes and services through a single, secure platform.
+                      Access multiple schemes and services through a single, secure platform.
                     </p>
                   </div>
 
@@ -150,13 +113,6 @@ export default function LoginPage() {
               {/* Right Panel - Login Form */}
               <div className="p-8">
                 <div className="max-w-sm mx-auto">
-                  <div className="md:hidden text-center mb-6">
-                    <div className="inline-block w-16 h-16 bg-[#1a237e] rounded-full flex items-center justify-center mb-2">
-                      <span className="text-white text-xl">🇮🇳</span>
-                    </div>
-                    <h3 className="text-xl font-bold text-[#1a237e]">Samraddh Bharat</h3>
-                  </div>
-
                   <h3 className="text-2xl font-bold text-gray-800 mb-1">Sign In</h3>
                   <p className="text-gray-500 text-sm mb-6">
                     Use your registered email to access the portal
@@ -263,20 +219,14 @@ export default function LoginPage() {
                       <span>|</span>
                       <Link href="/terms" className="hover:text-[#1a237e]">Terms</Link>
                     </div>
-                    <p className="text-center text-[10px] text-gray-400 mt-3">
-                      This site is protected by reCAPTCHA and the Google Privacy Policy.
-                    </p>
+                    
                   </div>
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Official Footer */}
-          <div className="mt-6 text-center text-xs text-gray-500">
-            <p>Content owned and managed by Samraddh Bharat Foundation (Government of India)</p>
-            <p className="mt-1">Designed & Developed by National Informatics Centre</p>
-          </div>
+         
         </div>
       </div>
     </div>

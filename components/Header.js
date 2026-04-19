@@ -91,7 +91,7 @@ const Header = () => {
 
                         {/* Logo */}
                         <button onClick={() => go("/")} aria-label="Home" className="flex items-center gap-3 focus:outline-none focus:ring-2 focus:ring-[#FF7B00] px-1 rounded-sm">
-                            <img src="/logo.jpg" alt="Logo" className="w-12 h-12 object-contain" onError={(e) => { e.target.onerror = null; e.target.src = '/fallback-logo.png'; }} />
+                            <img src="@/public/logo.jpg" alt="Logo" className="w-12 h-12 object-contain" onError={(e) => { e.target.onerror = null; e.target.src = '/fallback-logo.png'; }} />
                             <div className="leading-tight text-left hidden sm:flex flex-col">
                                 <span className="block text-[16px] font-black text-gray-900 tracking-tight uppercase">Samraddh Bharat</span>
                                 <span className="block text-[11px] text-[#FF7B00] font-bold tracking-widest uppercase">Foundation</span>
