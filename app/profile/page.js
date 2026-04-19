@@ -52,7 +52,7 @@ export default function ProfilePage() {
 
   const [profileImage, setProfileImage] = useState(null);
   const [profileImagePreview, setProfileImagePreview] = useState("");
-  const [loading, setLoading] = useState(true);   // <-- THIS WAS MISSING
+  const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [activeTab, setActiveTab] = useState("basic");
   const [saveMessage, setSaveMessage] = useState({ type: "", text: "" });
@@ -224,9 +224,9 @@ export default function ProfilePage() {
   // ========== LOADING STATES ==========
   if (authLoading || loading) {
     return (
-      <div className="flex justify-center items-center h-screen bg-gradient-to-br from-[#f8fafc] to-[#f1f5f9]">
+      <div className="flex justify-center items-center h-screen bg-gray-50">
         <div className="text-center">
-          <Loader2 className="animate-spin h-10 w-10 text-[#FF9933] mx-auto mb-3" />
+          <Loader2 className="animate-spin h-10 w-10 text-blue-700 mx-auto mb-3" />
           <p className="text-gray-600">Loading your profile...</p>
         </div>
       </div>
@@ -247,46 +247,42 @@ export default function ProfilePage() {
     { id: "seller", label: "Seller / Store", icon: Store },
   ];
 
-  // ========== GOVERNMENT PORTAL UI ==========
+  // ========== PROFESSIONAL GOVERNMENT PORTAL UI ==========
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#f8fafc] to-[#f1f5f9] py-6 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gray-50 py-6 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
-        {/* Tricolor Header */}
-        <div className="flex mb-6">
-          <div className="h-1 w-1/3 bg-[#FF9933] rounded-l"></div>
-          <div className="h-1 w-1/3 bg-white"></div>
-          <div className="h-1 w-1/3 bg-[#138808] rounded-r"></div>
-        </div>
-
-        {/* Title with Emblem */}
-        <div className="flex items-center justify-between flex-wrap gap-4 mb-6">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 bg-white rounded-full shadow-md flex items-center justify-center border border-gray-200">
-              <div className="w-10 h-10 rounded-full border-2 border-[#FF9933] flex items-center justify-center">
-                <div className="w-6 h-6 rounded-full bg-[#138808]"></div>
+        {/* Header - Clean professional */}
+        <div className="mb-6">
+          <div className="flex items-center justify-between flex-wrap gap-4">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-blue-700 rounded-lg flex items-center justify-center shadow-sm">
+                <User className="text-white" size={20} />
+              </div>
+              <div>
+                <h1 className="text-2xl md:text-3xl font-semibold text-gray-800">My Profile</h1>
+                <p className="text-sm text-gray-500">Manage your personal information and service preferences</p>
               </div>
             </div>
-            <div>
-              <h1 className="text-2xl md:text-3xl font-bold text-gray-800">My Profile</h1>
-              <p className="text-sm text-gray-500">Manage your personal information and service preferences</p>
-            </div>
+            <button
+              onClick={handleSubmit}
+              disabled={saving}
+              className="flex items-center gap-2 bg-blue-700 hover:bg-blue-800 text-white font-medium px-5 py-2.5 rounded-md shadow-sm transition disabled:opacity-50 text-sm"
+            >
+              {saving ? <Loader2 className="animate-spin" size={16} /> : <Save size={16} />}
+              {saving ? "Saving..." : "Save Changes"}
+            </button>
           </div>
-          <button
-            onClick={handleSubmit}
-            disabled={saving}
-            className="flex items-center gap-2 bg-[#FF9933] hover:bg-[#ff8800] text-white font-semibold px-5 py-2.5 rounded-lg shadow-md transition disabled:opacity-50"
-          >
-            {saving ? <Loader2 className="animate-spin" size={18} /> : <Save size={18} />}
-            {saving ? "Saving..." : "Save Changes"}
-          </button>
+          <div className="h-0.5 w-full bg-gradient-to-r from-blue-700 via-blue-500 to-blue-700 mt-4 rounded-full"></div>
         </div>
 
         {/* Save Message */}
         {saveMessage.text && (
-          <div className={`mb-5 p-3 rounded-lg flex items-center gap-2 shadow-sm ${
-            saveMessage.type === "success" ? "bg-green-50 text-green-800 border-l-4 border-green-600" : "bg-red-50 text-red-800 border-l-4 border-red-600"
+          <div className={`mb-5 p-3 rounded-md flex items-center gap-2 shadow-sm text-sm ${
+            saveMessage.type === "success" 
+              ? "bg-green-50 text-green-800 border-l-4 border-green-600" 
+              : "bg-red-50 text-red-800 border-l-4 border-red-600"
           }`}>
-            {saveMessage.type === "success" ? <CheckCircle size={18} /> : <AlertCircle size={18} />}
+            {saveMessage.type === "success" ? <CheckCircle size={16} /> : <AlertCircle size={16} />}
             {saveMessage.text}
           </div>
         )}
@@ -294,20 +290,20 @@ export default function ProfilePage() {
         <div className="flex flex-col lg:flex-row gap-6">
           {/* Sidebar */}
           <div className="lg:w-80 flex-shrink-0">
-            <div className="bg-white rounded-xl shadow-md border border-gray-100 p-5 text-center mb-5">
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-5 text-center mb-5">
               <div className="relative inline-block">
-                <div className="w-28 h-28 rounded-full bg-gray-100 overflow-hidden mx-auto border-2 border-[#FF9933] shadow-sm">
+                <div className="w-28 h-28 rounded-full bg-gray-100 overflow-hidden mx-auto border-2 border-blue-200 shadow-sm">
                   {profileImagePreview ? (
                     <img src={profileImagePreview} alt="Profile" className="w-full h-full object-cover" />
                   ) : (
-                    <div className="w-full h-full bg-gradient-to-br from-[#FF9933] to-[#138808] flex items-center justify-center text-white text-3xl font-bold">
+                    <div className="w-full h-full bg-gradient-to-br from-blue-600 to-blue-800 flex items-center justify-center text-white text-3xl font-semibold">
                       {profileData.fullName?.[0]?.toUpperCase() || "U"}
                     </div>
                   )}
                 </div>
                 <button
                   onClick={() => fileInputRef.current.click()}
-                  className="absolute bottom-0 right-0 bg-white border border-gray-300 text-gray-600 p-1.5 rounded-full shadow-md hover:bg-gray-50 transition"
+                  className="absolute bottom-0 right-0 bg-white border border-gray-300 text-gray-600 p-1.5 rounded-full shadow-sm hover:bg-gray-50 transition"
                 >
                   <Camera size={14} />
                 </button>
@@ -327,18 +323,18 @@ export default function ProfilePage() {
               </div>
             </div>
 
-            <div className="bg-white rounded-xl shadow-md border border-gray-100 p-2">
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-2">
               {tabs.map(tab => (
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
-                  className={`flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-left transition mb-1 ${
+                  className={`flex items-center gap-3 w-full px-3 py-2.5 rounded-md text-left transition mb-1 ${
                     activeTab === tab.id
-                      ? "bg-[#FF9933]/10 text-[#FF9933] font-medium border-l-4 border-[#FF9933]"
+                      ? "bg-blue-50 text-blue-700 font-medium border-l-4 border-blue-700"
                       : "text-gray-600 hover:bg-gray-50"
                   }`}
                 >
-                  <tab.icon size={18} className={activeTab === tab.id ? "text-[#FF9933]" : "text-gray-400"} />
+                  <tab.icon size={18} className={activeTab === tab.id ? "text-blue-700" : "text-gray-400"} />
                   <span className="text-sm">{tab.label}</span>
                 </button>
               ))}
@@ -346,23 +342,23 @@ export default function ProfilePage() {
           </div>
 
           {/* Main Form */}
-          <div className="flex-1 bg-white rounded-xl shadow-md border border-gray-100 p-5 md:p-6">
+          <div className="flex-1 bg-white rounded-lg shadow-sm border border-gray-200 p-5 md:p-6">
             <form onSubmit={handleSubmit}>
               {/* Personal Details Tab */}
               {activeTab === "basic" && (
                 <div className="space-y-5">
                   <div className="border-b border-gray-200 pb-2 flex items-center gap-2">
-                    <User size={20} className="text-[#FF9933]" />
+                    <User size={20} className="text-blue-700" />
                     <h3 className="text-lg font-semibold text-gray-800">Personal Information</h3>
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                    <div><label className="block text-sm font-medium text-gray-700 mb-1">Full Name <span className="text-red-500">*</span></label><input name="fullName" value={profileData.fullName} onChange={handleInputChange} className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-[#FF9933] focus:border-transparent" /></div>
-                    <div><label className="block text-sm font-medium text-gray-700 mb-1">Email ID</label><input value={profileData.email} disabled className="w-full border border-gray-200 rounded-lg px-3 py-2 bg-gray-50 text-gray-500" /></div>
-                    <div><label className="block text-sm font-medium text-gray-700 mb-1">Mobile Number</label><input name="phone" value={profileData.phone} onChange={handleInputChange} className="w-full border border-gray-300 rounded-lg px-3 py-2" /></div>
-                    <div><label className="block text-sm font-medium text-gray-700 mb-1">Father's Name</label><input name="fatherName" value={profileData.fatherName} onChange={handleInputChange} className="w-full border border-gray-300 rounded-lg px-3 py-2" /></div>
-                    <div><label className="block text-sm font-medium text-gray-700 mb-1">Mother's Name</label><input name="motherName" value={profileData.motherName} onChange={handleInputChange} className="w-full border border-gray-300 rounded-lg px-3 py-2" /></div>
-                    <div><label className="block text-sm font-medium text-gray-700 mb-1">Date of Birth</label><input type="date" name="dob" value={profileData.dob} onChange={handleInputChange} className="w-full border border-gray-300 rounded-lg px-3 py-2" /></div>
-                    <div><label className="block text-sm font-medium text-gray-700 mb-1">Gender</label><select name="gender" value={profileData.gender} onChange={handleInputChange} className="w-full border border-gray-300 rounded-lg px-3 py-2"><option value="">Select</option><option value="male">Male</option><option value="female">Female</option><option value="other">Other</option></select></div>
+                    <div><label className="block text-sm font-medium text-gray-700 mb-1">Full Name <span className="text-red-500">*</span></label><input name="fullName" value={profileData.fullName} onChange={handleInputChange} className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm" /></div>
+                    <div><label className="block text-sm font-medium text-gray-700 mb-1">Email ID</label><input value={profileData.email} disabled className="w-full border border-gray-200 rounded-md px-3 py-2 bg-gray-50 text-gray-500 text-sm" /></div>
+                    <div><label className="block text-sm font-medium text-gray-700 mb-1">Mobile Number</label><input name="phone" value={profileData.phone} onChange={handleInputChange} className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm" /></div>
+                    <div><label className="block text-sm font-medium text-gray-700 mb-1">Father's Name</label><input name="fatherName" value={profileData.fatherName} onChange={handleInputChange} className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm" /></div>
+                    <div><label className="block text-sm font-medium text-gray-700 mb-1">Mother's Name</label><input name="motherName" value={profileData.motherName} onChange={handleInputChange} className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm" /></div>
+                    <div><label className="block text-sm font-medium text-gray-700 mb-1">Date of Birth</label><input type="date" name="dob" value={profileData.dob} onChange={handleInputChange} className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm" /></div>
+                    <div><label className="block text-sm font-medium text-gray-700 mb-1">Gender</label><select name="gender" value={profileData.gender} onChange={handleInputChange} className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm"><option value="">Select</option><option value="male">Male</option><option value="female">Female</option><option value="other">Other</option></select></div>
                   </div>
                 </div>
               )}
@@ -371,14 +367,14 @@ export default function ProfilePage() {
               {activeTab === "kyc" && (
                 <div className="space-y-5">
                   <div className="border-b border-gray-200 pb-2 flex items-center gap-2">
-                    <Fingerprint size={20} className="text-[#FF9933]" />
+                    <Fingerprint size={20} className="text-blue-700" />
                     <h3 className="text-lg font-semibold text-gray-800">Identity Documents</h3>
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                    <div><label className="block text-sm font-medium text-gray-700 mb-1">Aadhaar Number</label><input name="aadhaarNumber" value={profileData.aadhaarNumber} onChange={handleInputChange} className="w-full border border-gray-300 rounded-lg px-3 py-2" /></div>
-                    <div><label className="block text-sm font-medium text-gray-700 mb-1">PAN Number</label><input name="panNumber" value={profileData.panNumber} onChange={handleInputChange} className="w-full border border-gray-300 rounded-lg px-3 py-2" /></div>
-                    <div><label className="block text-sm font-medium text-gray-700 mb-1">Voter ID</label><input name="voterId" value={profileData.voterId} onChange={handleInputChange} className="w-full border border-gray-300 rounded-lg px-3 py-2" /></div>
-                    <div><label className="block text-sm font-medium text-gray-700 mb-1">Passport Number</label><input name="passportNumber" value={profileData.passportNumber} onChange={handleInputChange} className="w-full border border-gray-300 rounded-lg px-3 py-2" /></div>
+                    <div><label className="block text-sm font-medium text-gray-700 mb-1">Aadhaar Number</label><input name="aadhaarNumber" value={profileData.aadhaarNumber} onChange={handleInputChange} className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm" /></div>
+                    <div><label className="block text-sm font-medium text-gray-700 mb-1">PAN Number</label><input name="panNumber" value={profileData.panNumber} onChange={handleInputChange} className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm" /></div>
+                    <div><label className="block text-sm font-medium text-gray-700 mb-1">Voter ID</label><input name="voterId" value={profileData.voterId} onChange={handleInputChange} className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm" /></div>
+                    <div><label className="block text-sm font-medium text-gray-700 mb-1">Passport Number</label><input name="passportNumber" value={profileData.passportNumber} onChange={handleInputChange} className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm" /></div>
                   </div>
                 </div>
               )}
@@ -387,16 +383,16 @@ export default function ProfilePage() {
               {activeTab === "address" && (
                 <div className="space-y-5">
                   <div className="border-b border-gray-200 pb-2 flex items-center gap-2">
-                    <MapPin size={20} className="text-[#FF9933]" />
+                    <MapPin size={20} className="text-blue-700" />
                     <h3 className="text-lg font-semibold text-gray-800">Address Details</h3>
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                    <div><label className="block text-sm font-medium text-gray-700 mb-1">State</label><input name="state" value={profileData.state} onChange={handleInputChange} className="w-full border border-gray-300 rounded-lg px-3 py-2" /></div>
-                    <div><label className="block text-sm font-medium text-gray-700 mb-1">District</label><input name="district" value={profileData.district} onChange={handleInputChange} className="w-full border border-gray-300 rounded-lg px-3 py-2" /></div>
-                    <div><label className="block text-sm font-medium text-gray-700 mb-1">Block / Tehsil</label><input name="block" value={profileData.block} onChange={handleInputChange} className="w-full border border-gray-300 rounded-lg px-3 py-2" /></div>
-                    <div><label className="block text-sm font-medium text-gray-700 mb-1">Village / City</label><input name="village" value={profileData.village} onChange={handleInputChange} className="w-full border border-gray-300 rounded-lg px-3 py-2" /></div>
-                    <div><label className="block text-sm font-medium text-gray-700 mb-1">Pincode</label><input name="pincode" value={profileData.pincode} onChange={handleInputChange} className="w-full border border-gray-300 rounded-lg px-3 py-2" /></div>
-                    <div className="md:col-span-2"><label className="block text-sm font-medium text-gray-700 mb-1">Full Address</label><textarea name="fullAddress" value={profileData.fullAddress} onChange={handleInputChange} rows={2} className="w-full border border-gray-300 rounded-lg px-3 py-2" /></div>
+                    <div><label className="block text-sm font-medium text-gray-700 mb-1">State</label><input name="state" value={profileData.state} onChange={handleInputChange} className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm" /></div>
+                    <div><label className="block text-sm font-medium text-gray-700 mb-1">District</label><input name="district" value={profileData.district} onChange={handleInputChange} className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm" /></div>
+                    <div><label className="block text-sm font-medium text-gray-700 mb-1">Block / Tehsil</label><input name="block" value={profileData.block} onChange={handleInputChange} className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm" /></div>
+                    <div><label className="block text-sm font-medium text-gray-700 mb-1">Village / City</label><input name="village" value={profileData.village} onChange={handleInputChange} className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm" /></div>
+                    <div><label className="block text-sm font-medium text-gray-700 mb-1">Pincode</label><input name="pincode" value={profileData.pincode} onChange={handleInputChange} className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm" /></div>
+                    <div className="md:col-span-2"><label className="block text-sm font-medium text-gray-700 mb-1">Full Address</label><textarea name="fullAddress" value={profileData.fullAddress} onChange={handleInputChange} rows={2} className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm" /></div>
                   </div>
                 </div>
               )}
@@ -405,41 +401,41 @@ export default function ProfilePage() {
               {activeTab === "education" && (
                 <div className="space-y-5">
                   <div className="border-b border-gray-200 pb-2 flex items-center gap-2">
-                    <GraduationCap size={20} className="text-[#FF9933]" />
+                    <GraduationCap size={20} className="text-blue-700" />
                     <h3 className="text-lg font-semibold text-gray-800">Educational Qualifications</h3>
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                    <div><label className="block text-sm font-medium text-gray-700 mb-1">Class / Qualification</label><input name="educationProfile.className" value={profileData.educationProfile.className} onChange={(e) => updateField("educationProfile.className", e.target.value)} className="w-full border border-gray-300 rounded-lg px-3 py-2" /></div>
-                    <div><label className="block text-sm font-medium text-gray-700 mb-1">School / College</label><input name="educationProfile.schoolName" value={profileData.educationProfile.schoolName} onChange={(e) => updateField("educationProfile.schoolName", e.target.value)} className="w-full border border-gray-300 rounded-lg px-3 py-2" /></div>
-                    <div><label className="block text-sm font-medium text-gray-700 mb-1">Board / University</label><input name="educationProfile.board" value={profileData.educationProfile.board} onChange={(e) => updateField("educationProfile.board", e.target.value)} className="w-full border border-gray-300 rounded-lg px-3 py-2" /></div>
-                    <div><label className="block text-sm font-medium text-gray-700 mb-1">Percentage / CGPA</label><input name="educationProfile.percentage" value={profileData.educationProfile.percentage} onChange={(e) => updateField("educationProfile.percentage", e.target.value)} className="w-full border border-gray-300 rounded-lg px-3 py-2" /></div>
+                    <div><label className="block text-sm font-medium text-gray-700 mb-1">Class / Qualification</label><input name="educationProfile.className" value={profileData.educationProfile.className} onChange={(e) => updateField("educationProfile.className", e.target.value)} className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm" /></div>
+                    <div><label className="block text-sm font-medium text-gray-700 mb-1">School / College</label><input name="educationProfile.schoolName" value={profileData.educationProfile.schoolName} onChange={(e) => updateField("educationProfile.schoolName", e.target.value)} className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm" /></div>
+                    <div><label className="block text-sm font-medium text-gray-700 mb-1">Board / University</label><input name="educationProfile.board" value={profileData.educationProfile.board} onChange={(e) => updateField("educationProfile.board", e.target.value)} className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm" /></div>
+                    <div><label className="block text-sm font-medium text-gray-700 mb-1">Percentage / CGPA</label><input name="educationProfile.percentage" value={profileData.educationProfile.percentage} onChange={(e) => updateField("educationProfile.percentage", e.target.value)} className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm" /></div>
                   </div>
                 </div>
               )}
 
-              {/* Healthcare Tab (abbreviated – same as original but with new styling) */}
+              {/* Healthcare Tab */}
               {activeTab === "healthcare" && (
                 <div className="space-y-5">
                   <div className="border-b border-gray-200 pb-2 flex items-center gap-2">
-                    <HeartPulse size={20} className="text-[#FF9933]" />
+                    <HeartPulse size={20} className="text-blue-700" />
                     <h3 className="text-lg font-semibold text-gray-800">Health Information</h3>
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                    <div><label className="block text-sm font-medium text-gray-700 mb-1">Blood Group</label><select name="bloodGroup" value={profileData.bloodGroup} onChange={handleInputChange} className="w-full border border-gray-300 rounded-lg px-3 py-2"><option value="">Select</option><option>A+</option><option>A-</option><option>B+</option><option>B-</option><option>O+</option><option>O-</option><option>AB+</option><option>AB-</option></select></div>
-                    <div><label className="block text-sm font-medium text-gray-700 mb-1">Allergies</label><input name="allergies" value={profileData.allergies} onChange={handleInputChange} className="w-full border border-gray-300 rounded-lg px-3 py-2" /></div>
-                    <div className="md:col-span-2"><label className="block text-sm font-medium text-gray-700 mb-1">Medical History</label><textarea name="medicalHistory" value={profileData.medicalHistory} onChange={handleInputChange} rows={2} className="w-full border border-gray-300 rounded-lg px-3 py-2" /></div>
-                    <div><label className="block text-sm font-medium text-gray-700 mb-1">Emergency Contact Name</label><input value={profileData.emergencyContact.name} onChange={(e) => updateField("emergencyContact.name", e.target.value)} className="w-full border border-gray-300 rounded-lg px-3 py-2" /></div>
-                    <div><label className="block text-sm font-medium text-gray-700 mb-1">Relationship</label><input value={profileData.emergencyContact.relationship} onChange={(e) => updateField("emergencyContact.relationship", e.target.value)} className="w-full border border-gray-300 rounded-lg px-3 py-2" /></div>
-                    <div><label className="block text-sm font-medium text-gray-700 mb-1">Emergency Phone</label><input value={profileData.emergencyContact.phone} onChange={(e) => updateField("emergencyContact.phone", e.target.value)} className="w-full border border-gray-300 rounded-lg px-3 py-2" /></div>
+                    <div><label className="block text-sm font-medium text-gray-700 mb-1">Blood Group</label><select name="bloodGroup" value={profileData.bloodGroup} onChange={handleInputChange} className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm"><option value="">Select</option><option>A+</option><option>A-</option><option>B+</option><option>B-</option><option>O+</option><option>O-</option><option>AB+</option><option>AB-</option></select></div>
+                    <div><label className="block text-sm font-medium text-gray-700 mb-1">Allergies</label><input name="allergies" value={profileData.allergies} onChange={handleInputChange} className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm" /></div>
+                    <div className="md:col-span-2"><label className="block text-sm font-medium text-gray-700 mb-1">Medical History</label><textarea name="medicalHistory" value={profileData.medicalHistory} onChange={handleInputChange} rows={2} className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm" /></div>
+                    <div><label className="block text-sm font-medium text-gray-700 mb-1">Emergency Contact Name</label><input value={profileData.emergencyContact.name} onChange={(e) => updateField("emergencyContact.name", e.target.value)} className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm" /></div>
+                    <div><label className="block text-sm font-medium text-gray-700 mb-1">Relationship</label><input value={profileData.emergencyContact.relationship} onChange={(e) => updateField("emergencyContact.relationship", e.target.value)} className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm" /></div>
+                    <div><label className="block text-sm font-medium text-gray-700 mb-1">Emergency Phone</label><input value={profileData.emergencyContact.phone} onChange={(e) => updateField("emergencyContact.phone", e.target.value)} className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm" /></div>
                   </div>
                   {user?.role === "DOCTOR" && (
                     <div className="mt-5 pt-4 border-t border-gray-200">
                       <h4 className="font-semibold text-gray-800 mb-3">Doctor Professional Details</h4>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                        <div><label className="block text-sm font-medium text-gray-700 mb-1">Specialization</label><input value={profileData.doctorProfile.specialization} onChange={(e) => updateField("doctorProfile.specialization", e.target.value)} className="w-full border border-gray-300 rounded-lg px-3 py-2" /></div>
-                        <div><label className="block text-sm font-medium text-gray-700 mb-1">Experience (years)</label><input type="number" value={profileData.doctorProfile.experienceYears} onChange={(e) => updateField("doctorProfile.experienceYears", parseInt(e.target.value))} className="w-full border border-gray-300 rounded-lg px-3 py-2" /></div>
-                        <div><label className="block text-sm font-medium text-gray-700 mb-1">Consultation Fee (₹)</label><input type="number" value={profileData.doctorProfile.consultationFee} onChange={(e) => updateField("doctorProfile.consultationFee", parseFloat(e.target.value))} className="w-full border border-gray-300 rounded-lg px-3 py-2" /></div>
-                        <div><label className="block text-sm font-medium text-gray-700 mb-1">Registration Number</label><input value={profileData.doctorProfile.registrationNumber} onChange={(e) => updateField("doctorProfile.registrationNumber", e.target.value)} className="w-full border border-gray-300 rounded-lg px-3 py-2" /></div>
+                        <div><label className="block text-sm font-medium text-gray-700 mb-1">Specialization</label><input value={profileData.doctorProfile.specialization} onChange={(e) => updateField("doctorProfile.specialization", e.target.value)} className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm" /></div>
+                        <div><label className="block text-sm font-medium text-gray-700 mb-1">Experience (years)</label><input type="number" value={profileData.doctorProfile.experienceYears} onChange={(e) => updateField("doctorProfile.experienceYears", parseInt(e.target.value))} className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm" /></div>
+                        <div><label className="block text-sm font-medium text-gray-700 mb-1">Consultation Fee (₹)</label><input type="number" value={profileData.doctorProfile.consultationFee} onChange={(e) => updateField("doctorProfile.consultationFee", parseFloat(e.target.value))} className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm" /></div>
+                        <div><label className="block text-sm font-medium text-gray-700 mb-1">Registration Number</label><input value={profileData.doctorProfile.registrationNumber} onChange={(e) => updateField("doctorProfile.registrationNumber", e.target.value)} className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm" /></div>
                       </div>
                     </div>
                   )}
@@ -447,9 +443,9 @@ export default function ProfilePage() {
                     <div className="mt-5 pt-4 border-t border-gray-200">
                       <h4 className="font-semibold text-gray-800 mb-3">Teacher Professional Details</h4>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                        <div><label className="block text-sm font-medium text-gray-700 mb-1">Specialization</label><input value={profileData.teacherProfile.specialization} onChange={(e) => updateField("teacherProfile.specialization", e.target.value)} className="w-full border border-gray-300 rounded-lg px-3 py-2" /></div>
-                        <div><label className="block text-sm font-medium text-gray-700 mb-1">Experience (years)</label><input type="number" value={profileData.teacherProfile.experienceYears} onChange={(e) => updateField("teacherProfile.experienceYears", parseInt(e.target.value))} className="w-full border border-gray-300 rounded-lg px-3 py-2" /></div>
-                        <div className="md:col-span-2"><label className="block text-sm font-medium text-gray-700 mb-1">Qualifications (comma separated)</label><input value={profileData.teacherProfile.qualifications.join(",")} onChange={(e) => handleArrayChange("teacherProfile.qualifications", e.target.value)} className="w-full border border-gray-300 rounded-lg px-3 py-2" /></div>
+                        <div><label className="block text-sm font-medium text-gray-700 mb-1">Specialization</label><input value={profileData.teacherProfile.specialization} onChange={(e) => updateField("teacherProfile.specialization", e.target.value)} className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm" /></div>
+                        <div><label className="block text-sm font-medium text-gray-700 mb-1">Experience (years)</label><input type="number" value={profileData.teacherProfile.experienceYears} onChange={(e) => updateField("teacherProfile.experienceYears", parseInt(e.target.value))} className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm" /></div>
+                        <div className="md:col-span-2"><label className="block text-sm font-medium text-gray-700 mb-1">Qualifications (comma separated)</label><input value={profileData.teacherProfile.qualifications.join(",")} onChange={(e) => handleArrayChange("teacherProfile.qualifications", e.target.value)} className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm" /></div>
                       </div>
                     </div>
                   )}
@@ -460,16 +456,16 @@ export default function ProfilePage() {
               {activeTab === "agriculture" && (
                 <div className="space-y-5">
                   <div className="border-b border-gray-200 pb-2 flex items-center gap-2">
-                    <Sprout size={20} className="text-[#FF9933]" />
+                    <Sprout size={20} className="text-blue-700" />
                     <h3 className="text-lg font-semibold text-gray-800">Farmer / Agriculture Profile</h3>
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                    <div><label className="block text-sm font-medium text-gray-700 mb-1">Land Size (acres)</label><input type="number" value={profileData.farmerProfile.landSize} onChange={(e) => updateField("farmerProfile.landSize", parseFloat(e.target.value))} className="w-full border border-gray-300 rounded-lg px-3 py-2" /></div>
-                    <div><label className="block text-sm font-medium text-gray-700 mb-1">Crops (comma separated)</label><input value={profileData.farmerProfile.crops.join(",")} onChange={(e) => handleArrayChange("farmerProfile.crops", e.target.value)} className="w-full border border-gray-300 rounded-lg px-3 py-2" /></div>
-                    <div><label className="block text-sm font-medium text-gray-700 mb-1">Farming Type</label><select value={profileData.farmerProfile.farmingType} onChange={(e) => updateField("farmerProfile.farmingType", e.target.value)} className="w-full border border-gray-300 rounded-lg px-3 py-2"><option value="conventional">Conventional</option><option value="organic">Organic</option><option value="mixed">Mixed</option></select></div>
-                    <div className="flex items-center pt-6"><label className="flex items-center gap-2"><input type="checkbox" checked={profileData.farmerProfile.isContractFarmer} onChange={(e) => updateField("farmerProfile.isContractFarmer", e.target.checked)} className="w-4 h-4 text-[#FF9933]" /> <span className="text-sm text-gray-700">Contract Farmer</span></label></div>
-                    <div><label className="block text-sm font-medium text-gray-700 mb-1">Farm Location</label><input value={profileData.farmerProfile.farmLocation} onChange={(e) => updateField("farmerProfile.farmLocation", e.target.value)} className="w-full border border-gray-300 rounded-lg px-3 py-2" /></div>
-                    <div><label className="block text-sm font-medium text-gray-700 mb-1">Irrigation Type</label><input value={profileData.farmerProfile.irrigationType} onChange={(e) => updateField("farmerProfile.irrigationType", e.target.value)} className="w-full border border-gray-300 rounded-lg px-3 py-2" /></div>
+                    <div><label className="block text-sm font-medium text-gray-700 mb-1">Land Size (acres)</label><input type="number" value={profileData.farmerProfile.landSize} onChange={(e) => updateField("farmerProfile.landSize", parseFloat(e.target.value))} className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm" /></div>
+                    <div><label className="block text-sm font-medium text-gray-700 mb-1">Crops (comma separated)</label><input value={profileData.farmerProfile.crops.join(",")} onChange={(e) => handleArrayChange("farmerProfile.crops", e.target.value)} className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm" /></div>
+                    <div><label className="block text-sm font-medium text-gray-700 mb-1">Farming Type</label><select value={profileData.farmerProfile.farmingType} onChange={(e) => updateField("farmerProfile.farmingType", e.target.value)} className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm"><option value="conventional">Conventional</option><option value="organic">Organic</option><option value="mixed">Mixed</option></select></div>
+                    <div className="flex items-center pt-6"><label className="flex items-center gap-2"><input type="checkbox" checked={profileData.farmerProfile.isContractFarmer} onChange={(e) => updateField("farmerProfile.isContractFarmer", e.target.checked)} className="w-4 h-4 text-blue-700 rounded" /> <span className="text-sm text-gray-700">Contract Farmer</span></label></div>
+                    <div><label className="block text-sm font-medium text-gray-700 mb-1">Farm Location</label><input value={profileData.farmerProfile.farmLocation} onChange={(e) => updateField("farmerProfile.farmLocation", e.target.value)} className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm" /></div>
+                    <div><label className="block text-sm font-medium text-gray-700 mb-1">Irrigation Type</label><input value={profileData.farmerProfile.irrigationType} onChange={(e) => updateField("farmerProfile.irrigationType", e.target.value)} className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm" /></div>
                   </div>
                 </div>
               )}
@@ -478,14 +474,14 @@ export default function ProfilePage() {
               {activeTab === "finance" && (
                 <div className="space-y-5">
                   <div className="border-b border-gray-200 pb-2 flex items-center gap-2">
-                    <Wallet size={20} className="text-[#FF9933]" />
+                    <Wallet size={20} className="text-blue-700" />
                     <h3 className="text-lg font-semibold text-gray-800">Bank Account Details</h3>
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                    <div><label className="block text-sm font-medium text-gray-700 mb-1">Account Holder Name</label><input value={profileData.bankAccount.accountHolderName} onChange={(e) => updateField("bankAccount.accountHolderName", e.target.value)} className="w-full border border-gray-300 rounded-lg px-3 py-2" /></div>
-                    <div><label className="block text-sm font-medium text-gray-700 mb-1">Account Number</label><input value={profileData.bankAccount.accountNumber} onChange={(e) => updateField("bankAccount.accountNumber", e.target.value)} className="w-full border border-gray-300 rounded-lg px-3 py-2" /></div>
-                    <div><label className="block text-sm font-medium text-gray-700 mb-1">IFSC Code</label><input value={profileData.bankAccount.ifsc} onChange={(e) => updateField("bankAccount.ifsc", e.target.value)} className="w-full border border-gray-300 rounded-lg px-3 py-2" /></div>
-                    <div><label className="block text-sm font-medium text-gray-700 mb-1">Bank Name</label><input value={profileData.bankAccount.bankName} onChange={(e) => updateField("bankAccount.bankName", e.target.value)} className="w-full border border-gray-300 rounded-lg px-3 py-2" /></div>
+                    <div><label className="block text-sm font-medium text-gray-700 mb-1">Account Holder Name</label><input value={profileData.bankAccount.accountHolderName} onChange={(e) => updateField("bankAccount.accountHolderName", e.target.value)} className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm" /></div>
+                    <div><label className="block text-sm font-medium text-gray-700 mb-1">Account Number</label><input value={profileData.bankAccount.accountNumber} onChange={(e) => updateField("bankAccount.accountNumber", e.target.value)} className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm" /></div>
+                    <div><label className="block text-sm font-medium text-gray-700 mb-1">IFSC Code</label><input value={profileData.bankAccount.ifsc} onChange={(e) => updateField("bankAccount.ifsc", e.target.value)} className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm" /></div>
+                    <div><label className="block text-sm font-medium text-gray-700 mb-1">Bank Name</label><input value={profileData.bankAccount.bankName} onChange={(e) => updateField("bankAccount.bankName", e.target.value)} className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm" /></div>
                   </div>
                 </div>
               )}
@@ -494,13 +490,13 @@ export default function ProfilePage() {
               {activeTab === "it" && (
                 <div className="space-y-5">
                   <div className="border-b border-gray-200 pb-2 flex items-center gap-2">
-                    <MonitorSmartphone size={20} className="text-[#FF9933]" />
+                    <MonitorSmartphone size={20} className="text-blue-700" />
                     <h3 className="text-lg font-semibold text-gray-800">IT / Development Profile</h3>
                   </div>
                   <div className="grid grid-cols-1 gap-5">
-                    <div><label className="block text-sm font-medium text-gray-700 mb-1">Project Type</label><input value={profileData.itProfile.projectType} onChange={(e) => updateField("itProfile.projectType", e.target.value)} className="w-full border border-gray-300 rounded-lg px-3 py-2" /></div>
-                    <div><label className="block text-sm font-medium text-gray-700 mb-1">Tech Stack</label><input value={profileData.itProfile.techStack} onChange={(e) => updateField("itProfile.techStack", e.target.value)} className="w-full border border-gray-300 rounded-lg px-3 py-2" /></div>
-                    <div><label className="block text-sm font-medium text-gray-700 mb-1">Experience Level</label><input value={profileData.itProfile.experience} onChange={(e) => updateField("itProfile.experience", e.target.value)} className="w-full border border-gray-300 rounded-lg px-3 py-2" /></div>
+                    <div><label className="block text-sm font-medium text-gray-700 mb-1">Project Type</label><input value={profileData.itProfile.projectType} onChange={(e) => updateField("itProfile.projectType", e.target.value)} className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm" /></div>
+                    <div><label className="block text-sm font-medium text-gray-700 mb-1">Tech Stack</label><input value={profileData.itProfile.techStack} onChange={(e) => updateField("itProfile.techStack", e.target.value)} className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm" /></div>
+                    <div><label className="block text-sm font-medium text-gray-700 mb-1">Experience Level</label><input value={profileData.itProfile.experience} onChange={(e) => updateField("itProfile.experience", e.target.value)} className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm" /></div>
                   </div>
                 </div>
               )}
@@ -509,17 +505,17 @@ export default function ProfilePage() {
               {activeTab === "social" && (
                 <div className="space-y-5">
                   <div className="border-b border-gray-200 pb-2 flex items-center gap-2">
-                    <Users size={20} className="text-[#FF9933]" />
+                    <Users size={20} className="text-blue-700" />
                     <h3 className="text-lg font-semibold text-gray-800">Social & Media Profile</h3>
                   </div>
                   <div className="grid grid-cols-1 gap-5">
-                    <div><label className="block text-sm font-medium text-gray-700 mb-1">Username</label><input value={profileData.socialProfile.username} onChange={(e) => updateField("socialProfile.username", e.target.value)} className="w-full border border-gray-300 rounded-lg px-3 py-2" /></div>
-                    <div><label className="block text-sm font-medium text-gray-700 mb-1">Bio</label><textarea rows={2} value={profileData.socialProfile.bio} onChange={(e) => updateField("socialProfile.bio", e.target.value)} className="w-full border border-gray-300 rounded-lg px-3 py-2" /></div>
-                    <div><label className="block text-sm font-medium text-gray-700 mb-1">Interests</label><input value={profileData.socialProfile.interests} onChange={(e) => updateField("socialProfile.interests", e.target.value)} className="w-full border border-gray-300 rounded-lg px-3 py-2" /></div>
+                    <div><label className="block text-sm font-medium text-gray-700 mb-1">Username</label><input value={profileData.socialProfile.username} onChange={(e) => updateField("socialProfile.username", e.target.value)} className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm" /></div>
+                    <div><label className="block text-sm font-medium text-gray-700 mb-1">Bio</label><textarea rows={2} value={profileData.socialProfile.bio} onChange={(e) => updateField("socialProfile.bio", e.target.value)} className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm" /></div>
+                    <div><label className="block text-sm font-medium text-gray-700 mb-1">Interests</label><input value={profileData.socialProfile.interests} onChange={(e) => updateField("socialProfile.interests", e.target.value)} className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm" /></div>
                   </div>
                   <div className="mt-4 pt-4 border-t border-gray-200">
-                    <label className="flex items-center gap-2"><input type="checkbox" checked={profileData.mediaCreatorProfile.isCreator} onChange={(e) => updateField("mediaCreatorProfile.isCreator", e.target.checked)} className="w-4 h-4 text-[#FF9933]" /> <span className="text-sm font-medium text-gray-700">Enable Media Creator (Post news / videos)</span></label>
-                    {profileData.mediaCreatorProfile.isCreator && <div className="mt-3"><label className="block text-sm font-medium text-gray-700 mb-1">Media Creator Bio</label><input placeholder="Tell about your media work" value={profileData.mediaCreatorProfile.bio} onChange={(e) => updateField("mediaCreatorProfile.bio", e.target.value)} className="w-full border border-gray-300 rounded-lg px-3 py-2" /></div>}
+                    <label className="flex items-center gap-2"><input type="checkbox" checked={profileData.mediaCreatorProfile.isCreator} onChange={(e) => updateField("mediaCreatorProfile.isCreator", e.target.checked)} className="w-4 h-4 text-blue-700 rounded" /> <span className="text-sm font-medium text-gray-700">Enable Media Creator (Post news / videos)</span></label>
+                    {profileData.mediaCreatorProfile.isCreator && <div className="mt-3"><label className="block text-sm font-medium text-gray-700 mb-1">Media Creator Bio</label><input placeholder="Tell about your media work" value={profileData.mediaCreatorProfile.bio} onChange={(e) => updateField("mediaCreatorProfile.bio", e.target.value)} className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm" /></div>}
                   </div>
                 </div>
               )}
@@ -528,15 +524,15 @@ export default function ProfilePage() {
               {activeTab === "seller" && (
                 <div className="space-y-5">
                   <div className="border-b border-gray-200 pb-2 flex items-center gap-2">
-                    <Store size={20} className="text-[#FF9933]" />
+                    <Store size={20} className="text-blue-700" />
                     <h3 className="text-lg font-semibold text-gray-800">E‑commerce Seller Profile</h3>
                   </div>
                   <div className="space-y-4">
-                    <label className="flex items-center gap-2"><input type="checkbox" checked={profileData.sellerProfile.isSeller} onChange={(e) => updateField("sellerProfile.isSeller", e.target.checked)} className="w-4 h-4 text-[#FF9933]" /> <span className="text-sm font-medium text-gray-700">I want to sell products on the platform</span></label>
+                    <label className="flex items-center gap-2"><input type="checkbox" checked={profileData.sellerProfile.isSeller} onChange={(e) => updateField("sellerProfile.isSeller", e.target.checked)} className="w-4 h-4 text-blue-700 rounded" /> <span className="text-sm font-medium text-gray-700">I want to sell products on the platform</span></label>
                     {profileData.sellerProfile.isSeller && (
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                        <div><label className="block text-sm font-medium text-gray-700 mb-1">Store Name</label><input value={profileData.sellerProfile.storeName} onChange={(e) => updateField("sellerProfile.storeName", e.target.value)} className="w-full border border-gray-300 rounded-lg px-3 py-2" /></div>
-                        <div><label className="block text-sm font-medium text-gray-700 mb-1">GST Number</label><input value={profileData.sellerProfile.gstNumber} onChange={(e) => updateField("sellerProfile.gstNumber", e.target.value)} className="w-full border border-gray-300 rounded-lg px-3 py-2" /></div>
+                        <div><label className="block text-sm font-medium text-gray-700 mb-1">Store Name</label><input value={profileData.sellerProfile.storeName} onChange={(e) => updateField("sellerProfile.storeName", e.target.value)} className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm" /></div>
+                        <div><label className="block text-sm font-medium text-gray-700 mb-1">GST Number</label><input value={profileData.sellerProfile.gstNumber} onChange={(e) => updateField("sellerProfile.gstNumber", e.target.value)} className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm" /></div>
                       </div>
                     )}
                   </div>

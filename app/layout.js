@@ -9,7 +9,7 @@ const outfit = Outfit({
 
 export const metadata = {
   title: "Samraddh Bharat Foundation",
-  description: "Digital India initiative - Education, Healthcare, Agriculture, Finance & more",
+  description: "Digital India initiative",
 };
 
 export default function RootLayout({ children }) {
