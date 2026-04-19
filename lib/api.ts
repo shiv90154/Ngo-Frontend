@@ -130,7 +130,54 @@ export const healthcareAPI = {
 };
 
 // ======================
-// AUTH API (optional – if not already in AuthContext)
+// MEDIA (NEWS) API
+// ======================
+export const mediaAPI = {
+  // Feed
+  getFeed: (params?: { page?: number; limit?: number }) =>
+    api.get("/media/feed", { params }),
+
+  // Posts
+  createPost: (formData: FormData) =>
+    api.post("/media/posts", formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    }),
+  getPost: (id: string) => api.get(`/media/posts/${id}`),
+  updatePost: (id: string, data: any) => api.put(`/media/posts/${id}`, data),
+  deletePost: (id: string) => api.delete(`/media/posts/${id}`),
+  getUserPosts: (userId: string, params?: { page?: number; limit?: number }) =>
+    api.get(`/media/users/${userId}/posts`, { params }),
+
+  // Likes
+  likePost: (id: string) => api.post(`/media/posts/${id}/like`),
+  unlikePost: (id: string) => api.delete(`/media/posts/${id}/like`),
+
+  // Comments
+  getComments: (postId: string, params?: { page?: number; limit?: number }) =>
+    api.get(`/media/posts/${postId}/comments`, { params }),
+  addComment: (postId: string, text: string) =>
+    api.post(`/media/posts/${postId}/comments`, { text }),
+  deleteComment: (commentId: string) => api.delete(`/media/comments/${commentId}`),
+
+  // Follow
+  followUser: (userId: string) => api.post(`/media/follow/${userId}`),
+  unfollowUser: (userId: string) => api.delete(`/media/follow/${userId}`),
+  getFollowers: (userId?: string, params?: { page?: number; limit?: number }) =>
+    api.get(userId ? `/media/followers/${userId}` : "/media/followers", { params }),
+  getFollowing: (userId?: string, params?: { page?: number; limit?: number }) =>
+    api.get(userId ? `/media/following/${userId}` : "/media/following", { params }),
+  checkFollowStatus: (userId: string) => api.get(`/media/follow-status/${userId}`),
+
+  // Search
+  searchCreators: (q: string, params?: { page?: number; limit?: number }) =>
+    api.get("/media/search/creators", { params: { q, ...params } }),
+
+  // Become creator
+  becomeCreator: () => api.post("/media/become-creator"),
+};
+
+// ======================
+// AUTH API
 // ======================
 export const authAPI = {
   login: (email: string, password: string) =>
@@ -141,8 +188,12 @@ export const authAPI = {
     }),
   verifyOTP: (email: string, otp: string) =>
     api.post("/users/verify-otp", { email, otp }),
+  resendOTP: (email: string) =>
+    api.post("/users/resend-otp", { email }),
   forgotPassword: (email: string) =>
     api.post("/users/forgot-password", { email }),
+  verifyResetOtp: (email: string, otp: string) =>
+    api.post("/users/verify-reset-otp", { email, otp }),
   resetPassword: (email: string, otp: string, newPassword: string) =>
     api.post("/users/reset-password", { email, otp, newPassword }),
   getProfile: () => api.get("/users/profile"),
@@ -150,6 +201,7 @@ export const authAPI = {
     api.put("/users/profile", formData, {
       headers: { "Content-Type": "multipart/form-data" },
     }),
+  logout: () => api.post("/users/logout"),
 };
 
 export default api;
