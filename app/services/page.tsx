@@ -18,7 +18,6 @@ const services = [
     features: ["Live Classes", "Tests", "Certs"],
     icon: GraduationCap,
     accent: "#7c3aed",
-    light: "#f3f0ff",
     tag: "Learning"
   },
   {
@@ -28,7 +27,6 @@ const services = [
     features: ["Wallet", "Loans", "Bill Pay"],
     icon: Wallet,
     accent: "#0369a1",
-    light: "#e0f2fe",
     tag: "Banking"
   },
   {
@@ -38,7 +36,6 @@ const services = [
     features: ["Consult", "Records", "Meds"],
     icon: HeartPulse,
     accent: "#be123c",
-    light: "#fff1f2",
     tag: "Wellness"
   },
   {
@@ -48,7 +45,6 @@ const services = [
     features: ["Live Feed", "Videos", "Local"],
     icon: Newspaper,
     accent: "#b45309",
-    light: "#fffbeb",
     tag: "Media"
   },
   {
@@ -58,7 +54,6 @@ const services = [
     features: ["Crop Tips", "Market", "AI Help"],
     icon: Sprout,
     accent: "#15803d",
-    light: "#f0fdf4",
     tag: "Farming"
   },
   {
@@ -68,7 +63,6 @@ const services = [
     features: ["Billing", "Projects", "CRM"],
     icon: MonitorSmartphone,
     accent: "#0f766e",
-    light: "#f0fdfa",
     tag: "Tech"
   },
 ];
@@ -112,27 +106,15 @@ export default function Services() {
 
   return (
     <div className="min-h-screen bg-[#f0f2f5] flex flex-col">
-    
-  
-      {/* Main Container */}
-      <div className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 w-full">
-        {/* Header with Emblem */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-5 mb-6">
-          <div className="flex flex-wrap justify-between items-center gap-4">
-            <div className="flex items-center gap-3">
-              <div className="flex items-center gap-1">
-                <div className="w-10 h-10 bg-[#1a237e] rounded-full flex items-center justify-center border-2 border-[#FF9933]">
-                  <span className="text-white text-lg font-serif">अ</span>
-                </div>
-                <div className="w-10 h-10 bg-[#1a237e] rounded-full flex items-center justify-center border-2 border-[#FF9933]">
-                  <span className="text-white text-lg font-serif">₹</span>
-                </div>
-              </div>
+
+      {/* ── Sticky Header ── */}
+      <div className="sticky top-0 z-50 bg-white border-b border-gray-200 shadow-sm">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-wrap justify-between items-center gap-4  px-3 py-4">
               <div>
-                <h1 className="text-xl md:text-2xl font-bold text-[#1a237e] font-serif">Samraddh Bharat</h1>
-                <p className="text-xs text-gray-500">डिजिटल इंडिया - एकीकृत सेवा पोर्टल | Digital India - Unified Service Portal</p>
+                <h1 className="text-lg md:text-xl font-bold text-[#1a237e] font-serif leading-tight">Samraddh Bharat</h1>
+                <p className="text-xs text-gray-400 hidden sm:block">डिजिटल इंडिया · Unified Service Portal</p>
               </div>
-            </div>
             <div className="flex items-center gap-3">
               <div className="hidden sm:flex items-center gap-2 bg-gray-50 rounded-full px-4 py-2 border border-gray-200">
                 <Shield size={14} className="text-green-600" />
@@ -158,14 +140,13 @@ export default function Services() {
             </div>
           </div>
         </div>
+      </div>
 
-       
+      {/* Main Container */}
+      <div className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 w-full">
+
         {/* Services Grid */}
-        <div className="mb-8">
-          <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
-            <span className="w-1 h-5 bg-[#FF9933] rounded-full"></span>
-            Available Services
-          </h3>
+        <div className="mb-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
             {services.map((service, idx) => {
               const Icon = service.icon;
@@ -174,9 +155,10 @@ export default function Services() {
               return (
                 <div
                   key={idx}
-                  className={`bg-white rounded-xl shadow-md border transition-all duration-300 cursor-pointer overflow-hidden hover:shadow-lg hover:-translate-y-1 ${
-                    isHovered ? 'border-[#1a237e]/50' : 'border-gray-200'
+                  className={`rounded-xl shadow-md border transition-all duration-300 cursor-pointer overflow-hidden hover:shadow-xl hover:-translate-y-1 ${
+                    isHovered ? 'border-transparent' : 'border-gray-100'
                   }`}
+                  style={{ background: service.light }}
                   onMouseEnter={() => setHoveredIndex(idx)}
                   onMouseLeave={() => setHoveredIndex(null)}
                   onClick={() => router.push(`/${service.route}`)}
@@ -184,33 +166,43 @@ export default function Services() {
                   tabIndex={0}
                   onKeyDown={(e) => e.key === 'Enter' && router.push(`/${service.route}`)}
                 >
+                  {/* Colored top accent bar */}
+                  <div className="h-1 w-full" style={{ background: service.accent }} />
+
                   <div className="p-5">
                     <div className="flex items-start justify-between mb-3">
                       <div
-                        className="w-12 h-12 rounded-xl flex items-center justify-center"
-                        style={{ background: service.light }}
+                        className="w-12 h-12 rounded-xl flex items-center justify-center shadow-sm"
+                        style={{ background: `${service.accent}20` }}
                       >
                         <Icon size={24} style={{ color: service.accent, strokeWidth: 1.8 }} />
                       </div>
                       <span
-                        className="text-xs font-semibold px-2 py-1 rounded-full"
-                        style={{ background: `${service.accent}15`, color: service.accent }}
+                        className="text-xs font-semibold px-2.5 py-1 rounded-full"
+                        style={{ background: `${service.accent}18`, color: service.accent }}
                       >
                         {service.tag}
                       </span>
                     </div>
-                    <h3 className="text-lg font-bold text-gray-800 mb-1">{service.title}</h3>
-                    <p className="text-gray-500 text-sm mb-3">{service.desc}</p>
+                    <h3 className="text-lg font-bold mb-1" style={{ color: service.accent }}>{service.title}</h3>
+                    <p className="text-gray-600 text-sm mb-3">{service.desc}</p>
                     <div className="flex flex-wrap gap-1.5 mb-4">
                       {service.features.map((feature, fIdx) => (
-                        <span key={fIdx} className="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full">
+                        <span
+                          key={fIdx}
+                          className="text-xs px-2 py-0.5 rounded-full font-medium"
+                          style={{ background: `${service.accent}15`, color: service.accent }}
+                        >
                           {feature}
                         </span>
                       ))}
                     </div>
-                    <div className="flex items-center justify-between pt-3 border-t border-gray-100">
+                    <div
+                      className="flex items-center justify-between pt-3 border-t"
+                      style={{ borderColor: `${service.accent}20` }}
+                    >
                       <span className="text-xs text-gray-400">Click to access</span>
-                      <div className="flex items-center gap-1 text-[#1a237e] group-hover:text-[#FF9933] transition">
+                      <div className="flex items-center gap-1 transition" style={{ color: service.accent }}>
                         <span className="text-xs font-medium">Explore</span>
                         <ChevronRight size={14} />
                       </div>
@@ -222,7 +214,6 @@ export default function Services() {
           </div>
         </div>
 
-      
       </div>
     </div>
   );
