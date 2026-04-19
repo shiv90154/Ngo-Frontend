@@ -13,14 +13,19 @@ import {
   Stethoscope,
   Activity,
   Pill,
-  User,
   Clock,
 } from "lucide-react";
+import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 
 export default function HealthcareSidebar() {
   const pathname = usePathname();
   const { user } = useAuth();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const patientLinks = [
     { name: "Dashboard", href: "/healthcare/dashboard", icon: LayoutDashboard },
@@ -38,23 +43,27 @@ export default function HealthcareSidebar() {
     { name: "Prescriptions", href: "/healthcare/prescriptions", icon: Pill },
   ];
 
-  const links = user?.role === "DOCTOR" ? doctorLinks : patientLinks;
+  const links = mounted && user?.role === "DOCTOR" ? doctorLinks : patientLinks;
 
   const isActive = (href: string) => {
     if (href === "/healthcare/dashboard" && pathname === "/healthcare") return true;
     return pathname === href || pathname.startsWith(href + "/");
   };
 
+  const userInitial = mounted && user?.fullName ? user.fullName.charAt(0) : "";
+  const userFullName = mounted && user?.fullName ? user.fullName : "";
+  const userRole = mounted && user?.role ? user.role.replace(/_/g, " ") : "";
+
   return (
     <aside className="hidden lg:block w-64 bg-white border-r border-gray-200 min-h-[calc(100vh-97px)] sticky top-[97px] p-4">
       {/* User Summary */}
       <div className="flex items-center gap-3 p-3 mb-4 bg-gradient-to-r from-[#1a237e]/5 to-transparent rounded-xl">
         <div className="w-12 h-12 bg-gradient-to-br from-[#1a237e] to-[#283593] rounded-full flex items-center justify-center text-white font-medium text-lg">
-          {user?.fullName?.charAt(0) || "U"}
+          {userInitial || "U"}
         </div>
         <div className="flex-1 min-w-0">
-          <p className="text-sm font-semibold text-gray-800 truncate">{user?.fullName}</p>
-          <p className="text-xs text-gray-500 truncate">{user?.role?.replace(/_/g, " ")}</p>
+          <p className="text-sm font-semibold text-gray-800 truncate">{userFullName || "User"}</p>
+          <p className="text-xs text-gray-500 truncate">{userRole || "Patient"}</p>
         </div>
       </div>
 
@@ -93,7 +102,7 @@ export default function HealthcareSidebar() {
         </p>
       </div>
 
-      {/* Quick Stats */}
+      {/* Quick Actions */}
       <div className="mt-4 p-4 bg-white rounded-xl border border-gray-200">
         <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">
           Quick Actions
