@@ -177,7 +177,21 @@ export const mediaAPI = {
 };
 
 // ======================
-// FINANCE API (🆕 ADDED)
+// NOTIFICATION API (🆕)
+// ======================
+export const notificationAPI = {
+  getNotifications: (params?: {
+    page?: number;
+    limit?: number;
+    filter?: "unread" | "all";
+  }) => api.get("/notifications", { params }),
+  markAsRead: (id: string) => api.patch(`/notifications/${id}/read`),
+  markAllAsRead: () => api.patch("/notifications/read-all"),
+  deleteNotification: (id: string) => api.delete(`/notifications/${id}`),
+};
+
+// ======================
+// FINANCE API
 // ======================
 export const financeAPI = {
   // Dashboard

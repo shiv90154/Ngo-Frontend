@@ -17,9 +17,10 @@ export default function NewsLayout({ children }: { children: React.ReactNode }) 
       <NewsNavbar />
       <div className="flex">
         <NewsSidebar />
-        <main className="flex-1 p-4 lg:p-6 max-w-4xl mx-auto w-full">
-          {children}
-        </main>
+      
+<main className="flex-1 p-4 lg:p-6 pb-20 lg:pb-6 max-w-4xl mx-auto w-full">
+  {children}
+</main>
       </div>
     </div>
   );
