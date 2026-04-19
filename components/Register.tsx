@@ -1,3 +1,4 @@
+// components/Register.tsx
 "use client";
 
 import { useState, useRef } from 'react';
@@ -14,41 +15,41 @@ const Register = () => {
     const router = useRouter();
     const [step, setStep] = useState(1);
     const [loading, setLoading] = useState(false);
-    const [error, setError] = useState({});
+    const [error, setError] = useState<Record<string, string>>({});
     const [success, setSuccess] = useState('');
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-    // Basic Info (Step 1 - Compulsory) – matches backend schema
+    // Basic Info (Step 1 - Compulsory)
     const [basicInfo, setBasicInfo] = useState({
         fullName: '', email: '', password: '', confirmPassword: '', phone: '', dob: '', gender: '', role: 'USER',
     });
 
-    // Identity documents (matches backend)
+    // Identity documents
     const [identityInfo, setIdentityInfo] = useState({
-        aadhaarNumber: '', aadhaarImage: null,
-        panNumber: '', panImage: null,
+        aadhaarNumber: '', aadhaarImage: null as File | null,
+        panNumber: '', panImage: null as File | null,
     });
 
     // Profile image
-    const [profileImage, setProfileImage] = useState(null);
+    const [profileImage, setProfileImage] = useState<File | null>(null);
 
     // Refs for file inputs
-    const aadhaarInputRef = useRef();
-    const panInputRef = useRef();
-    const profilePicInputRef = useRef();
+    const aadhaarInputRef = useRef<HTMLInputElement>(null);
+    const panInputRef = useRef<HTMLInputElement>(null);
+    const profilePicInputRef = useRef<HTMLInputElement>(null);
 
-    const handleBasicChange = (e) => {
+    const handleBasicChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         setBasicInfo({ ...basicInfo, [e.target.name]: e.target.value });
         if (error[e.target.name]) setError({ ...error, [e.target.name]: '' });
     };
 
-    const handleIdentityChange = (e) => {
+    const handleIdentityChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setIdentityInfo({ ...identityInfo, [e.target.name]: e.target.value });
     };
 
-    const handleFileChange = (e, fieldName) => {
-        const file = e.target.files[0];
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, fieldName: string) => {
+        const file = e.target.files?.[0];
         if (file && (file.type === 'image/jpeg' || file.type === 'image/jpg' || file.type === 'application/pdf')) {
             setIdentityInfo({ ...identityInfo, [fieldName]: file });
         } else {
@@ -56,8 +57,8 @@ const Register = () => {
         }
     };
 
-    const handleProfilePictureChange = (e) => {
-        const file = e.target.files[0];
+    const handleProfilePictureChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
         if (file && (file.type === 'image/jpeg' || file.type === 'image/jpg' || file.type === 'image/png')) {
             setProfileImage(file);
         } else {
@@ -66,7 +67,7 @@ const Register = () => {
     };
 
     const validateStep1 = () => {
-        const newErrors = {};
+        const newErrors: Record<string, string> = {};
         if (!basicInfo.fullName) newErrors.fullName = "Full name is required";
         if (!basicInfo.email) newErrors.email = "Email is required";
         else if (!/^[a-zA-Z0-9._%+-]+@gmail\.com$/.test(basicInfo.email)) newErrors.email = "Only Gmail addresses are allowed";
@@ -82,13 +83,13 @@ const Register = () => {
         return Object.keys(newErrors).length === 0;
     };
 
-    const handleNext = (nextStep) => {
+    const handleNext = (nextStep: number) => {
         if (step === 1 && !validateStep1()) return;
         setStep(nextStep);
         window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
-    const handleBack = (prevStep) => {
+    const handleBack = (prevStep: number) => {
         setStep(prevStep);
         window.scrollTo({ top: 0, behavior: 'smooth' });
     };
@@ -99,34 +100,29 @@ const Register = () => {
 
         const formData = new FormData();
 
-        // Basic info – exact field names as per backend schema
         formData.append('fullName', basicInfo.fullName);
         formData.append('email', basicInfo.email);
         formData.append('password', basicInfo.password);
         formData.append('phone', basicInfo.phone);
         formData.append('dob', basicInfo.dob);
         formData.append('gender', basicInfo.gender);
-        // Convert role to uppercase enum expected by backend
-        const roleMap = { user: 'USER', doctor: 'DOCTOR', teacher: 'TEACHER', agent: 'AGENT' };
+        const roleMap: Record<string, string> = { user: 'USER', doctor: 'DOCTOR', teacher: 'TEACHER', agent: 'AGENT' };
         formData.append('role', roleMap[basicInfo.role] || 'USER');
 
-        // Identity documents
         if (identityInfo.aadhaarNumber) formData.append('aadhaarNumber', identityInfo.aadhaarNumber);
         if (identityInfo.aadhaarImage) formData.append('aadhaarImage', identityInfo.aadhaarImage);
         if (identityInfo.panNumber) formData.append('panNumber', identityInfo.panNumber);
         if (identityInfo.panImage) formData.append('panImage', identityInfo.panImage);
 
-        // Profile image
         if (profileImage) formData.append('profileImage', profileImage);
 
         try {
             const response = await axios.post(`${API_URL}/users/register`, formData);
-            // Backend likely returns { message, userId } – not a token yet
             setSuccess('Registration successful! Please verify your email with OTP.');
             setTimeout(() => {
                 router.push(`/verify-otp?email=${encodeURIComponent(basicInfo.email)}`);
             }, 2000);
-        } catch (err) {
+        } catch (err: any) {
             setError({ submit: err.response?.data?.message || 'Registration failed' });
         } finally {
             setLoading(false);
@@ -141,7 +137,6 @@ const Register = () => {
     return (
         <div className="min-h-screen bg-gray-50 py-8 px-4">
             <div className="max-w-4xl mx-auto">
-                {/* Header with Government Emblem */}
                 <div className="text-center mb-8">
                     <div className="inline-flex items-center justify-center gap-2 mb-3">
                         <div className="w-10 h-10 bg-white rounded-full shadow-md flex items-center justify-center">
@@ -160,7 +155,6 @@ const Register = () => {
                     </div>
                 </div>
 
-                {/* Progress Steps */}
                 <div className="bg-white rounded-xl shadow-md p-4 mb-6">
                     <div className="flex justify-between items-center">
                         {steps.map((s) => (
@@ -189,7 +183,6 @@ const Register = () => {
                     </div>
                 </div>
 
-                {/* Success / Error Messages */}
                 {success && (
                     <div className="bg-green-50 border-l-4 border-green-600 text-green-700 p-4 rounded-md mb-6 flex items-center gap-2">
                         <FaCheckCircle className="text-green-600" />
@@ -202,7 +195,6 @@ const Register = () => {
                     </div>
                 )}
 
-                {/* STEP 1: Basic Information */}
                 {step === 1 && (
                     <div className="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden">
                         <div className="bg-blue-50 px-6 py-4 border-b border-blue-100">
@@ -293,7 +285,6 @@ const Register = () => {
                     </div>
                 )}
 
-                {/* STEP 2: Identity Documents */}
                 {step === 2 && (
                     <div className="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden">
                         <div className="bg-yellow-50 px-6 py-4 border-b border-yellow-100">
@@ -307,7 +298,7 @@ const Register = () => {
                                     <div className="flex gap-2">
                                         <input type="text" name="aadhaarNumber" placeholder="12-digit Aadhaar" value={identityInfo.aadhaarNumber} onChange={handleIdentityChange}
                                             className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
-                                        <button onClick={() => aadhaarInputRef.current.click()} className="bg-gray-100 px-3 rounded-md hover:bg-gray-200 text-gray-700 text-sm">
+                                        <button onClick={() => aadhaarInputRef.current?.click()} className="bg-gray-100 px-3 rounded-md hover:bg-gray-200 text-gray-700 text-sm">
                                             Upload
                                         </button>
                                         <input type="file" ref={aadhaarInputRef} onChange={(e) => handleFileChange(e, 'aadhaarImage')} accept=".jpg,.jpeg,.pdf" className="hidden" />
@@ -319,7 +310,7 @@ const Register = () => {
                                     <div className="flex gap-2">
                                         <input type="text" name="panNumber" placeholder="PAN Number" value={identityInfo.panNumber} onChange={handleIdentityChange}
                                             className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
-                                        <button onClick={() => panInputRef.current.click()} className="bg-gray-100 px-3 rounded-md hover:bg-gray-200 text-gray-700 text-sm">
+                                        <button onClick={() => panInputRef.current?.click()} className="bg-gray-100 px-3 rounded-md hover:bg-gray-200 text-gray-700 text-sm">
                                             Upload
                                         </button>
                                         <input type="file" ref={panInputRef} onChange={(e) => handleFileChange(e, 'panImage')} accept=".jpg,.jpeg,.pdf" className="hidden" />
@@ -328,7 +319,6 @@ const Register = () => {
                                 </div>
                             </div>
 
-                            {/* Profile picture section */}
                             <div className="mt-6 pt-4 border-t border-gray-200">
                                 <label className="block text-gray-700 text-sm font-medium mb-2">Profile Picture</label>
                                 <div className="flex items-center gap-4">
@@ -340,7 +330,7 @@ const Register = () => {
                                         )}
                                     </div>
                                     <div>
-                                        <button onClick={() => profilePicInputRef.current.click()} className="bg-gray-100 px-3 py-1.5 rounded-md text-sm hover:bg-gray-200 border border-gray-300">
+                                        <button onClick={() => profilePicInputRef.current?.click()} className="bg-gray-100 px-3 py-1.5 rounded-md text-sm hover:bg-gray-200 border border-gray-300">
                                             <FaCloudUploadAlt className="inline mr-1" /> Upload Photo
                                         </button>
                                         <input type="file" ref={profilePicInputRef} onChange={handleProfilePictureChange} accept=".jpg,.jpeg,.png" className="hidden" />
@@ -362,7 +352,6 @@ const Register = () => {
                     </div>
                 )}
 
-                {/* Login Link */}
                 <div className="text-center mt-6 text-gray-500 text-sm">
                     Already have an account? <a href="/login" className="text-blue-700 hover:underline">Sign in here</a>
                 </div>
