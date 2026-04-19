@@ -8,7 +8,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { mediaAPI } from "@/lib/api";
 import PostCard from "@/components/news/PostCard";
 import FollowButton from "@/components/news/FollowButton";
-import { Loader2, MapPin, Calendar, Settings } from "lucide-react";
+import { Loader2, Settings, Image, Grid3x3 } from "lucide-react";
 import { toast } from "react-toastify";
 
 export default function ProfilePage() {
@@ -25,48 +25,75 @@ export default function ProfilePage() {
   const isOwnProfile = currentUser?._id === userId;
 
   useEffect(() => {
-    fetchProfileAndPosts();
-    if (!isOwnProfile) {
-      checkFollowStatus();
+    if (userId) {
+      fetchAllData();
     }
   }, [userId]);
 
-  const fetchProfileAndPosts = async () => {
+  const fetchAllData = async () => {
     setLoading(true);
     try {
-      // Fetch user's posts
-      const postsRes = await mediaAPI.getUserPosts(userId, { limit: 20 });
-      setPosts(postsRes.data.posts);
+      // Fetch posts and user info in parallel
+      const [postsRes, followStatusRes] = await Promise.allSettled([
+        mediaAPI.getUserPosts(userId, { limit: 30 }),
+        isOwnProfile ? Promise.resolve(null) : mediaAPI.checkFollowStatus(userId),
+      ]);
 
-      // If posts exist, get user info from the first post's author
-      if (postsRes.data.posts.length > 0) {
-        setProfileUser(postsRes.data.posts[0].author);
-      } else {
-        // Fallback: try to get user info from followers endpoint (will have basic info)
+      // Handle posts
+      let fetchedPosts = [];
+      if (postsRes.status === "fulfilled") {
+        fetchedPosts = postsRes.value.data.posts;
+        setPosts(fetchedPosts);
+      }
+
+      // Determine profile user
+      let userInfo = null;
+
+      // 1. If there are posts, get author from first post
+      if (fetchedPosts.length > 0) {
+        userInfo = fetchedPosts[0].author;
+      }
+      // 2. If it's own profile, use currentUser from auth
+      else if (isOwnProfile && currentUser) {
+        userInfo = currentUser;
+      }
+      // 3. Otherwise, try to fetch user details from followers endpoint (fallback)
+      else {
         try {
           const followersRes = await mediaAPI.getFollowers(userId, { limit: 1 });
-          // This is a workaround; ideally we'd have a dedicated /users/:id endpoint
-          if (followersRes.data.followers) {
-            // Still need full user; you might want to call an admin endpoint if needed
+          // The followers endpoint returns array of user objects with basic info
+          if (followersRes.data.followers?.length > 0) {
+            // This gives us a follower object; we need the target user, not the follower.
+            // Since the endpoint doesn't directly give user info, we can fetch the user via admin route if available.
+            // For now, we'll use a minimal placeholder.
+            console.warn("User has no posts; displaying limited profile");
           }
         } catch (e) {
-          console.warn("Could not fetch profile details");
+          console.warn("Could not fetch profile details", e);
         }
+      }
+
+      if (userInfo) {
+        setProfileUser(userInfo);
+      } else {
+        // Minimal fallback
+        setProfileUser({
+          _id: userId,
+          fullName: "User",
+          email: "",
+          mediaCreatorProfile: { totalPosts: 0, totalFollowers: 0, totalFollowing: 0 },
+        });
+      }
+
+      // Set follow status
+      if (followStatusRes.status === "fulfilled" && followStatusRes.value) {
+        setIsFollowing(followStatusRes.value.data.isFollowing);
       }
     } catch (error) {
       console.error("Failed to fetch profile:", error);
       toast.error("Could not load profile");
     } finally {
       setLoading(false);
-    }
-  };
-
-  const checkFollowStatus = async () => {
-    try {
-      const res = await mediaAPI.checkFollowStatus(userId);
-      setIsFollowing(res.data.isFollowing);
-    } catch (error) {
-      console.error("Failed to check follow status:", error);
     }
   };
 
@@ -78,21 +105,38 @@ export default function ProfilePage() {
 
   const handlePostDelete = (postId: string) => {
     setPosts((prev) => prev.filter((p: any) => p._id !== postId));
-    if (profileUser) {
-      setProfileUser((prev: any) => ({
-        ...prev,
-        mediaCreatorProfile: {
-          ...prev.mediaCreatorProfile,
-          totalPosts: Math.max(0, (prev.mediaCreatorProfile?.totalPosts || 0) - 1),
-        },
-      }));
-    }
+    setProfileUser((prev: any) => ({
+      ...prev,
+      mediaCreatorProfile: {
+        ...prev.mediaCreatorProfile,
+        totalPosts: Math.max(0, (prev.mediaCreatorProfile?.totalPosts || 0) - 1),
+      },
+    }));
   };
 
+  const filteredPosts = activeTab === "media"
+    ? posts.filter((post: any) => post.media && post.media.length > 0)
+    : posts;
+
+  // Loading skeleton
   if (loading) {
     return (
-      <div className="flex justify-center py-12">
-        <Loader2 className="animate-spin h-8 w-8 text-[#1a237e]" />
+      <div className="max-w-3xl mx-auto space-y-6">
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden animate-pulse">
+          <div className="h-24 bg-gradient-to-r from-[#1a237e]/20 to-[#283593]/20"></div>
+          <div className="p-6 -mt-12">
+            <div className="flex items-end gap-4">
+              <div className="w-24 h-24 bg-gray-200 rounded-full"></div>
+              <div className="space-y-2">
+                <div className="h-6 w-32 bg-gray-200 rounded"></div>
+                <div className="h-4 w-24 bg-gray-200 rounded"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div className="flex justify-center">
+          <Loader2 className="animate-spin h-6 w-6 text-[#1a237e]" />
+        </div>
       </div>
     );
   }
@@ -100,7 +144,7 @@ export default function ProfilePage() {
   if (!profileUser) {
     return (
       <div className="max-w-3xl mx-auto text-center py-12">
-        <p className="text-gray-500">User not found or no posts yet.</p>
+        <p className="text-gray-500">User not found</p>
       </div>
     );
   }
@@ -111,14 +155,14 @@ export default function ProfilePage() {
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
         <div className="h-24 bg-gradient-to-r from-[#1a237e] to-[#283593]"></div>
         <div className="p-6 -mt-12">
-          <div className="flex items-end justify-between">
+          <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
             <div className="flex items-end gap-4">
               <div className="w-24 h-24 bg-white rounded-full border-4 border-white shadow-lg flex items-center justify-center text-3xl font-bold text-[#1a237e]">
-                {profileUser.fullName?.charAt(0)}
+                {profileUser.fullName?.charAt(0) || "U"}
               </div>
               <div className="mb-2">
                 <h1 className="text-2xl font-bold text-gray-800">{profileUser.fullName}</h1>
-                <p className="text-gray-500">@{profileUser.email?.split("@")[0]}</p>
+                <p className="text-gray-500">@{profileUser.email?.split("@")[0] || "user"}</p>
                 {profileUser.mediaCreatorProfile?.bio && (
                   <p className="text-sm text-gray-600 mt-1">{profileUser.mediaCreatorProfile.bio}</p>
                 )}
@@ -140,7 +184,7 @@ export default function ProfilePage() {
 
           <div className="flex gap-6 mt-6 text-sm">
             <span className="font-medium">
-              <span className="font-bold">{profileUser.mediaCreatorProfile?.totalPosts || posts.length}</span> posts
+              <span className="font-bold">{posts.length}</span> posts
             </span>
             <Link
               href={`/news/followers/${userId}`}
@@ -163,33 +207,35 @@ export default function ProfilePage() {
         <div className="border-b border-gray-200 px-5 flex gap-6">
           <button
             onClick={() => setActiveTab("posts")}
-            className={`py-3 text-sm font-medium border-b-2 transition ${
+            className={`py-3 text-sm font-medium border-b-2 transition flex items-center gap-2 ${
               activeTab === "posts"
                 ? "border-[#1a237e] text-[#1a237e]"
                 : "border-transparent text-gray-500 hover:text-[#1a237e]"
             }`}
           >
-            Posts
+            <Grid3x3 className="w-4 h-4" /> Posts
           </button>
           <button
             onClick={() => setActiveTab("media")}
-            className={`py-3 text-sm font-medium border-b-2 transition ${
+            className={`py-3 text-sm font-medium border-b-2 transition flex items-center gap-2 ${
               activeTab === "media"
                 ? "border-[#1a237e] text-[#1a237e]"
                 : "border-transparent text-gray-500 hover:text-[#1a237e]"
             }`}
           >
-            Media
+            <Image className="w-4 h-4" /> Media
           </button>
         </div>
 
-        {/* Posts Grid */}
+        {/* Posts/Media Grid */}
         <div className="p-4">
-          {posts.length === 0 ? (
-            <p className="text-center text-gray-500 py-8">No posts yet.</p>
+          {filteredPosts.length === 0 ? (
+            <p className="text-center text-gray-500 py-8">
+              {activeTab === "media" ? "No media posts yet." : "No posts yet."}
+            </p>
           ) : (
             <div className="space-y-4">
-              {posts.map((post: any) => (
+              {filteredPosts.map((post: any) => (
                 <PostCard
                   key={post._id}
                   post={post}
