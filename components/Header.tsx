@@ -35,9 +35,10 @@ const Header = () => {
           <div className="flex justify-between items-center h-16 md:h-20">
             {/* Logo */}
             <Link href="/" className="flex items-center gap-3">
-              <div className="relative w-10 h-10 md:w-12 md:h-12 flex-shrink-0">
+              <div className="relative w-20 h-30 md:w-12 md:h-12 flex-shrink-0">
                 <Image
-                  src="/https://www.samruddhabharat.in/images/Samruddha%20Bharat%20logo-01.png"
+                  src="/logo.png"
+    
                   alt="Samraddh Bharat Logo"
                   fill
                   className="object-contain"
@@ -46,7 +47,7 @@ const Header = () => {
               </div>
               <div className="ml-1">
                 <h1 className="text-lg md:text-xl font-bold text-[#1a237e] font-serif leading-tight">
-                  Samraddh Bharat
+                  SAMRADDH BHARAT
                 </h1>
                 <p className="text-[8px] md:text-[10px] text-gray-500 leading-tight">
                   डिजिटल इंडिया - एकीकृत सेवा पोर्टल
