@@ -1,7 +1,6 @@
-
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -13,6 +12,12 @@ const Header = () => {
   const { user, logout } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [languageDropdown, setLanguageDropdown] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  // After hydration, we can safely show the real auth state
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const handleLogout = async () => {
     await logout();
@@ -29,7 +34,6 @@ const Header = () => {
 
   return (
     <>
-      {/* Main Header */}
       <header className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16 md:h-20">
@@ -37,7 +41,7 @@ const Header = () => {
             <Link href="/" className="flex items-center gap-3">
               <div className="relative w-10 h-10 md:w-12 md:h-12 flex-shrink-0">
                 <Image
-                  src="/https://www.samruddhabharat.in/images/Samruddha%20Bharat%20logo-01.png"
+                  src="/logo.png"
                   alt="Samraddh Bharat Logo"
                   fill
                   className="object-contain"
@@ -54,7 +58,7 @@ const Header = () => {
               </div>
             </Link>
 
-            {/* Desktop Navigation - Font Size Increased */}
+            {/* Desktop Navigation */}
             <nav className="hidden md:flex items-center space-x-6">
               {navItems.map((item) => (
                 <Link
@@ -67,9 +71,26 @@ const Header = () => {
               ))}
             </nav>
 
-            {/* Auth Buttons - Font Size Increased */}
+            {/* Auth Buttons - Hydration Safe */}
             <div className="hidden md:flex items-center gap-3">
-              {user ? (
+              {!mounted ? (
+                // Show the same unauthenticated UI during SSR and initial client render
+                <>
+                  <Link
+                    href="/login"
+                    className="text-[#1a237e] hover:bg-[#1a237e]/10 px-4 py-1.5 rounded-md text-base font-medium border border-[#1a237e]/30 transition"
+                  >
+                    Sign In
+                  </Link>
+                  <Link
+                    href="/register"
+                    className="bg-[#1a237e] text-white hover:bg-[#0d1757] px-4 py-1.5 rounded-md text-base font-medium transition"
+                  >
+                    Register
+                  </Link>
+                </>
+              ) : user ? (
+                // Actual authenticated UI (only rendered on client after mount)
                 <>
                   <Link
                     href="/profile"
@@ -87,6 +108,7 @@ const Header = () => {
                   </button>
                 </>
               ) : (
+                // Unauthenticated UI (also shown when user is null)
                 <>
                   <Link
                     href="/login"
@@ -114,7 +136,7 @@ const Header = () => {
           </div>
         </div>
 
-        {/* Mobile Navigation - Font Size Increased */}
+        {/* Mobile Navigation - Hydration Safe */}
         {mobileMenuOpen && (
           <div className="md:hidden bg-white border-t border-gray-200 py-3 px-4">
             <nav className="flex flex-col space-y-3">
@@ -129,7 +151,25 @@ const Header = () => {
                 </Link>
               ))}
               <div className="pt-3 border-t border-gray-200 flex flex-col gap-2">
-                {user ? (
+                {!mounted ? (
+                  // Placeholder for mobile
+                  <>
+                    <Link
+                      href="/login"
+                      className="text-center border border-[#1a237e] text-[#1a237e] py-2 rounded-md text-base"
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      Sign In
+                    </Link>
+                    <Link
+                      href="/register"
+                      className="text-center bg-[#1a237e] text-white py-2 rounded-md text-base"
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      Register
+                    </Link>
+                  </>
+                ) : user ? (
                   <>
                     <Link
                       href="/profile"
