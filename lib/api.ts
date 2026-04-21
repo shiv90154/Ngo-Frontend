@@ -177,7 +177,7 @@ export const mediaAPI = {
 };
 
 // ======================
-// NOTIFICATION API (🆕)
+// NOTIFICATION API
 // ======================
 export const notificationAPI = {
   getNotifications: (params?: {
@@ -185,8 +185,11 @@ export const notificationAPI = {
     limit?: number;
     filter?: "unread" | "all";
   }) => api.get("/notifications", { params }),
+
   markAsRead: (id: string) => api.patch(`/notifications/${id}/read`),
+
   markAllAsRead: () => api.patch("/notifications/read-all"),
+
   deleteNotification: (id: string) => api.delete(`/notifications/${id}`),
 };
 
@@ -237,6 +240,61 @@ export const financeAPI = {
   // AEPS
   aepsWithdraw: (aadhaarNumber: string, amount: number, bankIIN?: string) =>
     api.post("/finance/aeps/withdraw", { aadhaarNumber, amount, bankIIN }),
+};
+
+// ======================
+// IT SERVICES API
+// ======================
+export const itAPI = {
+  // Dashboard
+  getDashboard: () => api.get("/it/dashboard"),
+
+  // Clients
+  getClients: (params?: { page?: number; limit?: number; search?: string }) =>
+    api.get("/it/clients", { params }),
+  getClient: (id: string) => api.get(`/it/clients/${id}`),
+  createClient: (data: any) => api.post("/it/clients", data),
+  updateClient: (id: string, data: any) => api.put(`/it/clients/${id}`, data),
+  deleteClient: (id: string) => api.delete(`/it/clients/${id}`),
+
+  // Projects
+  getProjects: (params?: { page?: number; limit?: number; status?: string; client?: string; search?: string }) =>
+    api.get("/it/projects", { params }),
+  getProject: (id: string) => api.get(`/it/projects/${id}`),
+  createProject: (data: any) => api.post("/it/projects", data),
+  updateProject: (id: string, data: any) => api.put(`/it/projects/${id}`, data),
+  deleteProject: (id: string) => api.delete(`/it/projects/${id}`),
+
+  // Invoices
+  getInvoices: (params?: { page?: number; limit?: number; status?: string; client?: string; search?: string }) =>
+    api.get("/it/invoices", { params }),
+  getInvoice: (id: string) => api.get(`/it/invoices/${id}`),
+  createInvoice: (data: any) => api.post("/it/invoices", data),
+  updateInvoice: (id: string, data: any) => api.put(`/it/invoices/${id}`, data),
+  deleteInvoice: (id: string) => api.delete(`/it/invoices/${id}`),
+
+  // Tasks
+  getTasks: (params?: { project?: string; assignedTo?: string; status?: string }) =>
+    api.get("/it/tasks", { params }),
+  createTask: (data: any) => api.post("/it/tasks", data),
+  updateTask: (id: string, data: any) => api.put(`/it/tasks/${id}`, data),
+  deleteTask: (id: string) => api.delete(`/it/tasks/${id}`),
+};
+
+// ======================
+// ADMIN API (🆕)
+// ======================
+export const adminAPI = {
+  // Stats
+  getStats: () => api.get("/admin/stats"),
+
+  // Users
+  getUsers: (params?: { page?: number; limit?: number; role?: string; search?: string }) =>
+    api.get("/admin/users", { params }),
+  getUser: (id: string) => api.get(`/admin/users/${id}`),
+  updateUser: (id: string, data: any) => api.put(`/admin/users/${id}`, data),
+  deleteUser: (id: string) => api.delete(`/admin/users/${id}`),
+  toggleUserActive: (id: string) => api.patch(`/admin/users/${id}/toggle-active`),
 };
 
 // ======================

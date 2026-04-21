@@ -10,12 +10,15 @@ export const metadata: Metadata = {
 
 export default function NewsLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="min-h-screen bg-[#f0f2f5]">
-   
+    <div className="min-h-screen bg-slate-50 font-sans">
       <NewsNavbar />
-      <div className="flex">
+      
+      {/* Centered container to prevent extreme stretching on large monitors */}
+      <div className="max-w-7xl mx-auto flex justify-center">
         <NewsSidebar />
-        <main className="flex-1 p-4 lg:p-6 pb-20 lg:pb-6 max-w-4xl mx-auto w-full">
+        
+        {/* Main feed area */}
+        <main className="flex-1 p-4 sm:p-6 pb-24 lg:pb-8 max-w-2xl w-full">
           {children}
         </main>
       </div>

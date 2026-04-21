@@ -1,10 +1,12 @@
+// app/(news)/news/page.tsx
 "use client";
 
 import { useEffect, useState, useRef, useCallback } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { mediaAPI } from "@/lib/api";
 import PostCard from "@/components/news/PostCard";
-import { Loader2, Newspaper } from "lucide-react";
+import StoryRow from "@/components/news/StoryRow";
+import { Loader2, Newspaper, Sparkles } from "lucide-react";
 import Link from "next/link";
 import { toast } from "react-toastify";
 
@@ -16,6 +18,7 @@ export default function NewsFeedPage() {
   const [hasMore, setHasMore] = useState(true);
   const [isCreator, setIsCreator] = useState(false);
   const observer = useRef<IntersectionObserver>();
+
   const lastPostRef = useCallback(
     (node: HTMLDivElement) => {
       if (loading) return;
@@ -84,19 +87,21 @@ export default function NewsFeedPage() {
 
   if (!isCreator && !loading) {
     return (
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8 text-center">
-        <Newspaper className="w-16 h-16 mx-auto text-gray-300 mb-4" />
-        <h2 className="text-xl font-semibold text-gray-800 mb-2">
+      <div className="bg-indigo-50/50 rounded-3xl ring-1 ring-indigo-100 p-10 text-center max-w-lg mx-auto mt-8">
+        <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center shadow-sm mx-auto mb-5 ring-1 ring-slate-900/5">
+          <Sparkles className="w-8 h-8 text-[#1a237e]" />
+        </div>
+        <h2 className="text-2xl font-bold text-slate-900 mb-3">
           Become a Media Creator
         </h2>
-        <p className="text-gray-500 mb-4">
-          Join our community of creators to share news, stories, and updates.
+        <p className="text-slate-600 mb-8 leading-relaxed">
+          Join our growing community of creators. Share your unique perspective, breaking news, and engaging stories with the world.
         </p>
         <button
           onClick={handleBecomeCreator}
-          className="bg-[#1a237e] text-white px-6 py-2 rounded-lg hover:bg-[#0d1757] transition"
+          className="bg-[#1a237e] text-white px-8 py-3 rounded-full font-medium hover:bg-[#0d1757] transition-all hover:shadow-lg hover:-translate-y-0.5 active:translate-y-0"
         >
-          Get Started
+          Start Creating Now
         </button>
       </div>
     );
@@ -104,16 +109,23 @@ export default function NewsFeedPage() {
 
   return (
     <div className="space-y-6">
+      {/* Stories Row */}
+      <StoryRow />
+
       {posts.length === 0 && !loading ? (
-        <div className="bg-white rounded-xl p-8 text-center">
-          <Newspaper className="w-12 h-12 mx-auto text-gray-300 mb-3" />
-          <p className="text-gray-500">No posts yet. Follow creators to see their content!</p>
-          <Link href="/news/search" className="text-[#1a237e] text-sm mt-2 inline-block">
-            Find creators to follow →
+        <div className="bg-white rounded-3xl p-12 text-center ring-1 ring-slate-900/5 shadow-sm">
+          <Newspaper className="w-12 h-12 mx-auto text-slate-300 mb-4" />
+          <h3 className="text-lg font-semibold text-slate-800 mb-1">Your feed is quiet</h3>
+          <p className="text-slate-500 mb-6">Follow more creators to discover new stories.</p>
+          <Link 
+            href="/news/search" 
+            className="text-[#1a237e] bg-indigo-50 px-6 py-2.5 rounded-full text-sm font-medium hover:bg-indigo-100 transition-colors inline-flex items-center gap-2"
+          >
+            Explore Creators <Sparkles className="w-4 h-4" />
           </Link>
         </div>
       ) : (
-        <>
+        <div className="space-y-6">
           {posts.map((post: any, index) => {
             if (index === posts.length - 1) {
               return (
@@ -135,11 +147,12 @@ export default function NewsFeedPage() {
               />
             );
           })}
-        </>
+        </div>
       )}
+      
       {loading && (
-        <div className="flex justify-center py-4">
-          <Loader2 className="animate-spin h-6 w-6 text-[#1a237e]" />
+        <div className="flex justify-center py-8">
+          <Loader2 className="animate-spin h-8 w-8 text-[#1a237e]" />
         </div>
       )}
     </div>

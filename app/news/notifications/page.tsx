@@ -1,226 +1,187 @@
-// app/(news)/notifications/page.tsx
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
-import Link from "next/link";
-import { useAuth } from "@/contexts/AuthContext";
-import { notificationAPI } from "@/lib/api"; // 🆕 Correct import
-import { Bell, Heart, MessageCircle, UserPlus, AtSign, Loader2 } from "lucide-react";
+import { useEffect, useState } from "react";
+import { notificationAPI } from "@/lib/api"; // Updated to use your new API constant
+import { 
+  Heart, 
+  MessageCircle, 
+  UserPlus, 
+  Bell, 
+  Loader2, 
+  ArrowLeft,
+  Circle,
+  CheckCheck
+} from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
 
-interface Notification {
-  _id: string;
-  type: "like" | "comment" | "follow" | "mention";
-  read: boolean;
-  createdAt: string;
-  sender: {
-    _id: string;
-    fullName: string;
-    profileImage?: string;
-  };
-  post?: {
-    _id: string;
-    content?: string;
-    media?: any[];
-  };
-  comment?: {
-    text: string;
-  };
-}
-
 export default function NotificationsPage() {
-  const { user } = useAuth();
-  const [notifications, setNotifications] = useState<Notification[]>([]);
+  const router = useRouter();
+  const [notifications, setNotifications] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [activeFilter, setActiveFilter] = useState<"all" | "unread">("all");
-  const [unreadCount, setUnreadCount] = useState(0);
-  const [page, setPage] = useState(1);
-  const [hasMore, setHasMore] = useState(true);
 
-  const fetchNotifications = useCallback(async (pageNum: number = 1, filter: "all" | "unread" = activeFilter) => {
-    setLoading(true);
+  const fetchNotifications = async () => {
     try {
-      const res = await notificationAPI.getNotifications({ // 🆕 Use notificationAPI
-        page: pageNum,
-        limit: 20,
-        filter: filter === "unread" ? "unread" : undefined,
-      });
-      if (pageNum === 1) {
-        setNotifications(res.data.notifications);
-      } else {
-        setNotifications(prev => [...prev, ...res.data.notifications]);
-      }
-      setUnreadCount(res.data.unreadCount);
-      setHasMore(res.data.currentPage < res.data.totalPages);
+      const res = await notificationAPI.getNotifications({ limit: 50 }); 
+      setNotifications(res.data.notifications || []);
     } catch (error) {
       console.error("Failed to fetch notifications:", error);
-      toast.error("Could not load notifications");
     } finally {
       setLoading(false);
     }
-  }, [activeFilter]);
+  };
 
   useEffect(() => {
-    setPage(1);
-    fetchNotifications(1, activeFilter);
-  }, [activeFilter, fetchNotifications]);
+    fetchNotifications();
+  }, []);
 
-  const handleLoadMore = () => {
-    if (!loading && hasMore) {
-      const nextPage = page + 1;
-      setPage(nextPage);
-      fetchNotifications(nextPage, activeFilter);
-    }
-  };
-
-  const markAsRead = async (notificationId: string) => {
+  const handleMarkAllRead = async () => {
     try {
-      await notificationAPI.markAsRead(notificationId); // 🆕 Use notificationAPI
-      setNotifications(prev =>
-        prev.map(n => n._id === notificationId ? { ...n, read: true } : n)
-      );
-      setUnreadCount(prev => Math.max(0, prev - 1));
+      await notificationAPI.markAllAsRead();
+      setNotifications(prev => prev.map(n => ({ ...n, isRead: true })));
+      toast.success("All caught up!");
     } catch (error) {
-      console.error("Failed to mark as read:", error);
+      toast.error("Failed to update notifications");
     }
   };
 
-  const markAllAsRead = async () => {
-    try {
-      await notificationAPI.markAllAsRead(); // 🆕 Use notificationAPI
-      setNotifications(prev => prev.map(n => ({ ...n, read: true })));
-      setUnreadCount(0);
-      toast.success("All notifications marked as read");
-    } catch (error) {
-      toast.error("Failed to mark all as read");
-    }
-  };
-
-  const getNotificationIcon = (type: string) => {
+  const getNotificationDetails = (type: string) => {
     switch (type) {
-      case "like": return <Heart className="w-5 h-5 text-red-500 fill-red-500" />;
-      case "comment": return <MessageCircle className="w-5 h-5 text-blue-500" />;
-      case "follow": return <UserPlus className="w-5 h-5 text-green-500" />;
-      case "mention": return <AtSign className="w-5 h-5 text-purple-500" />;
-      default: return <Bell className="w-5 h-5 text-gray-500" />;
+      case "like": 
+        return {
+          icon: <Heart className="w-3.5 h-3.5 text-white fill-white" />,
+          bgColor: "bg-rose-500",
+          label: "liked your post"
+        };
+      case "comment": 
+        return {
+          icon: <MessageCircle className="w-3.5 h-3.5 text-white fill-white" />,
+          bgColor: "bg-blue-500",
+          label: "commented on your post"
+        };
+      case "follow": 
+        return {
+          icon: <UserPlus className="w-3.5 h-3.5 text-white" />,
+          bgColor: "bg-emerald-500",
+          label: "started following you"
+        };
+      default: 
+        return {
+          icon: <Bell className="w-3.5 h-3.5 text-white" />,
+          bgColor: "bg-slate-400",
+          label: "sent a notification"
+        };
     }
   };
 
-  const getNotificationText = (notification: Notification) => {
-    const actorName = notification.sender.fullName;
-    switch (notification.type) {
-      case "like":
-        return <><span className="font-medium">{actorName}</span> liked your post</>;
-      case "comment":
-        return <><span className="font-medium">{actorName}</span> commented: "{notification.comment?.text}"</>;
-      case "follow":
-        return <><span className="font-medium">{actorName}</span> started following you</>;
-      case "mention":
-        return <><span className="font-medium">{actorName}</span> mentioned you in a post</>;
-      default:
-        return null;
-    }
-  };
-
-  if (loading && page === 1) {
+  if (loading) {
     return (
-      <div className="flex justify-center py-12">
-        <Loader2 className="animate-spin h-8 w-8 text-[#1a237e]" />
+      <div className="flex flex-col items-center justify-center py-32 gap-4">
+        <Loader2 className="w-10 h-10 animate-spin text-[#1a237e] opacity-20" />
+        <p className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400">Syncing Activity</p>
       </div>
     );
   }
 
   return (
-    <div className="max-w-2xl mx-auto space-y-4">
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <h1 className="text-xl font-bold text-gray-800">Notifications</h1>
-            {unreadCount > 0 && (
-              <span className="bg-red-500 text-white text-xs px-2 py-0.5 rounded-full">
-                {unreadCount}
-              </span>
-            )}
-          </div>
-          {unreadCount > 0 && (
-            <button onClick={markAllAsRead} className="text-sm text-[#1a237e] font-medium">
-              Mark all as read
-            </button>
-          )}
+    <div className="max-w-2xl mx-auto px-4 pb-20">
+      {/* Header */}
+      <header className="sticky top-0 bg-white/80 backdrop-blur-md z-10 py-6 mb-4 flex items-center justify-between">
+        <div className="flex items-center gap-4">
+          <button 
+            onClick={() => router.back()}
+            className="p-2 hover:bg-slate-100 rounded-full transition-colors"
+          >
+            <ArrowLeft className="w-5 h-5 text-slate-600" />
+          </button>
+          <h1 className="text-2xl font-black text-slate-900 tracking-tight">Activity</h1>
         </div>
-      </div>
 
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-1 flex">
-        <button
-          onClick={() => setActiveFilter("all")}
-          className={`flex-1 py-2 text-sm font-medium rounded-lg transition ${
-            activeFilter === "all" ? "bg-[#1a237e] text-white" : "text-gray-600 hover:bg-gray-50"
-          }`}
-        >
-          All
-        </button>
-        <button
-          onClick={() => setActiveFilter("unread")}
-          className={`flex-1 py-2 text-sm font-medium rounded-lg transition ${
-            activeFilter === "unread" ? "bg-[#1a237e] text-white" : "text-gray-600 hover:bg-gray-50"
-          }`}
-        >
-          Unread
-        </button>
-      </div>
+        {notifications.some(n => !n.isRead) && (
+          <button 
+            onClick={handleMarkAllRead}
+            className="flex items-center gap-2 px-4 py-2 bg-indigo-50 hover:bg-indigo-100 text-[#1a237e] rounded-2xl transition-all"
+          >
+            <CheckCheck className="w-4 h-4" />
+            <span className="text-[10px] font-bold uppercase tracking-widest">Mark read</span>
+          </button>
+        )}
+      </header>
 
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 divide-y">
-        {notifications.length === 0 ? (
-          <div className="p-8 text-center">
-            <Bell className="w-12 h-12 mx-auto text-gray-300 mb-3" />
-            <p className="text-gray-500">No notifications yet</p>
-          </div>
-        ) : (
-          <>
-            {notifications.map((notification) => (
-              <Link
-                key={notification._id}
-                href={notification.post ? `/news/post/${notification.post._id}` : `/news/profile/${notification.sender._id}`}
-                onClick={() => !notification.read && markAsRead(notification._id)}
-                className={`block p-4 hover:bg-gray-50 transition ${!notification.read ? "bg-blue-50/30" : ""}`}
+      <div className="space-y-3">
+        {notifications.length > 0 ? (
+          notifications.map((n) => {
+            const details = getNotificationDetails(n.type);
+            return (
+              <div 
+                key={n._id} 
+                className={`group relative p-4 rounded-[2rem] transition-all border border-transparent hover:border-slate-100 hover:bg-slate-50/50 flex items-center gap-4 ${
+                  !n.isRead ? "bg-indigo-50/40" : "bg-white"
+                }`}
               >
-                <div className="flex gap-3">
-                  <div className="flex-shrink-0">
-                    <div className="w-10 h-10 bg-[#1a237e] rounded-full flex items-center justify-center text-white font-medium">
-                      {notification.sender.fullName.charAt(0)}
+                {/* Avatar */}
+                <div className="relative shrink-0">
+                  <Link href={`/news/profile/${n.sender?._id}`}>
+                    <div className="w-14 h-14 rounded-[1.25rem] bg-slate-200 overflow-hidden ring-2 ring-white shadow-sm">
+                      {n.sender?.profileImage ? (
+                        <img src={n.sender.profileImage} alt="" className="w-full h-full object-cover" />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center bg-indigo-100 text-indigo-600 font-bold text-xl">
+                          {n.sender?.fullName?.charAt(0)}
+                        </div>
+                      )}
                     </div>
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-start gap-2">
-                      <div className="flex-1">
-                        <p className="text-sm text-gray-800">{getNotificationText(notification)}</p>
-                        {notification.post?.content && (
-                          <p className="text-xs text-gray-500 mt-1 line-clamp-1">
-                            {notification.post.content}
-                          </p>
-                        )}
-                        <p className="text-xs text-gray-400 mt-1 flex items-center gap-1">
-                          {formatDistanceToNow(new Date(notification.createdAt), { addSuffix: true })}
-                          {!notification.read && <span className="w-2 h-2 bg-blue-600 rounded-full"></span>}
-                        </p>
-                      </div>
-                      <div className="flex-shrink-0">{getNotificationIcon(notification.type)}</div>
-                    </div>
+                  </Link>
+                  <div className={`absolute -bottom-1 -right-1 p-1.5 rounded-xl shadow-lg ${details.bgColor} ring-2 ring-white`}>
+                    {details.icon}
                   </div>
                 </div>
-              </Link>
-            ))}
-            {hasMore && (
-              <button
-                onClick={handleLoadMore}
-                className="w-full py-3 text-sm text-[#1a237e] hover:bg-gray-50"
-                disabled={loading}
-              >
-                {loading ? <Loader2 className="animate-spin h-4 w-4 mx-auto" /> : "Load more"}
-              </button>
-            )}
-          </>
+
+                {/* Text Content */}
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-start justify-between gap-2">
+                    <p className="text-sm text-slate-600 leading-tight">
+                      <span className="font-bold text-slate-900 mr-1 hover:underline cursor-pointer">
+                        {n.sender?.fullName || "A user"}
+                      </span>
+                      {details.label}
+                    </p>
+                    {!n.isRead && (
+                      <Circle className="w-2.5 h-2.5 fill-indigo-500 text-indigo-500 shrink-0 mt-1" />
+                    )}
+                  </div>
+                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-tight mt-1.5">
+                    {n.createdAt ? formatDistanceToNow(new Date(n.createdAt)) : "recently"} ago
+                  </p>
+                </div>
+
+                {/* Post Preview Image */}
+                {n.post && n.post.media && n.post.media[0] && (
+                  <Link href={`/news/post/${n.post._id}`} className="shrink-0">
+                    <div className="w-14 h-14 rounded-2xl bg-slate-100 overflow-hidden border border-slate-100 group-hover:scale-105 transition-transform duration-300">
+                      <img 
+                        src={n.post.media[0].url} 
+                        className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity" 
+                        alt="preview"
+                      />
+                    </div>
+                  </Link>
+                )}
+              </div>
+            );
+          })
+        ) : (
+          <div className="text-center py-32 bg-slate-50 rounded-[3rem] border-2 border-dashed border-slate-100">
+            <div className="w-20 h-20 bg-white rounded-[2.2rem] shadow-sm flex items-center justify-center mx-auto mb-6">
+              <Bell className="w-8 h-8 text-slate-200" />
+            </div>
+            <p className="font-bold text-slate-900">No activity yet</p>
+            <p className="text-slate-400 text-xs mt-1 px-10">
+              When people like your posts or follow you, you'll see it here.
+            </p>
+          </div>
         )}
       </div>
     </div>
