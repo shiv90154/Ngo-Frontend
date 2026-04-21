@@ -55,14 +55,7 @@ export default function ITNavbar() {
         <div className="px-6">
           <div className="flex items-center justify-between h-16">
             <Link href="/it" className="flex items-center gap-3">
-              <div className="flex items-center gap-1">
-                <div className="w-8 h-8 bg-[#1a237e] rounded-full flex items-center justify-center border border-[#FF9933]">
-                  <span className="text-white text-sm font-serif">अ</span>
-                </div>
-                <div className="w-8 h-8 bg-[#1a237e] rounded-full flex items-center justify-center border border-[#FF9933]">
-                  <span className="text-white text-sm font-serif">₹</span>
-                </div>
-              </div>
+           
               <div>
                 <h1 className="text-lg font-bold text-[#1a237e] font-serif">Samraddh</h1>
                 <p className="text-[10px] text-gray-500 -mt-0.5">IT Services</p>
