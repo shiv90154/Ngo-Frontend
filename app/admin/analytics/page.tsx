@@ -1,10 +1,11 @@
+// app/admin/analytics/page.tsx
 "use client";
 
 import { useEffect, useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useRouter } from "next/navigation";
 import { adminAPI } from "@/lib/api";
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
+import { Users, UserCheck, Stethoscope, GraduationCap, FileText, Calendar, Wallet } from "lucide-react";
 
 export default function AnalyticsPage() {
   const { isAdmin } = useAuth();
@@ -32,43 +33,39 @@ export default function AnalyticsPage() {
 
   if (loading) return <div className="p-8 text-center">Loading...</div>;
 
-  const chartData = [
-    { name: "Total Users", value: stats?.totalUsers || 0 },
-    { name: "Active", value: stats?.activeUsers || 0 },
-    { name: "Doctors", value: stats?.doctors || 0 },
-    { name: "Teachers", value: stats?.teachers || 0 },
+  const statItems = [
+    { label: "Total Users", value: stats?.totalUsers || 0, icon: Users, color: "bg-blue-100 text-blue-700" },
+    { label: "Active Users", value: stats?.activeUsers || 0, icon: UserCheck, color: "bg-green-100 text-green-700" },
+    { label: "Doctors", value: stats?.doctors || 0, icon: Stethoscope, color: "bg-purple-100 text-purple-700" },
+    { label: "Teachers", value: stats?.teachers || 0, icon: GraduationCap, color: "bg-orange-100 text-orange-700" },
+    { label: "Total Posts", value: stats?.totalPosts || 0, icon: FileText, color: "bg-pink-100 text-pink-700" },
+    { label: "Appointments", value: stats?.totalAppointments || 0, icon: Calendar, color: "bg-indigo-100 text-indigo-700" },
+    { label: "Transactions", value: stats?.totalTransactions || 0, icon: Wallet, color: "bg-yellow-100 text-yellow-700" },
+    { label: "Active Loans", value: stats?.activeLoans || 0, icon: Wallet, color: "bg-red-100 text-red-700" },
   ];
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold text-gray-800">Analytics</h1>
-      <div className="bg-white rounded-xl shadow-sm border p-5">
-        <h2 className="text-lg font-semibold mb-4">User Distribution</h2>
-        <div className="h-80">
-          <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={chartData}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="name" />
-              <YAxis />
-              <Tooltip />
-              <Bar dataKey="value" fill="#1a237e" />
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
+      <h1 className="text-2xl font-bold text-gray-800">Analytics Dashboard</h1>
+      
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {statItems.map((item) => (
+          <div key={item.label} className="bg-white rounded-xl p-5 shadow-sm border border-gray-200">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-gray-500">{item.label}</p>
+                <p className="text-3xl font-bold text-gray-800 mt-1">{item.value}</p>
+              </div>
+              <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${item.color}`}>
+                <item.icon size={22} />
+              </div>
+            </div>
+          </div>
+        ))}
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="bg-white p-5 rounded-xl shadow-sm border">
-          <p className="text-gray-500">Total Posts</p>
-          <p className="text-3xl font-bold">{stats?.totalPosts || 0}</p>
-        </div>
-        <div className="bg-white p-5 rounded-xl shadow-sm border">
-          <p className="text-gray-500">Total Appointments</p>
-          <p className="text-3xl font-bold">{stats?.totalAppointments || 0}</p>
-        </div>
-        <div className="bg-white p-5 rounded-xl shadow-sm border">
-          <p className="text-gray-500">Active Loans</p>
-          <p className="text-3xl font-bold">{stats?.activeLoans || 0}</p>
-        </div>
+
+      <div className="bg-white rounded-xl p-6 shadow-sm border">
+        <p className="text-gray-500 text-center">Detailed charts will be available in the next update.</p>
       </div>
     </div>
   );

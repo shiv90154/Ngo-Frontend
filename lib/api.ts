@@ -23,7 +23,6 @@ api.interceptors.request.use((config) => {
 // HEALTHCARE API
 // ======================
 export const healthcareAPI = {
-  // ---------- DOCTOR AVAILABILITY ----------
   setDoctorAvailability: (data: {
     workingDays?: string[];
     timeSlots?: any[];
@@ -37,7 +36,6 @@ export const healthcareAPI = {
   getAvailableSlots: (doctorId: string, date: string) =>
     api.get("/healthcare/slots", { params: { doctorId, date } }),
 
-  // ---------- APPOINTMENTS ----------
   bookAppointment: (data: {
     doctorId: string;
     appointmentDate: string;
@@ -72,7 +70,6 @@ export const healthcareAPI = {
 
   getAppointmentById: (id: string) => api.get(`/healthcare/appointments/${id}`),
 
-  // ---------- PRESCRIPTIONS ----------
   createPrescription: (data: {
     patientId: string;
     appointmentId?: string;
@@ -99,7 +96,6 @@ export const healthcareAPI = {
 
   getPrescriptionById: (id: string) => api.get(`/healthcare/prescriptions/${id}`),
 
-  // ---------- HEALTH RECORDS ----------
   addHealthRecord: (formData: FormData) =>
     api.post("/healthcare/records", formData, {
       headers: { "Content-Type": "multipart/form-data" },
@@ -117,7 +113,6 @@ export const healthcareAPI = {
 
   deleteHealthRecord: (id: string) => api.delete(`/healthcare/records/${id}`),
 
-  // ---------- DOCTOR SEARCH ----------
   searchDoctors: (params: {
     specialization?: string;
     state?: string;
@@ -133,11 +128,9 @@ export const healthcareAPI = {
 // MEDIA (NEWS) API
 // ======================
 export const mediaAPI = {
-  // Feed
   getFeed: (params?: { page?: number; limit?: number }) =>
     api.get("/media/feed", { params }),
 
-  // Posts
   createPost: (formData: FormData) =>
     api.post("/media/posts", formData, {
       headers: { "Content-Type": "multipart/form-data" },
@@ -148,18 +141,15 @@ export const mediaAPI = {
   getUserPosts: (userId: string, params?: { page?: number; limit?: number }) =>
     api.get(`/media/users/${userId}/posts`, { params }),
 
-  // Likes
   likePost: (id: string) => api.post(`/media/posts/${id}/like`),
   unlikePost: (id: string) => api.delete(`/media/posts/${id}/like`),
 
-  // Comments
   getComments: (postId: string, params?: { page?: number; limit?: number }) =>
     api.get(`/media/posts/${postId}/comments`, { params }),
   addComment: (postId: string, text: string) =>
     api.post(`/media/posts/${postId}/comments`, { text }),
   deleteComment: (commentId: string) => api.delete(`/media/comments/${commentId}`),
 
-  // Follow
   followUser: (userId: string) => api.post(`/media/follow/${userId}`),
   unfollowUser: (userId: string) => api.delete(`/media/follow/${userId}`),
   getFollowers: (userId?: string, params?: { page?: number; limit?: number }) =>
@@ -168,11 +158,9 @@ export const mediaAPI = {
     api.get(userId ? `/media/following/${userId}` : "/media/following", { params }),
   checkFollowStatus: (userId: string) => api.get(`/media/follow-status/${userId}`),
 
-  // Search
   searchCreators: (q: string, params?: { page?: number; limit?: number }) =>
     api.get("/media/search/creators", { params: { q, ...params } }),
 
-  // Become creator
   becomeCreator: () => api.post("/media/become-creator"),
 };
 
@@ -197,10 +185,8 @@ export const notificationAPI = {
 // FINANCE API
 // ======================
 export const financeAPI = {
-  // Dashboard
   getDashboard: () => api.get("/finance/dashboard"),
 
-  // Wallet
   getWallet: () => api.get("/finance/wallet"),
   createWalletOrder: (amount: number) => api.post("/finance/wallet/add-order", { amount }),
   verifyPayment: (data: {
@@ -211,18 +197,15 @@ export const financeAPI = {
   transferFunds: (toUserId: string, amount: number, description?: string) =>
     api.post("/finance/wallet/transfer", { toUserId, amount, description }),
 
-  // Loans
   getMyLoans: () => api.get("/finance/loans"),
   applyLoan: (amount: number, tenureMonths: number) =>
     api.post("/finance/loans/apply", { amount, tenureMonths }),
   repayEMI: (loanId: string) => api.post(`/finance/loans/${loanId}/repay`),
 
-  // Bills
   getBillHistory: () => api.get("/finance/bills/history"),
   payBill: (billType: string, billNumber: string, amount: number) =>
     api.post("/finance/bills/pay", { billType, billNumber, amount }),
 
-  // Bank Account
   getBankAccount: () => api.get("/finance/bank-account"),
   updateBankAccount: (data: {
     accountNumber?: string;
@@ -237,7 +220,6 @@ export const financeAPI = {
     bankName?: string;
   }) => api.post("/finance/bank-account/verify", data),
 
-  // AEPS
   aepsWithdraw: (aadhaarNumber: string, amount: number, bankIIN?: string) =>
     api.post("/finance/aeps/withdraw", { aadhaarNumber, amount, bankIIN }),
 };
@@ -246,10 +228,8 @@ export const financeAPI = {
 // IT SERVICES API
 // ======================
 export const itAPI = {
-  // Dashboard
   getDashboard: () => api.get("/it/dashboard"),
 
-  // Clients
   getClients: (params?: { page?: number; limit?: number; search?: string }) =>
     api.get("/it/clients", { params }),
   getClient: (id: string) => api.get(`/it/clients/${id}`),
@@ -257,7 +237,6 @@ export const itAPI = {
   updateClient: (id: string, data: any) => api.put(`/it/clients/${id}`, data),
   deleteClient: (id: string) => api.delete(`/it/clients/${id}`),
 
-  // Projects
   getProjects: (params?: { page?: number; limit?: number; status?: string; client?: string; search?: string }) =>
     api.get("/it/projects", { params }),
   getProject: (id: string) => api.get(`/it/projects/${id}`),
@@ -265,7 +244,6 @@ export const itAPI = {
   updateProject: (id: string, data: any) => api.put(`/it/projects/${id}`, data),
   deleteProject: (id: string) => api.delete(`/it/projects/${id}`),
 
-  // Invoices
   getInvoices: (params?: { page?: number; limit?: number; status?: string; client?: string; search?: string }) =>
     api.get("/it/invoices", { params }),
   getInvoice: (id: string) => api.get(`/it/invoices/${id}`),
@@ -273,7 +251,6 @@ export const itAPI = {
   updateInvoice: (id: string, data: any) => api.put(`/it/invoices/${id}`, data),
   deleteInvoice: (id: string) => api.delete(`/it/invoices/${id}`),
 
-  // Tasks
   getTasks: (params?: { project?: string; assignedTo?: string; status?: string }) =>
     api.get("/it/tasks", { params }),
   createTask: (data: any) => api.post("/it/tasks", data),
@@ -282,19 +259,78 @@ export const itAPI = {
 };
 
 // ======================
-// ADMIN API (🆕)
+// ADMIN API
 // ======================
 export const adminAPI = {
-  // Stats
   getStats: () => api.get("/admin/stats"),
 
-  // Users
   getUsers: (params?: { page?: number; limit?: number; role?: string; search?: string }) =>
     api.get("/admin/users", { params }),
   getUser: (id: string) => api.get(`/admin/users/${id}`),
   updateUser: (id: string, data: any) => api.put(`/admin/users/${id}`, data),
   deleteUser: (id: string) => api.delete(`/admin/users/${id}`),
   toggleUserActive: (id: string) => api.patch(`/admin/users/${id}/toggle-active`),
+};
+
+// ======================
+// EDUCATION API (🆕)
+// ======================
+export const educationAPI = {
+  // ---------- 公开课程 ----------
+  getPublishedCourses: (params?: { category?: string; search?: string; page?: number; limit?: number }) =>
+    api.get("/education/courses", { params }),
+  getCourseDetails: (id: string) => api.get(`/education/courses/${id}`),
+
+  // ---------- 学生功能 ----------
+  enrollCourse: (courseId: string) => api.post(`/education/courses/${courseId}/enroll`),
+  markLessonComplete: (courseId: string, lessonId: string) =>
+    api.post(`/education/courses/${courseId}/lessons/complete`, { lessonId }),
+  startTest: (testId: string) => api.get(`/education/tests/${testId}/start`),
+  submitTest: (attemptId: string, answers: any[]) =>
+    api.post("/education/tests/submit", { attemptId, answers }),
+
+  // ---------- 教师功能 ----------
+  // 课程管理
+  createCourse: (formData: FormData) =>
+    api.post("/education/courses", formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    }),
+  getInstructorCourses: () => api.get("/education/instructor/courses"),
+  updateCourse: (id: string, data: any) => api.put(`/education/courses/${id}`, data),
+  deleteCourse: (id: string) => api.delete(`/education/courses/${id}`),
+
+  // 章节与课时
+  addChapter: (courseId: string, title: string, order: number) =>
+    api.post("/education/chapters", { courseId, title, order }),
+  addLesson: (data: {
+    chapterId: string;
+    title: string;
+    type: string;
+    content: any;
+    order: number;
+    isPreview?: boolean;
+  }) => api.post("/education/lessons", data),
+
+  // 测试管理
+  createTest: (data: {
+    courseId: string;
+    title: string;
+    description?: string;
+    duration: number;
+    totalMarks: number;
+    passingMarks: number;
+  }) => api.post("/education/tests", data),
+  addQuestion: (data: {
+    testId: string;
+    questionText: string;
+    options: string[];
+    correctAnswer: number;
+    marks?: number;
+    explanation?: string;
+  }) => api.post("/education/questions", data),
+
+  // 教师仪表盘
+  getInstructorDashboard: () => api.get("/education/instructor/dashboard"),
 };
 
 // ======================
