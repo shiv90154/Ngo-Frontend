@@ -29,7 +29,7 @@ export default function Home() {
       color: "#7c3aed", 
       desc: "Scholarships, DIKSHA, SWAYAM, NPTEL Courses", 
       href: "/education",
-      badge: "NEP 2020",
+      
       stats: "50+ Schemes"
     },
     { 
@@ -38,7 +38,7 @@ export default function Home() {
       color: "#0369a1", 
       desc: "PM Jan Dhan, Atal Pension, Sukanya Samriddhi", 
       href: "/finance",
-      badge: "RBI Regulated",
+     
       stats: "₹50K+ Cr Disbursed"
     },
     { 
@@ -47,7 +47,7 @@ export default function Home() {
       color: "#be123c", 
       desc: "Ayushman Bharat, e-Sanjeevani, CoWIN", 
       href: "/healthcare",
-      badge: "MoHFW",
+     
       stats: "50Cr+ Beneficiaries"
     },
     { 
@@ -56,7 +56,7 @@ export default function Home() {
       color: "#15803d", 
       desc: "PM KISAN, e-NAM, Soil Health Card", 
       href: "/agriculture",
-      badge: "MoA&FW",
+     
       stats: "11Cr+ Farmers"
     },
     { 
@@ -65,7 +65,7 @@ export default function Home() {
       color: "#0f766e", 
       desc: "DigiLocker, UMANG, GeM Portal", 
       href: "/it",
-      badge: "MeitY",
+     
       stats: "15Cr+ Users"
     },
     { 
@@ -74,7 +74,7 @@ export default function Home() {
       color: "#b45309", 
       desc: "PIB, MyGov, DD News, Mann Ki Baat", 
       href: "/news",
-      badge: "GoI Official",
+     
       stats: "Live Updates"
     },
   ];
@@ -195,7 +195,7 @@ export default function Home() {
                 </span>
                 <TrendingUp size={16} className="text-blue-600" />
               </div>
-              <h2 className="text-3xl md:text-4xl font-bold text-[#1a237e] font-serif mb-4">
+              <h2 className="text-3xl md:text-4xl font-bold text-[#1a237e] font-Sans-serif mb-4">
                 Integrated Government Services
               </h2>
               <p className="text-gray-600 max-w-2xl mx-auto">
@@ -295,7 +295,7 @@ export default function Home() {
                 <span className="text-blue-600 font-semibold text-sm uppercase tracking-wider bg-blue-50 px-4 py-1.5 rounded-full">
                   Why Samraddh Bharat
                 </span>
-                <h2 className="text-3xl md:text-4xl font-bold text-[#1a237e] font-serif mt-4 mb-6">
+                <h2 className="text-3xl md:text-4xl font-bold text-[#1a237e] font-Sans-serif mt-4 mb-6">
                   Citizen-Centric Digital Governance
                 </h2>
                 <p className="text-gray-600 text-lg mb-8 leading-relaxed">
@@ -356,7 +356,7 @@ export default function Home() {
         {/* CTA Section */}
         <section className="py-20 bg-gradient-to-br from-[#0a1550] via-[#1a237e] to-[#0f1a5c] text-white">
           <div className="max-w-4xl mx-auto text-center px-4">
-            <h2 className="text-3xl md:text-4xl font-bold font-serif mb-4">
+            <h2 className="text-3xl md:text-4xl font-bold font-Fantasy mb-4">
               Join the Digital India Mission
             </h2>
             <p className="text-blue-100 text-lg mb-10 max-w-2xl mx-auto">
