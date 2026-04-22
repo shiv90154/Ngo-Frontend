@@ -16,6 +16,8 @@ import {
   CheckCircle2,
   Play,
   Building2,
+  TrendingUp,
+  Sparkles,
 } from "lucide-react";
 import Link from "next/link";
 
@@ -27,7 +29,8 @@ export default function Home() {
       color: "#7c3aed", 
       desc: "Scholarships, DIKSHA, SWAYAM, NPTEL Courses", 
       href: "/education",
-      badge: "NEP 2020"
+      
+      stats: "50+ Schemes"
     },
     { 
       title: "Finance", 
@@ -35,7 +38,8 @@ export default function Home() {
       color: "#0369a1", 
       desc: "PM Jan Dhan, Atal Pension, Sukanya Samriddhi", 
       href: "/finance",
-      badge: "RBI Regulated"
+     
+      stats: "₹50K+ Cr Disbursed"
     },
     { 
       title: "Healthcare", 
@@ -43,7 +47,8 @@ export default function Home() {
       color: "#be123c", 
       desc: "Ayushman Bharat, e-Sanjeevani, CoWIN", 
       href: "/healthcare",
-      badge: "MoHFW"
+     
+      stats: "50Cr+ Beneficiaries"
     },
     { 
       title: "Agriculture", 
@@ -51,7 +56,8 @@ export default function Home() {
       color: "#15803d", 
       desc: "PM KISAN, e-NAM, Soil Health Card", 
       href: "/agriculture",
-      badge: "MoA&FW"
+     
+      stats: "11Cr+ Farmers"
     },
     { 
       title: "Digital Services", 
@@ -59,7 +65,8 @@ export default function Home() {
       color: "#0f766e", 
       desc: "DigiLocker, UMANG, GeM Portal", 
       href: "/it",
-      badge: "MeitY"
+     
+      stats: "15Cr+ Users"
     },
     { 
       title: "News & Info", 
@@ -67,14 +74,15 @@ export default function Home() {
       color: "#b45309", 
       desc: "PIB, MyGov, DD News, Mann Ki Baat", 
       href: "/news",
-      badge: "GoI Official"
+     
+      stats: "Live Updates"
     },
   ];
 
   const stats = [
-    { value: "147 Cr+", label: "Aadhaar Authenticated Citizens", icon: Users, color: "#FF9933" },
-    { value: "2,000+", label: "Integrated Govt. Schemes", icon: Shield, color: "#1a237e" },
-    { value: "24x7", label: "National Helpline Support", icon: Clock, color: "#138808" },
+    { value: "147 Cr+", label: "Aadhaar Citizens", icon: Users, color: "#FF9933" },
+    { value: "2,000+", label: "Govt. Schemes", icon: Shield, color: "#1a237e" },
+    { value: "24x7", label: "Helpline Support", icon: Clock, color: "#138808" },
     { value: "ISO 27001", label: "CERT-In Certified", icon: Award, color: "#be123c" },
   ];
 
@@ -86,9 +94,6 @@ export default function Home() {
     "24x7 National Citizen Helpline",
     "DigiLocker & UMANG Integration",
   ];
-
-  // Video configuration - Replace with actual YouTube video ID
-  const YOUTUBE_VIDEO_ID = "PLACE_YOUR_YOUTUBE_VIDEO_ID_HERE";
 
   return (
     <>
@@ -163,30 +168,34 @@ export default function Home() {
         </section>
 
         {/* Stats Section */}
-        <section className="py-14 bg-white border-b border-gray-200">
+        <section className="py-10 bg-white border-b border-gray-200">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               {stats.map((stat, idx) => (
                 <div key={idx} className="text-center group">
-                  <div className="inline-flex p-4 bg-gradient-to-br from-gray-50 to-white rounded-2xl mb-4 shadow-md border border-gray-200 group-hover:shadow-lg transition-all">
-                    <stat.icon size={28} style={{ color: stat.color }} />
+                  <div className="inline-flex p-3 bg-gradient-to-br from-gray-50 to-white rounded-xl mb-2 shadow-sm border border-gray-200 group-hover:shadow-md transition-all">
+                    <stat.icon size={15} style={{ color: stat.color }} />
                   </div>
-                  <div className="text-2xl md:text-3xl font-bold text-[#1a237e]">{stat.value}</div>
-                  <div className="text-sm font-medium text-gray-600 mt-1">{stat.label}</div>
+                  <div className="text-xl md:text-xl font-bold text-[#1a237e]">{stat.value}</div>
+                  <div className="text-xs font-medium text-gray-600 mt-0.5">{stat.label}</div>
                 </div>
               ))}
             </div>
           </div>
         </section>
 
-        {/* Services Section */}
+        {/* Enhanced Services Section */}
         <section className="py-20 bg-gradient-to-b from-gray-50 to-white">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-14">
-              <span className="text-[#FF9933] font-semibold text-sm uppercase tracking-wider bg-[#FF9933]/10 px-4 py-1.5 rounded-full">
-                Digital Services
-              </span>
-              <h2 className="text-3xl md:text-4xl font-bold text-[#1a237e] font-serif mt-4 mb-4">
+              <div className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-50 to-indigo-50 px-5 py-2 rounded-full mb-4">
+                <Sparkles size={16} className="text-blue-600" />
+                <span className="text-[#1a237e] font-semibold text-sm uppercase tracking-wider">
+                  Digital Services
+                </span>
+                <TrendingUp size={16} className="text-blue-600" />
+              </div>
+              <h2 className="text-3xl md:text-4xl font-bold text-[#1a237e] font-Sans-serif mb-4">
                 Integrated Government Services
               </h2>
               <p className="text-gray-600 max-w-2xl mx-auto">
@@ -199,39 +208,80 @@ export default function Home() {
                 <Link
                   key={idx}
                   href={service.href}
-                  className="group bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden border border-gray-200 hover:border-[#1a237e]/50 hover:-translate-y-2 relative"
+                  className="group relative bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500 overflow-hidden border border-gray-100 hover:border-[#1a237e]/30 hover:-translate-y-2"
                 >
+                  {/* Gradient Overlay on Hover */}
+                  <div className="absolute inset-0 bg-gradient-to-br from-[#1a237e]/0 to-[#1a237e]/0 group-hover:from-[#1a237e]/5 group-hover:to-[#1a237e]/5 transition-all duration-500"></div>
+                  
+                  {/* Top Badge */}
                   {service.badge && (
-                    <div className="absolute top-4 right-4 z-10">
-                      <span className="px-3 py-1 bg-gradient-to-r from-[#1a237e] to-[#283593] text-white text-xs font-bold rounded-full">
+                    <div className="absolute top-4 right-4 z-20">
+                      <span className="px-3 py-1.5 bg-gradient-to-r from-[#1a237e] to-[#283593] text-white text-xs font-bold rounded-full shadow-lg flex items-center gap-1">
+                        <Sparkles size={10} />
                         {service.badge}
                       </span>
                     </div>
                   )}
-                  <div className="p-6">
-                    <div className="flex items-start justify-between mb-4">
-                      <div
-                        className="w-14 h-14 rounded-xl flex items-center justify-center shadow-md group-hover:scale-110 transition-transform"
-                        style={{ backgroundColor: `${service.color}15` }}
-                      >
-                        <service.icon size={26} style={{ color: service.color }} />
+
+                  <div className="p-7 relative z-10">
+                    {/* Icon and Title Section */}
+                    <div className="flex items-start justify-between mb-5">
+                      <div className="flex items-center gap-4">
+                        <div
+                          className="w-16 h-16 rounded-2xl flex items-center justify-center shadow-lg group-hover:scale-110 group-hover:rotate-3 transition-all duration-300 relative overflow-hidden"
+                          style={{ backgroundColor: `${service.color}15` }}
+                        >
+                          <div 
+                            className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                            style={{ 
+                              background: `linear-gradient(135deg, ${service.color}10 0%, transparent 100%)` 
+                            }}
+                          />
+                          <service.icon size={30} style={{ color: service.color }} className="relative z-10" />
+                        </div>
+                        <div>
+                          <h3 className="text-xl font-bold text-gray-800 group-hover:text-[#1a237e] transition-colors">
+                            {service.title}
+                          </h3>
+                          <p className="text-xs text-gray-500 mt-0.5 flex items-center gap-1">
+                            <span className="w-1.5 h-1.5 rounded-full bg-green-500"></span>
+                            {service.stats}
+                          </p>
+                        </div>
                       </div>
-                      <ChevronRight className="text-gray-400 group-hover:text-[#1a237e] group-hover:translate-x-1 transition-all" size={22} />
+                      <ChevronRight className="text-gray-400 group-hover:text-[#1a237e] group-hover:translate-x-2 transition-all duration-300" size={22} />
                     </div>
-                    <h3 className="text-xl font-bold text-gray-800 mb-2">{service.title}</h3>
-                    <p className="text-gray-500 text-sm">{service.desc}</p>
+
+                    {/* Description */}
+                    <p className="text-gray-600 text-sm leading-relaxed mb-5 pl-20">
+                      {service.desc}
+                    </p>
+
+                    {/* Bottom Info Bar */}
+                    <div className="flex items-center justify-between pl-20 pt-4 border-t border-gray-100 group-hover:border-[#1a237e]/20 transition-colors">
+                      <span className="text-xs text-gray-500 group-hover:text-gray-700 transition-colors flex items-center gap-1">
+                        <CheckCircle2 size={12} className="text-green-500" />
+                        Govt. Verified
+                      </span>
+                      <span className="text-xs font-semibold text-[#1a237e] opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-x-4 group-hover:translate-x-0">
+                        Explore →
+                      </span>
+                    </div>
                   </div>
-                  <div className="h-1.5 w-full bg-gradient-to-r from-[#FF9933] via-white to-[#138808] opacity-0 group-hover:opacity-100 transition-opacity"></div>
+
+                  {/* Simple Blue Bottom Border */}
+                  <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-600 to-blue-800 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left"></div>
                 </Link>
               ))}
             </div>
 
-            <div className="text-center mt-12">
+            <div className="text-center mt-14">
               <Link
                 href="/services"
-                className="inline-flex items-center gap-2 px-8 py-3 bg-[#1a237e] text-white rounded-xl font-semibold hover:bg-[#0d1757] transition-all shadow-lg hover:shadow-xl"
+                className="inline-flex items-center gap-3 px-8 py-3.5 bg-gradient-to-r from-[#1a237e] to-[#283593] text-white rounded-xl font-semibold hover:from-[#0d1757] hover:to-[#1a237e] transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5 group"
               >
-                View All Services <ArrowRight size={18} />
+                View All Services 
+                <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
               </Link>
             </div>
           </div>
@@ -242,10 +292,10 @@ export default function Home() {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="grid lg:grid-cols-2 gap-12 items-center">
               <div>
-                <span className="text-[#FF9933] font-semibold text-sm uppercase tracking-wider bg-[#FF9933]/10 px-4 py-1.5 rounded-full">
+                <span className="text-blue-600 font-semibold text-sm uppercase tracking-wider bg-blue-50 px-4 py-1.5 rounded-full">
                   Why Samraddh Bharat
                 </span>
-                <h2 className="text-3xl md:text-4xl font-bold text-[#1a237e] font-serif mt-4 mb-6">
+                <h2 className="text-3xl md:text-4xl font-bold text-[#1a237e] font-Sans-serif mt-4 mb-6">
                   Citizen-Centric Digital Governance
                 </h2>
                 <p className="text-gray-600 text-lg mb-8 leading-relaxed">
@@ -266,10 +316,10 @@ export default function Home() {
 
               {/* Video Section with YouTube Embed */}
               <div className="relative">
-                <div className="absolute inset-0 bg-gradient-to-br from-[#1a237e]/5 to-[#FF9933]/5 rounded-3xl blur-3xl"></div>
+                <div className="absolute inset-0 bg-gradient-to-br from-[#1a237e]/5 to-blue-100/50 rounded-3xl blur-3xl"></div>
                 <div className="relative bg-gradient-to-br from-[#f0f2f5] to-white p-8 rounded-3xl shadow-xl border border-gray-200">
                   <h3 className="text-xl font-bold text-[#1a237e] mb-4 flex items-center gap-2">
-                    <Play size={20} className="text-[#FF9933]" fill="#FF9933" />
+                    <Play size={20} className="text-blue-600" fill="#1a237e" />
                     Official Tutorial Video
                   </h3>
                   
@@ -289,7 +339,7 @@ export default function Home() {
 
                   <div className="mt-6 grid grid-cols-3 gap-3">
                     {["Aadhaar", "DigiLocker", "UMANG"].map((item, i) => (
-                      <div key={i} className="bg-white p-3 rounded-lg text-center shadow-sm border border-gray-200">
+                      <div key={i} className="bg-white p-3 rounded-lg text-center shadow-sm border border-gray-200 hover:shadow-md transition-shadow">
                         <div className="font-bold text-[#1a237e] text-sm">{item}</div>
                         <div className="text-xs text-gray-500 mt-0.5">
                           {i === 0 ? "Verified" : i === 1 ? "Integrated" : "App"}
@@ -306,7 +356,7 @@ export default function Home() {
         {/* CTA Section */}
         <section className="py-20 bg-gradient-to-br from-[#0a1550] via-[#1a237e] to-[#0f1a5c] text-white">
           <div className="max-w-4xl mx-auto text-center px-4">
-            <h2 className="text-3xl md:text-4xl font-bold font-serif mb-4">
+            <h2 className="text-3xl md:text-4xl font-bold font-Fantasy mb-4">
               Join the Digital India Mission
             </h2>
             <p className="text-blue-100 text-lg mb-10 max-w-2xl mx-auto">
@@ -315,7 +365,7 @@ export default function Home() {
             <div className="flex flex-wrap justify-center gap-5">
               <Link
                 href="/register"
-                className="bg-[#FF9933] hover:bg-[#e88720] text-white px-10 py-4 rounded-xl font-semibold text-lg transition-all shadow-xl hover:shadow-2xl hover:-translate-y-1"
+                className="bg-blue-600 hover:bg-blue-700 text-white px-10 py-4 rounded-xl font-semibold text-lg transition-all shadow-xl hover:shadow-2xl hover:-translate-y-1"
               >
                 Create Free Account
               </Link>
