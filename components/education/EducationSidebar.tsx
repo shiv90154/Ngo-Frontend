@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { BookOpen, Clock, Award, Settings, HelpCircle } from "lucide-react";
+import { BookOpen, Clock, Award, PenTool, Video } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 
 export default function EducationSidebar() {
@@ -12,13 +12,15 @@ export default function EducationSidebar() {
   const studentLinks = [
     { name: "Browse Courses", href: "/education/courses", icon: BookOpen },
     { name: "My Learning", href: "/education/my-courses", icon: Clock },
+    { name: "Live Classes", href: "/education/live", icon: Video },
     { name: "Certificates", href: "/education/certificates", icon: Award },
   ];
 
   const instructorLinks = [
     { name: "Dashboard", href: "/education/instructor/dashboard", icon: BookOpen },
     { name: "My Courses", href: "/education/instructor/courses", icon: BookOpen },
-    { name: "Create Course", href: "/education/instructor/courses/new", icon: BookOpen },
+    { name: "Create Course", href: "/education/instructor/courses/new", icon: PenTool },
+    { name: "Live Classes", href: "/education/live", icon: Video },
   ];
 
   const links = user?.role === "TEACHER" ? instructorLinks : studentLinks;
@@ -35,9 +37,6 @@ export default function EducationSidebar() {
           );
         })}
       </nav>
-      <div className="absolute bottom-4 left-4 right-4">
-        <Link href="/help" className="flex items-center gap-2 text-sm text-gray-500 hover:text-[#1a237e]"><HelpCircle size={16} /> Help</Link>
-      </div>
     </aside>
   );
 }

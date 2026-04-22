@@ -11,7 +11,6 @@ import {
   Settings,
   HelpCircle,
   Stethoscope,
-  Activity,
   Pill,
   Clock,
 } from "lucide-react";
@@ -27,8 +26,10 @@ export default function HealthcareSidebar() {
     setMounted(true);
   }, []);
 
+  const isDoctor = mounted && user?.role === "DOCTOR";
+
   const patientLinks = [
-    { name: "Dashboard", href: "/healthcare/dashboard", icon: LayoutDashboard },
+    { name: "Dashboard", href: "/healthcare", icon: LayoutDashboard },
     { name: "Find Doctors", href: "/healthcare/doctors", icon: Search },
     { name: "My Appointments", href: "/healthcare/appointments", icon: Calendar },
     { name: "Health Records", href: "/healthcare/records", icon: FileText },
@@ -36,23 +37,23 @@ export default function HealthcareSidebar() {
   ];
 
   const doctorLinks = [
-    { name: "Doctor Dashboard", href: "/healthcare/dashboard", icon: LayoutDashboard },
-    { name: "My Patients", href: "/healthcare/patients", icon: Users },
-    { name: "Appointments", href: "/healthcare/appointments", icon: Calendar },
-    { name: "Availability", href: "/healthcare/availability", icon: Clock },
-    { name: "Prescriptions", href: "/healthcare/prescriptions", icon: Pill },
+    { name: "Dashboard", href: "/healthcare/doctor/dashboard", icon: LayoutDashboard },
+    { name: "My Patients", href: "/healthcare/doctor/patients", icon: Users },
+    { name: "Appointments", href: "/healthcare/doctor/appointments", icon: Calendar },
+    { name: "Availability", href: "/healthcare/doctor/schedule", icon: Clock },
+    { name: "Prescriptions", href: "/healthcare/doctor/prescriptions", icon: Pill },
   ];
 
-  const links = mounted && user?.role === "DOCTOR" ? doctorLinks : patientLinks;
+  const links = isDoctor ? doctorLinks : patientLinks;
 
   const isActive = (href: string) => {
-    if (href === "/healthcare/dashboard" && pathname === "/healthcare") return true;
+    if (href === "/healthcare" && pathname === "/healthcare") return true;
     return pathname === href || pathname.startsWith(href + "/");
   };
 
   const userInitial = mounted && user?.fullName ? user.fullName.charAt(0) : "";
   const userFullName = mounted && user?.fullName ? user.fullName : "";
-  const userRole = mounted && user?.role ? user.role.replace(/_/g, " ") : "";
+  const userRole = mounted && user?.role ? user.role.replace(/_/g, " ") : "Patient";
 
   return (
     <aside className="hidden lg:block w-64 bg-white border-r border-gray-200 min-h-[calc(100vh-97px)] sticky top-[97px] p-4">
@@ -63,7 +64,7 @@ export default function HealthcareSidebar() {
         </div>
         <div className="flex-1 min-w-0">
           <p className="text-sm font-semibold text-gray-800 truncate">{userFullName || "User"}</p>
-          <p className="text-xs text-gray-500 truncate">{userRole || "Patient"}</p>
+          <p className="text-xs text-gray-500 truncate">{userRole}</p>
         </div>
       </div>
 

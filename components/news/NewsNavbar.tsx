@@ -1,4 +1,3 @@
-// components/news/NewsNavbar.tsx
 "use client";
 
 import Link from "next/link";
@@ -8,7 +7,6 @@ import {
   Home,
   Search,
   User,
-  LogOut,
   PlusSquare,
   Bell,
   Settings,
@@ -17,6 +15,7 @@ import { useState, useEffect, useMemo, useCallback } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { notificationAPI } from "@/lib/api";
 import { motion, AnimatePresence } from "framer-motion";
+import LogoutButton from "@/components/LogoutButton"; // 🆕 导入独立注销组件
 
 interface NavItem {
   name: string;
@@ -27,7 +26,7 @@ interface NavItem {
 
 export default function NewsNavbar() {
   const pathname = usePathname();
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
@@ -148,15 +147,7 @@ export default function NewsNavbar() {
                     </div>
                     
                     <div className="border-t border-slate-100 pt-1">
-                      <button
-                        onClick={() => {
-                          setShowUserMenu(false);
-                          logout();
-                        }}
-                        className="flex items-center gap-3 w-full px-5 py-2.5 text-sm text-red-600 hover:bg-red-50 transition-colors"
-                      >
-                        <LogOut className="w-4 h-4" /> Logout
-                      </button>
+                      <LogoutButton /> {/* 🆕 使用独立注销组件 */}
                     </div>
                   </motion.div>
                 )}

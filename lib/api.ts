@@ -8,7 +8,7 @@ const api = axios.create({
   headers: { "Content-Type": "application/json" },
 });
 
-// Request interceptor – adds token from localStorage (client‑side only)
+// 请求拦截器：自动添加 token（仅客户端）
 api.interceptors.request.use((config) => {
   if (typeof window !== "undefined") {
     const token = localStorage.getItem("token");
@@ -273,35 +273,36 @@ export const adminAPI = {
 };
 
 // ======================
-// EDUCATION API (🆕)
+// EDUCATION API
 // ======================
 export const educationAPI = {
-  // ---------- 公开课程 ----------
+  // 公开课程
   getPublishedCourses: (params?: { category?: string; search?: string; page?: number; limit?: number }) =>
     api.get("/education/courses", { params }),
   getCourseDetails: (id: string) => api.get(`/education/courses/${id}`),
 
-  // ---------- 学生功能 ----------
+  // 学生
   enrollCourse: (courseId: string) => api.post(`/education/courses/${courseId}/enroll`),
+  getMyEnrollments: () => api.get("/education/my-courses"),
   markLessonComplete: (courseId: string, lessonId: string) =>
     api.post(`/education/courses/${courseId}/lessons/complete`, { lessonId }),
   startTest: (testId: string) => api.get(`/education/tests/${testId}/start`),
   submitTest: (attemptId: string, answers: any[]) =>
     api.post("/education/tests/submit", { attemptId, answers }),
+  getMyCertificates: () => api.get("/education/certificates"),
 
-  // ---------- 教师功能 ----------
-  // 课程管理
+  // 教师：课程
   createCourse: (formData: FormData) =>
-    api.post("/education/courses", formData, {
-      headers: { "Content-Type": "multipart/form-data" },
-    }),
+    api.post("/education/courses", formData, { headers: { "Content-Type": "multipart/form-data" } }),
   getInstructorCourses: () => api.get("/education/instructor/courses"),
   updateCourse: (id: string, data: any) => api.put(`/education/courses/${id}`, data),
   deleteCourse: (id: string) => api.delete(`/education/courses/${id}`),
 
-  // 章节与课时
+  // 教师：章节/课时
   addChapter: (courseId: string, title: string, order: number) =>
     api.post("/education/chapters", { courseId, title, order }),
+  updateChapter: (id: string, data: any) => api.put(`/education/chapters/${id}`, data),
+  deleteChapter: (id: string) => api.delete(`/education/chapters/${id}`),
   addLesson: (data: {
     chapterId: string;
     title: string;
@@ -310,8 +311,10 @@ export const educationAPI = {
     order: number;
     isPreview?: boolean;
   }) => api.post("/education/lessons", data),
+  updateLesson: (id: string, data: any) => api.put(`/education/lessons/${id}`, data),
+  deleteLesson: (id: string) => api.delete(`/education/lessons/${id}`),
 
-  // 测试管理
+  // 教师：测试
   createTest: (data: {
     courseId: string;
     title: string;
@@ -320,6 +323,8 @@ export const educationAPI = {
     totalMarks: number;
     passingMarks: number;
   }) => api.post("/education/tests", data),
+  updateTest: (id: string, data: any) => api.put(`/education/tests/${id}`, data),
+  deleteTest: (id: string) => api.delete(`/education/tests/${id}`),
   addQuestion: (data: {
     testId: string;
     questionText: string;
@@ -328,9 +333,18 @@ export const educationAPI = {
     marks?: number;
     explanation?: string;
   }) => api.post("/education/questions", data),
+  updateQuestion: (id: string, data: any) => api.put(`/education/questions/${id}`, data),
+  deleteQuestion: (id: string) => api.delete(`/education/questions/${id}`),
 
   // 教师仪表盘
   getInstructorDashboard: () => api.get("/education/instructor/dashboard"),
+
+  // 直播课堂
+  createLiveClass: (data: any) => api.post("/liveclass", data),
+  getLiveClassesByCourse: (courseId: string) => api.get(`/liveclass/course/${courseId}`),
+  reserveLiveClass: (liveClassId: string) => api.post(`/liveclass/${liveClassId}/reserve`),
+  getLiveClassDetails: (liveClassId: string) => api.get(`/liveclass/${liveClassId}`),
+  endLiveClass: (liveClassId: string, recordingUrl?: string) => api.put(`/liveclass/${liveClassId}/end`, { recordingUrl }),
 };
 
 // ======================

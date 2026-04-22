@@ -9,7 +9,6 @@ import {
   Search,
   Calendar,
   FileText,
-  LogOut,
   Menu,
   X,
   ChevronDown,
@@ -18,10 +17,11 @@ import {
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
+import LogoutButton from "@/components/LogoutButton"; // 🆕 导入独立注销组件
 
 export default function HealthcareNavbar() {
   const pathname = usePathname();
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
   const [showMobileMenu, setShowMobileMenu] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [mounted, setMounted] = useState(false);
@@ -30,8 +30,11 @@ export default function HealthcareNavbar() {
     setMounted(true);
   }, []);
 
+  // 统一 Dashboard 链接：患者去 /healthcare，医生去 /healthcare/doctor/dashboard
+  const dashboardHref = user?.role === "DOCTOR" ? "/healthcare/doctor/dashboard" : "/healthcare";
+
   const navItems = [
-    { name: "Dashboard", href: "/healthcare/dashboard", icon: Heart },
+    { name: "Dashboard", href: dashboardHref, icon: Heart },
     { name: "Find Doctors", href: "/healthcare/doctors", icon: Search },
     { name: "Appointments", href: "/healthcare/appointments", icon: Calendar },
     { name: "Health Records", href: "/healthcare/records", icon: FileText },
@@ -39,11 +42,12 @@ export default function HealthcareNavbar() {
   ];
 
   const isActive = (href: string) => {
-    if (href === "/healthcare/dashboard" && pathname === "/healthcare") return true;
+    // Dashboard 特殊判断
+    if (href === "/healthcare" && pathname === "/healthcare") return true;
+    if (href === "/healthcare/doctor/dashboard" && pathname.startsWith("/healthcare/doctor/dashboard")) return true;
     return pathname === href || pathname.startsWith(href + "/");
   };
 
-  // Prevent hydration mismatch by not rendering user-specific content until mounted
   const userInitial = mounted && user?.fullName ? user.fullName.charAt(0) : "";
   const userFullName = mounted && user?.fullName ? user.fullName : "";
   const userEmail = mounted && user?.email ? user.email : "";
@@ -54,15 +58,8 @@ export default function HealthcareNavbar() {
       <div className="px-4 lg:px-6">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <Link href="/healthcare/dashboard" className="flex items-center gap-3">
-            <div className="flex items-center gap-1">
-              <div className="w-8 h-8 bg-[#1a237e] rounded-full flex items-center justify-center border border-[#FF9933]">
-                <span className="text-white text-sm font-serif">अ</span>
-              </div>
-              <div className="w-8 h-8 bg-[#1a237e] rounded-full flex items-center justify-center border border-[#FF9933]">
-                <span className="text-white text-sm font-serif">₹</span>
-              </div>
-            </div>
+          <Link href={dashboardHref} className="flex items-center gap-3">
+           
             <div>
               <h1 className="text-lg font-bold text-[#1a237e] font-serif">Samraddh</h1>
               <p className="text-[10px] text-gray-500 -mt-0.5">Healthcare Services</p>
@@ -106,7 +103,7 @@ export default function HealthcareNavbar() {
               <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
             </button>
 
-            {/* User Profile - Only show when mounted */}
+            {/* User Profile */}
             {mounted && (
               <div className="relative">
                 <button
@@ -143,15 +140,7 @@ export default function HealthcareNavbar() {
                       <Heart className="w-4 h-4" /> All Services
                     </Link>
                     <hr className="my-1 border-gray-100" />
-                    <button
-                      onClick={() => {
-                        setShowUserMenu(false);
-                        logout();
-                      }}
-                      className="flex items-center gap-3 w-full px-4 py-2.5 text-sm text-red-600 hover:bg-red-50"
-                    >
-                      <LogOut className="w-4 h-4" /> Logout
-                    </button>
+                    <LogoutButton /> {/* 🆕 使用独立注销组件 */}
                   </div>
                 )}
               </div>

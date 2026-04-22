@@ -2,40 +2,27 @@
 
 import { useEffect, useState } from "react";
 import { educationAPI } from "@/lib/api";
-import { Users, BookOpen, IndianRupee } from "lucide-react";
+import { BookOpen, Users, IndianRupee, Video } from "lucide-react";
 import Link from "next/link";
 import InstructorGuard from "@/components/education/InstructorGuard";
 
 function DashboardContent() {
   const [stats, setStats] = useState<any>({});
-  const [recent, setRecent] = useState([]);
-
   useEffect(() => {
-    const fetchData = async () => {
-      const res = await educationAPI.getInstructorDashboard();
-      setStats({ totalCourses: res.data.totalCourses, totalStudents: res.data.totalStudents, totalRevenue: res.data.totalRevenue });
-      setRecent(res.data.recentEnrollments);
-    };
-    fetchData();
+    educationAPI.getInstructorDashboard().then(res => setStats(res.data));
   }, []);
 
   return (
     <div className="space-y-6">
       <h1 className="text-2xl font-bold">Instructor Dashboard</h1>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="bg-white p-5 rounded-xl shadow-sm border"><BookOpen className="text-[#1a237e]" /><p className="text-3xl font-bold">{stats.totalCourses}</p><p>Courses</p></div>
-        <div className="bg-white p-5 rounded-xl shadow-sm border"><Users className="text-[#1a237e]" /><p className="text-3xl font-bold">{stats.totalStudents}</p><p>Students</p></div>
-        <div className="bg-white p-5 rounded-xl shadow-sm border"><IndianRupee className="text-[#1a237e]" /><p className="text-3xl font-bold">₹{stats.totalRevenue}</p><p>Revenue</p></div>
+        <StatCard icon={BookOpen} label="Total Courses" value={stats.totalCourses} />
+        <StatCard icon={Users} label="Total Students" value={stats.totalStudents} />
+        <StatCard icon={IndianRupee} label="Revenue" value={`₹${stats.totalRevenue || 0}`} />
       </div>
-      <div className="bg-white p-5 rounded-xl shadow-sm border">
-        <h2 className="font-semibold mb-3">Recent Enrollments</h2>
-        {recent.map((e: any) => (
-          <div key={e._id} className="flex justify-between py-2 border-b">
-            <span>{e.student?.fullName}</span>
-            <span>{e.course?.title}</span>
-            <span>{new Date(e.enrolledAt).toLocaleDateString()}</span>
-          </div>
-        ))}
+      <div className="flex gap-4">
+        <Link href="/education/instructor/courses/new" className="bg-[#1a237e] text-white px-5 py-2 rounded-lg">Create Course</Link>
+        <Link href="/education/live" className="border px-5 py-2 rounded-lg">Manage Live Classes</Link>
       </div>
     </div>
   );
@@ -43,4 +30,14 @@ function DashboardContent() {
 
 export default function InstructorDashboard() {
   return <InstructorGuard><DashboardContent /></InstructorGuard>;
+}
+
+function StatCard({ icon: Icon, label, value }: any) {
+  return (
+    <div className="bg-white p-5 rounded-xl shadow-sm border">
+      <Icon className="text-[#1a237e] mb-2" />
+      <p className="text-3xl font-bold">{value}</p>
+      <p className="text-gray-500">{label}</p>
+    </div>
+  );
 }

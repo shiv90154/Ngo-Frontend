@@ -18,7 +18,7 @@ import {
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
-
+import LogoutButton from "@/components/LogoutButton"; 
 export default function FinanceNavbar() {
   const pathname = usePathname();
   const { user, logout } = useAuth();
@@ -98,15 +98,7 @@ export default function FinanceNavbar() {
                         <Wallet className="w-4 h-4" /> All Services
                       </Link>
                       <hr className="my-1 border-gray-100" />
-                      <button
-                        onClick={() => {
-                          setShowUserMenu(false);
-                          logout();
-                        }}
-                        className="flex items-center gap-3 w-full px-4 py-2.5 text-sm text-red-600 hover:bg-red-50"
-                      >
-                        <LogOut className="w-4 h-4" /> Logout
-                      </button>
+                     <LogoutButton /> 
                     </div>
                   )}
                 </div>

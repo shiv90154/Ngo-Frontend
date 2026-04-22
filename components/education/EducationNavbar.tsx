@@ -2,13 +2,14 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { GraduationCap, Home, BookOpen, PenTool, Users, LogOut, User, Menu, X, ChevronDown } from "lucide-react";
+import { GraduationCap, Home, BookOpen, PenTool, Users, User, Menu, X, ChevronDown } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
+import LogoutButton from "@/components/LogoutButton"; // 🆕 导入独立注销组件
 
 export default function EducationNavbar() {
   const pathname = usePathname();
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
   const [showMobileMenu, setShowMobileMenu] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [mounted, setMounted] = useState(false);
@@ -29,7 +30,7 @@ export default function EducationNavbar() {
         <div className="px-6 h-16 flex items-center justify-between">
           <Link href="/education" className="flex items-center gap-3">
             <div className="flex items-center gap-1">
-            
+              {/* 如果需要，可以保留徽标 */}
             </div>
             <div>
               <h1 className="text-lg font-bold text-[#1a237e]">Samraddh</h1>
@@ -55,7 +56,7 @@ export default function EducationNavbar() {
                 {showUserMenu && (
                   <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg border py-1 z-50">
                     <Link href="/profile" className="flex items-center gap-2 px-4 py-2 hover:bg-gray-50"><User size={16} /> Profile</Link>
-                    <button onClick={logout} className="w-full text-left px-4 py-2 text-red-600 hover:bg-red-50 flex items-center gap-2"><LogOut size={16} /> Logout</button>
+                    <LogoutButton /> {/* 🆕 使用独立注销组件 */}
                   </div>
                 )}
               </>
