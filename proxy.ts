@@ -1,17 +1,16 @@
-// middleware.ts
+// proxy.ts
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
   // Note: Token is stored in localStorage on the client.
-  // Middleware runs on the server and cannot access localStorage.
+  // Proxy runs on the server and cannot access localStorage.
   // Therefore, we delegate route protection to the client-side AuthContext.
-  // This middleware simply allows all requests to pass through.
+  // This proxy simply allows all requests to pass through.
 
   return NextResponse.next();
 }
 
-// See: https://nextjs.org/docs/app/building-your-application/routing/middleware#matcher
 export const config = {
   matcher: [
     /*

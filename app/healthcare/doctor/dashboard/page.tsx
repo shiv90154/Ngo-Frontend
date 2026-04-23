@@ -2,20 +2,25 @@
 
 import { useEffect, useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
-import { healthcareAPI } from "@/lib/api";
+import api from "@/config/api"; // <-- import the base Axios instance
 import { Users, Calendar, Clock, Activity, Loader2, Stethoscope } from "lucide-react";
 import Link from "next/link";
 
 export default function DoctorDashboard() {
   const { user } = useAuth();
-  const [stats, setStats] = useState({ totalPatients: 0, todayAppointments: 0, pendingAppointments: 0 });
+  const [stats, setStats] = useState({
+    totalPatients: 0,
+    todayAppointments: 0,
+    pendingAppointments: 0,
+  });
   const [recentAppointments, setRecentAppointments] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchDashboard = async () => {
       try {
-        const res = await healthcareAPI.getDoctorDashboard?.();
+        // Use the direct API call – no missing method
+        const res = await api.get("/doctor/dashboard");
         if (res?.data) {
           setStats(res.data.stats);
           setRecentAppointments(res.data.recentAppointments);
@@ -29,7 +34,12 @@ export default function DoctorDashboard() {
     fetchDashboard();
   }, []);
 
-  if (loading) return <div className="flex justify-center py-12"><Loader2 className="animate-spin text-[#1a237e]" /></div>;
+  if (loading)
+    return (
+      <div className="flex justify-center py-12">
+        <Loader2 className="animate-spin text-[#1a237e]" />
+      </div>
+    );
 
   return (
     <div className="space-y-6">
@@ -52,7 +62,9 @@ export default function DoctorDashboard() {
       <div className="bg-white rounded-xl shadow-sm border p-5">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-lg font-semibold">Recent Appointments</h2>
-          <Link href="/healthcare/doctor/appointments" className="text-[#1a237e] text-sm">View all</Link>
+          <Link href="/healthcare/doctor/appointments" className="text-[#1a237e] text-sm">
+            View all
+          </Link>
         </div>
         {recentAppointments.length === 0 ? (
           <p className="text-gray-500 text-center py-4">No recent appointments</p>
@@ -66,10 +78,20 @@ export default function DoctorDashboard() {
                   </div>
                   <div>
                     <p className="font-medium">{apt.patientId?.fullName}</p>
-                    <p className="text-sm text-gray-500">{new Date(apt.appointmentDate).toLocaleString()}</p>
+                    <p className="text-sm text-gray-500">
+                      {new Date(apt.appointmentDate).toLocaleString()}
+                    </p>
                   </div>
                 </div>
-                <span className={`px-2 py-1 rounded-full text-xs ${apt.status === 'confirmed' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}`}>{apt.status}</span>
+                <span
+                  className={`px-2 py-1 rounded-full text-xs ${
+                    apt.status === "confirmed"
+                      ? "bg-green-100 text-green-800"
+                      : "bg-yellow-100 text-yellow-800"
+                  }`}
+                >
+                  {apt.status}
+                </span>
               </div>
             ))}
           </div>
