@@ -1,11 +1,20 @@
-// app/settings/page.tsx
 "use client";
 
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
 import { authAPI } from "@/lib/api";
-import { Camera, Loader2, Save, User, Mail, Phone, FileText, AtSign, ArrowLeft } from "lucide-react";
+import {
+  Camera,
+  Loader2,
+  Save,
+  User,
+  Mail,
+  Phone,
+  FileText,
+  AtSign,
+  ArrowLeft,
+} from "lucide-react";
 import { toast } from "react-toastify";
 import { motion } from "framer-motion";
 
@@ -67,7 +76,7 @@ export default function SettingsPage() {
       }
       const res = await authAPI.updateProfile(fd);
       setUser(res.data.user);
-      toast.success("Profile updated!");
+      toast.success("Profile updated! 🎉");
       router.push(`/news/profile/${user?._id}`);
     } catch (error: any) {
       toast.error(error.response?.data?.message || "Update failed");
@@ -76,159 +85,195 @@ export default function SettingsPage() {
     }
   };
 
+  // ---------- Loading Skeleton ----------
   if (loading) {
     return (
-      <div className="flex flex-col items-center justify-center py-24 gap-4">
-        <Loader2 className="animate-spin h-10 w-10 text-[#1a237e]" />
-        <p className="text-xs font-black uppercase tracking-widest text-slate-400">Syncing Profile</p>
+      <div className="max-w-2xl mx-auto px-4 py-10 space-y-6">
+        <div className="h-10 w-48 bg-slate-200/70 rounded-full animate-pulse mb-6" />
+        <div className="bg-white/70 backdrop-blur-xl rounded-2xl ring-1 ring-slate-900/5 overflow-hidden animate-pulse">
+          <div className="h-48 bg-slate-100 flex items-center justify-center">
+            <div className="w-24 h-24 bg-slate-200 rounded-full" />
+          </div>
+          <div className="p-8 space-y-6">
+            {[...Array(3)].map((_, i) => (
+              <div key={i} className="h-14 bg-slate-100 rounded-2xl" />
+            ))}
+            <div className="h-24 bg-slate-100 rounded-2xl" />
+          </div>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="max-w-2xl mx-auto pb-20 px-4">
-      <header className="mb-8 flex items-center justify-between">
-        <div>
-          <button 
-            onClick={() => router.back()}
-            className="flex items-center gap-2 text-slate-400 hover:text-slate-900 mb-2 transition-colors group"
-          >
-            <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
-            <span className="text-xs font-bold uppercase tracking-widest">Back</span>
-          </button>
-          <h1 className="text-3xl font-black text-slate-900 tracking-tight">Account Settings</h1>
-        </div>
-      </header>
+    <div className="max-w-2xl mx-auto px-4 pb-20 space-y-8">
+      {/* Back Button + Title */}
+      <div className="flex flex-col gap-2 mt-6">
+        <button
+          onClick={() => router.back()}
+          className="inline-flex items-center gap-2 text-slate-500 hover:text-slate-900 transition-colors group self-start"
+        >
+          <motion.div whileHover={{ x: -3 }} transition={{ type: "spring", stiffness: 300 }}>
+            <ArrowLeft className="w-4 h-4" />
+          </motion.div>
+          <span className="text-xs font-semibold uppercase tracking-wider">Back</span>
+        </button>
+        <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Account Settings</h1>
+      </div>
 
-      <motion.div 
-        initial={{ opacity: 0, y: 20 }}
+      {/* Main Card – glass surface */}
+      <motion.div
+        initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
-        className="bg-white rounded-[2rem] shadow-sm ring-1 ring-slate-900/5 overflow-hidden"
+        transition={{ duration: 0.4 }}
+        className="bg-white/70 backdrop-blur-xl rounded-2xl ring-1 ring-slate-900/5 shadow-sm overflow-hidden"
       >
         <form onSubmit={handleSubmit}>
-          {/* Avatar Header */}
-          <div className="p-8 bg-slate-50 border-b border-slate-100 flex flex-col items-center gap-4">
+          {/* Avatar Section */}
+          <div className="p-8 flex flex-col items-center gap-4 bg-slate-50/50 border-b border-slate-100">
             <div className="relative group">
-              <div className="w-28 h-28 rounded-[2rem] overflow-hidden bg-white ring-4 ring-white shadow-xl">
+              <div className="w-28 h-28 rounded-full overflow-hidden ring-4 ring-white shadow-lg bg-gradient-to-br from-indigo-100 to-indigo-200 flex items-center justify-center text-indigo-700 text-4xl font-bold">
                 {profileImagePreview ? (
-                  <img src={profileImagePreview} className="w-full h-full object-cover" alt="" />
+                  <img
+                    src={profileImagePreview}
+                    alt=""
+                    className="w-full h-full object-cover"
+                  />
                 ) : (
-                  <div className="w-full h-full bg-[#1a237e] flex items-center justify-center text-white text-4xl font-black">
-                    {user?.fullName?.charAt(0)}
-                  </div>
+                  user?.fullName?.charAt(0) || "?"
                 )}
               </div>
               <button
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
-                className="absolute -bottom-2 -right-2 bg-white p-3 rounded-2xl shadow-lg border border-slate-100 text-[#1a237e] hover:scale-110 transition-transform active:scale-95"
+                className="absolute -bottom-1 -right-1 bg-white p-2.5 rounded-xl shadow-md ring-1 ring-slate-200 text-indigo-600 hover:scale-110 transition-transform active:scale-95"
               >
                 <Camera className="w-5 h-5" />
               </button>
-              <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleFileChange} />
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={handleFileChange}
+              />
             </div>
             <div className="text-center">
-              <p className="text-sm font-bold text-slate-900">Profile Image</p>
-              <p className="text-xs text-slate-400 mt-1">Recommended: Square 400x400px</p>
+              <p className="text-sm font-semibold text-slate-900">Profile Photo</p>
+              <p className="text-xs text-slate-400 mt-0.5">
+                Recommended: 400×400px
+              </p>
             </div>
           </div>
 
-          <div className="p-8 space-y-6">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-              {/* Full Name */}
+          {/* Form Fields */}
+          <div className="p-8 space-y-5">
+            {/* Full Name + Username */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
               <div className="space-y-1.5">
-                <label className="text-xs font-black uppercase tracking-widest text-slate-400 ml-1">Full Name</label>
+                <label className="text-xs font-semibold uppercase tracking-wider text-slate-400 ml-1">
+                  Full Name
+                </label>
                 <div className="relative">
-                  <User className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 w-4 h-4" />
+                  <User className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                   <input
                     type="text"
                     name="fullName"
                     value={formData.fullName}
                     onChange={handleInputChange}
-                    className="w-full pl-11 pr-4 py-3 bg-slate-50 border-none rounded-2xl text-sm font-medium focus:ring-2 focus:ring-indigo-100"
+                    className="w-full pl-10 pr-4 py-2.5 bg-slate-50/80 rounded-xl text-sm font-medium ring-1 ring-slate-200 focus:ring-2 focus:ring-indigo-500/20 focus:bg-white transition-all outline-none"
                     required
                   />
                 </div>
               </div>
-
-              {/* Username */}
               <div className="space-y-1.5">
-                <label className="text-xs font-black uppercase tracking-widest text-slate-400 ml-1">Handle</label>
+                <label className="text-xs font-semibold uppercase tracking-wider text-slate-400 ml-1">
+                  Handle
+                </label>
                 <div className="relative">
-                  <AtSign className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 w-4 h-4" />
+                  <AtSign className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                   <input
                     type="text"
                     name="username"
                     value={formData.username}
                     onChange={handleInputChange}
-                    className="w-full pl-11 pr-4 py-3 bg-slate-50 border-none rounded-2xl text-sm font-medium focus:ring-2 focus:ring-indigo-100"
+                    className="w-full pl-10 pr-4 py-2.5 bg-slate-50/80 rounded-xl text-sm font-medium ring-1 ring-slate-200 focus:ring-2 focus:ring-indigo-500/20 focus:bg-white transition-all outline-none"
                     required
                   />
                 </div>
               </div>
             </div>
 
-            {/* Email - Locked */}
-            <div className="space-y-1.5 opacity-60">
-              <label className="text-xs font-black uppercase tracking-widest text-slate-400 ml-1 flex items-center gap-2">
-                Email Address <span className="text-[10px] bg-slate-100 px-1.5 py-0.5 rounded uppercase">Verified</span>
+            {/* Email (read-only) */}
+            <div className="space-y-1.5">
+              <label className="text-xs font-semibold uppercase tracking-wider text-slate-400 ml-1 flex items-center gap-2">
+                Email{" "}
+                <span className="text-[10px] bg-green-50 text-green-600 px-1.5 py-0.5 rounded-full font-semibold">
+                  Verified
+                </span>
               </label>
               <div className="relative">
-                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 w-4 h-4" />
+                <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-300" />
                 <input
                   type="email"
                   value={formData.email}
                   disabled
-                  className="w-full pl-11 pr-4 py-3 bg-slate-100 border-none rounded-2xl text-sm font-medium cursor-not-allowed"
+                  className="w-full pl-10 pr-4 py-2.5 bg-slate-100 rounded-xl text-sm font-medium cursor-not-allowed opacity-60"
                 />
               </div>
             </div>
 
             {/* Phone */}
             <div className="space-y-1.5">
-              <label className="text-xs font-black uppercase tracking-widest text-slate-400 ml-1">Phone</label>
+              <label className="text-xs font-semibold uppercase tracking-wider text-slate-400 ml-1">
+                Phone
+              </label>
               <div className="relative">
-                <Phone className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 w-4 h-4" />
+                <Phone className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                 <input
                   type="tel"
                   name="phone"
                   value={formData.phone}
                   onChange={handleInputChange}
-                  className="w-full pl-11 pr-4 py-3 bg-slate-50 border-none rounded-2xl text-sm font-medium focus:ring-2 focus:ring-indigo-100"
+                  className="w-full pl-10 pr-4 py-2.5 bg-slate-50/80 rounded-xl text-sm font-medium ring-1 ring-slate-200 focus:ring-2 focus:ring-indigo-500/20 focus:bg-white transition-all outline-none"
                 />
               </div>
             </div>
 
             {/* Bio */}
             <div className="space-y-1.5">
-              <label className="text-xs font-black uppercase tracking-widest text-slate-400 ml-1">Public Bio</label>
+              <label className="text-xs font-semibold uppercase tracking-wider text-slate-400 ml-1">
+                Bio
+              </label>
               <div className="relative">
-                <FileText className="absolute left-4 top-4 text-slate-300 w-4 h-4" />
+                <FileText className="absolute left-3.5 top-3.5 w-4 h-4 text-slate-400" />
                 <textarea
                   name="bio"
                   value={formData.bio}
                   onChange={handleInputChange}
                   rows={4}
-                  className="w-full pl-11 pr-4 py-3 bg-slate-50 border-none rounded-2xl text-sm font-medium focus:ring-2 focus:ring-indigo-100 resize-none"
+                  className="w-full pl-10 pr-4 py-2.5 bg-slate-50/80 rounded-xl text-sm font-medium ring-1 ring-slate-200 focus:ring-2 focus:ring-indigo-500/20 focus:bg-white transition-all outline-none resize-none"
                   placeholder="Share a bit about yourself..."
                 />
               </div>
             </div>
           </div>
 
-          {/* Action Footer */}
-          <div className="p-8 bg-slate-50 border-t border-slate-100 flex items-center justify-end gap-4">
+          {/* Action Buttons */}
+          <div className="p-8 border-t border-slate-100 flex items-center justify-end gap-4">
             <button
               type="button"
               onClick={() => router.back()}
-              className="px-6 py-3 text-sm font-bold text-slate-500 hover:text-slate-900 transition-colors"
+              className="px-6 py-2.5 rounded-full text-sm font-semibold text-slate-600 hover:text-slate-900 transition-colors"
             >
               Cancel
             </button>
-            <button
+            <motion.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
               type="submit"
               disabled={saving}
-              className="flex items-center gap-2 px-8 py-3 bg-[#1a237e] text-white rounded-2xl font-bold shadow-lg shadow-indigo-200 hover:bg-[#0d1440] transition-all active:scale-95 disabled:opacity-50"
+              className="group inline-flex items-center gap-2 px-8 py-3 rounded-full bg-gradient-to-r from-indigo-600 to-indigo-800 text-white text-sm font-semibold shadow-lg shadow-indigo-500/25 hover:shadow-xl hover:shadow-indigo-500/30 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
             >
               {saving ? (
                 <Loader2 className="w-4 h-4 animate-spin" />
@@ -236,7 +281,7 @@ export default function SettingsPage() {
                 <Save className="w-4 h-4" />
               )}
               Save Changes
-            </button>
+            </motion.button>
           </div>
         </form>
       </motion.div>

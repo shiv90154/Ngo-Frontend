@@ -8,9 +8,15 @@ import { Plus } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { motion } from "framer-motion";
 
+const BASE_URL = "http://localhost:5000"; // or process.env.NEXT_PUBLIC_API_URL
+const getMediaUrl = (url: string) => {
+  if (!url) return "";
+  return url.startsWith("http") ? url : `${BASE_URL}${url}`;
+};
+
 export default function StoryRow() {
   const { user } = useAuth();
-  const [creators, setCreators] = useState([]);
+  const [creators, setCreators] = useState<any[]>([]);
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -21,7 +27,7 @@ export default function StoryRow() {
     const fetchStories = async () => {
       try {
         const res = await mediaAPI.searchCreators("", { limit: 8 });
-        setCreators(res.data.users);
+        setCreators(res.data.users || []);
       } catch (error) {
         console.error("Failed to load stories:", error);
       }
@@ -29,19 +35,14 @@ export default function StoryRow() {
     fetchStories();
   }, []);
 
-  // 避免 hydration 错误：在未挂载时返回骨架占位，且不渲染用户特定内容
   if (!mounted) {
     return (
-      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 overflow-x-auto">
+      <div className="bg-white/70 backdrop-blur-md rounded-2xl ring-1 ring-slate-900/5 shadow-sm p-4 overflow-x-auto">
         <div className="flex gap-5 min-w-max">
-          <div className="flex flex-col items-center gap-2">
-            <div className="w-16 h-16 rounded-full bg-gray-200 animate-pulse" />
-            <div className="w-12 h-3 bg-gray-200 rounded animate-pulse" />
-          </div>
-          {[...Array(4)].map((_, i) => (
+          {[...Array(6)].map((_, i) => (
             <div key={i} className="flex flex-col items-center gap-2">
-              <div className="w-16 h-16 rounded-full bg-gray-200 animate-pulse" />
-              <div className="w-12 h-3 bg-gray-200 rounded animate-pulse" />
+              <div className="w-16 h-16 rounded-full bg-slate-200 animate-pulse" />
+              <div className="w-12 h-3 bg-slate-200 rounded animate-pulse" />
             </div>
           ))}
         </div>
@@ -50,7 +51,7 @@ export default function StoryRow() {
   }
 
   return (
-    <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 overflow-x-auto scrollbar-hide">
+    <div className="bg-white/70 backdrop-blur-md rounded-2xl ring-1 ring-slate-900/5 shadow-sm p-4 overflow-x-auto scrollbar-hide">
       <div className="flex gap-5 min-w-max">
         {/* My Story */}
         <Link href="/news/create" className="flex flex-col items-center gap-2 shrink-0 group">
@@ -58,19 +59,27 @@ export default function StoryRow() {
             <motion.div
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              className="w-16 h-16 rounded-full bg-slate-100 flex items-center justify-center text-[#1a237e] font-semibold text-xl ring-2 ring-offset-2 ring-transparent group-hover:ring-[#1a237e]/20 transition-all"
+              className="w-16 h-16 rounded-full bg-gradient-to-br from-indigo-100 to-indigo-200 flex items-center justify-center text-indigo-700 font-semibold text-xl ring-2 ring-offset-2 ring-transparent group-hover:ring-indigo-400/30 transition-all overflow-hidden"
             >
-              {user?.fullName?.charAt(0) || "U"}
+              {user?.profileImage ? (
+                <img
+                  src={getMediaUrl(user.profileImage)}
+                  alt=""
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                user?.fullName?.charAt(0) || "U"
+              )}
             </motion.div>
             <motion.div
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
-              className="absolute -bottom-1 -right-1 bg-[#1a237e] text-white p-1 rounded-full ring-2 ring-white"
+              className="absolute -bottom-1 -right-1 bg-indigo-600 text-white p-1 rounded-full ring-2 ring-white shadow-sm"
             >
               <Plus className="w-3 h-3" />
             </motion.div>
           </div>
-          <span className="text-xs font-medium text-slate-600 group-hover:text-[#1a237e] transition-colors">
+          <span className="text-xs font-medium text-slate-600 group-hover:text-indigo-700 transition-colors">
             Your Story
           </span>
         </Link>
@@ -85,15 +94,23 @@ export default function StoryRow() {
             <motion.div
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              className="w-16 h-16 rounded-full bg-gradient-to-br from-[#1a237e] to-[#283593] p-0.5"
+              className="w-16 h-16 rounded-full bg-gradient-to-br from-indigo-400 to-indigo-600 p-0.5"
             >
               <div className="w-full h-full rounded-full bg-white p-0.5">
-                <div className="w-full h-full rounded-full bg-[#1a237e] flex items-center justify-center text-white text-sm font-medium ring-2 ring-offset-2 ring-transparent group-hover:ring-[#1a237e]/20 transition-all">
-                  {creator.fullName?.charAt(0)}
+                <div className="w-full h-full rounded-full bg-gradient-to-br from-indigo-100 to-indigo-200 flex items-center justify-center text-indigo-700 text-sm font-medium ring-2 ring-offset-2 ring-transparent group-hover:ring-indigo-400/30 transition-all overflow-hidden">
+                  {creator.profileImage ? (
+                    <img
+                      src={getMediaUrl(creator.profileImage)}
+                      alt=""
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    creator.fullName?.charAt(0)
+                  )}
                 </div>
               </div>
             </motion.div>
-            <span className="text-xs text-slate-600 group-hover:text-[#1a237e] transition-colors truncate max-w-[64px]">
+            <span className="text-xs text-slate-600 group-hover:text-indigo-700 transition-colors truncate max-w-[64px]">
               {creator.fullName?.split(" ")[0]}
             </span>
           </Link>

@@ -15,7 +15,14 @@ import { useState, useEffect, useMemo, useCallback } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { notificationAPI } from "@/lib/api";
 import { motion, AnimatePresence } from "framer-motion";
-import LogoutButton from "@/components/LogoutButton"; // 🆕 导入独立注销组件
+import LogoutButton from "@/components/LogoutButton";
+
+// ---------- Helper ----------
+const BASE_URL = "http://localhost:5000"; // or process.env.NEXT_PUBLIC_API_URL
+const getMediaUrl = (url: string) => {
+  if (!url) return "";
+  return url.startsWith("http") ? url : `${BASE_URL}${url}`;
+};
 
 interface NavItem {
   name: string;
@@ -34,10 +41,13 @@ export default function NewsNavbar() {
   const fetchUnreadCount = useCallback(async () => {
     if (!user) return;
     try {
-      const res = await notificationAPI.getNotifications({ filter: "unread", limit: 1 });
+      const res = await notificationAPI.getNotifications({
+        filter: "unread",
+        limit: 1,
+      });
       setUnreadCount(res.data.unreadCount || 0);
     } catch {
-      // Silent catch
+      // silent
     }
   }, [user]);
 
@@ -77,7 +87,7 @@ export default function NewsNavbar() {
 
   if (!mounted) {
     return (
-      <header className="hidden lg:block sticky top-0 z-50 bg-white border-b border-slate-200 h-16" />
+      <header className="hidden lg:block sticky top-0 z-50 bg-white/70 backdrop-blur-xl border-b border-slate-200/60 h-16" />
     );
   }
 
@@ -87,41 +97,60 @@ export default function NewsNavbar() {
 
   return (
     <>
-      <header className="hidden lg:block sticky top-0 z-50 bg-white/80 backdrop-blur-lg border-b border-slate-200/60 shadow-sm">
+      {/* Desktop Header */}
+      <header className="hidden lg:block sticky top-0 z-50 bg-white/70 backdrop-blur-xl border-b border-slate-200/50 shadow-sm">
         <div className="max-w-7xl mx-auto px-6">
           <div className="flex items-center justify-between h-16">
+            {/* Logo */}
             <Link href="/news" className="flex items-center gap-3 group">
-              <div>
-                <h1 className="text-xl font-black text-[#1a237e] tracking-tight">Samraddh</h1>
-                <p className="text-[10px] text-slate-500 -mt-0.5 font-semibold uppercase tracking-wider">News & Media</p>
+              <div className="flex flex-col">
+                <span className="text-xl font-black tracking-tight bg-gradient-to-r from-indigo-800 to-indigo-600 bg-clip-text text-transparent">
+                  Samraddh
+                </span>
+                <span className="text-[10px] font-semibold uppercase tracking-[0.15em] text-slate-400 -mt-0.5">
+                  News & Media
+                </span>
               </div>
             </Link>
 
+            {/* Right side – user menu */}
             <div className="relative">
               <button
                 onClick={() => setShowUserMenu(!showUserMenu)}
-                className="flex items-center gap-2.5 p-1.5 pl-3 rounded-full hover:bg-slate-50 ring-1 ring-transparent hover:ring-slate-200 transition-all"
+                className="flex items-center gap-2.5 py-1.5 pl-3 pr-1.5 rounded-full hover:bg-slate-100/70 ring-1 ring-transparent hover:ring-slate-200/80 transition-all duration-200"
               >
-                <span className="text-sm font-medium text-slate-700">{userFullName}</span>
-                <div className="w-8 h-8 rounded-full bg-[#1a237e] text-white flex items-center justify-center text-sm font-bold shadow-sm">
-                  {userInitial}
+                <span className="text-sm font-medium text-slate-700">
+                  {userFullName}
+                </span>
+                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-600 to-indigo-800 text-white flex items-center justify-center text-sm font-bold shadow-sm ring-1 ring-white/20 overflow-hidden">
+                  {user?.profileImage ? (
+                    <img
+                      src={getMediaUrl(user.profileImage)}
+                      alt=""
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    userInitial
+                  )}
                 </div>
               </button>
 
               <AnimatePresence>
                 {showUserMenu && (
                   <motion.div
-                    initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                    initial={{ opacity: 0, y: 10, scale: 0.96 }}
                     animate={{ opacity: 1, y: 0, scale: 1 }}
-                    exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                    transition={{ duration: 0.15 }}
-                    className="absolute right-0 mt-3 w-64 bg-white rounded-2xl shadow-xl ring-1 ring-slate-900/5 py-2 z-50 overflow-hidden"
+                    exit={{ opacity: 0, y: 10, scale: 0.96 }}
+                    transition={{ duration: 0.15, ease: "easeOut" }}
+                    className="absolute right-0 mt-3 w-64 bg-white/90 backdrop-blur-xl rounded-2xl shadow-xl shadow-slate-200/50 ring-1 ring-slate-900/5 py-2 z-50 overflow-hidden"
                   >
+                    {/* User info */}
                     <div className="px-5 py-4 border-b border-slate-100 bg-slate-50/50">
                       <p className="font-semibold text-slate-900">{userFullName}</p>
                       <p className="text-xs text-slate-500 truncate mt-0.5">{userEmail}</p>
                     </div>
-                    
+
+                    {/* Links */}
                     <div className="py-2">
                       <Link
                         href={`/news/profile/${user?._id}`}
@@ -145,9 +174,10 @@ export default function NewsNavbar() {
                         <Newspaper className="w-4 h-4 text-slate-400" /> All Services
                       </Link>
                     </div>
-                    
+
+                    {/* Logout */}
                     <div className="border-t border-slate-100 pt-1">
-                      <LogoutButton /> {/* 🆕 使用独立注销组件 */}
+                      <LogoutButton />
                     </div>
                   </motion.div>
                 )}
@@ -157,8 +187,8 @@ export default function NewsNavbar() {
         </div>
       </header>
 
-      {/* Mobile Bottom Navigation */}
-      <nav className="lg:hidden fixed bottom-0 left-0 right-0 bg-white/90 backdrop-blur-lg border-t border-slate-200 z-50 pb-safe shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]">
+      {/* Mobile Bottom Navigation (unchanged, no avatar needed) */}
+      <nav className="lg:hidden fixed bottom-0 left-0 right-0 bg-white/80 backdrop-blur-xl border-t border-slate-200/70 z-50 pb-safe shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.03)]">
         <div className="flex items-center justify-around py-2">
           {navItems.map((item) => {
             const Icon = item.icon;
@@ -167,26 +197,34 @@ export default function NewsNavbar() {
               <Link
                 key={item.name}
                 href={item.href}
-                className={`relative flex flex-col items-center px-4 py-2 rounded-xl transition-colors ${
-                  active ? "text-[#1a237e]" : "text-slate-500 hover:text-slate-900"
+                className={`relative flex flex-col items-center px-4 py-2 rounded-xl transition-colors duration-200 ${
+                  active ? "text-indigo-600" : "text-slate-500 hover:text-slate-800"
                 }`}
               >
                 <div className="relative">
-                  <Icon className={`w-6 h-6 transition-transform ${active ? "scale-110" : ""}`} />
+                  <Icon
+                    className={`w-6 h-6 transition-transform duration-200 ${
+                      active ? "scale-110" : ""
+                    }`}
+                  />
                   {item.badge ? (
                     <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold min-w-[18px] h-[18px] rounded-full flex items-center justify-center shadow-sm px-1 ring-2 ring-white">
                       {item.badge > 9 ? "9+" : item.badge}
                     </span>
                   ) : null}
                 </div>
-                <span className={`text-[10px] mt-1 font-medium ${active ? "font-bold" : ""}`}>
+                <span
+                  className={`text-[10px] mt-1 font-medium ${
+                    active ? "font-semibold" : ""
+                  }`}
+                >
                   {item.name}
                 </span>
-                
+
                 {active && (
                   <motion.div
                     layoutId="bottomNavIndicator"
-                    className="absolute -top-2 w-10 h-1 bg-[#1a237e] rounded-b-full"
+                    className="absolute -top-2 w-8 h-1 bg-indigo-600 rounded-b-full"
                     transition={{ type: "spring", stiffness: 400, damping: 25 }}
                   />
                 )}

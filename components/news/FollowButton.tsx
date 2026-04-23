@@ -1,69 +1,94 @@
 // components/news/FollowButton.tsx
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { mediaAPI } from "@/lib/api";
 import { toast } from "react-toastify";
 import { motion } from "framer-motion";
 import { UserPlus, UserMinus, Loader2 } from "lucide-react";
 
-export default function FollowButton({ userId, initialIsFollowing, size = "md" }: any) {
-  const [isFollowing, setIsFollowing] = useState(initialIsFollowing);
+interface FollowButtonProps {
+  userId: string;
+  initialIsFollowing?: boolean;
+  size?: "sm" | "md" | "lg";
+}
+
+export default function FollowButton({
+  userId,
+  initialIsFollowing,
+  size = "md",
+}: FollowButtonProps) {
+  const [isFollowing, setIsFollowing] = useState(initialIsFollowing ?? false);
   const [loading, setLoading] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
 
+  // Verify initial follow status if not provided
   useEffect(() => {
+    if (initialIsFollowing !== undefined) return;
+    let cancelled = false;
+
     const checkStatus = async () => {
       try {
         const res = await mediaAPI.checkFollowStatus(userId);
-        setIsFollowing(res.data.isFollowing);
+        if (!cancelled) setIsFollowing(res.data.isFollowing);
       } catch (error) {
         console.error("Failed to check follow status:", error);
       }
     };
-    if (initialIsFollowing === undefined) checkStatus();
+
+    checkStatus();
+    return () => {
+      cancelled = true;
+    };
   }, [userId, initialIsFollowing]);
 
-  const handleToggle = async (e: React.MouseEvent) => {
-    e.preventDefault(); // Prevent navigation if nested in a Link
-    setLoading(true);
-    try {
-      if (isFollowing) {
-        await mediaAPI.unfollowUser(userId);
-        toast.info("Unfollowed user");
-      } else {
-        await mediaAPI.followUser(userId);
-        toast.success("Followed user!");
-      }
-      setIsFollowing(!isFollowing);
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || "Action failed");
-    } finally {
-      setLoading(false);
-    }
-  };
+  const handleToggle = useCallback(
+    async (e: React.MouseEvent) => {
+      e.preventDefault(); // Prevent navigation if inside a link
+      setLoading(true);
 
-  const sizeClasses: any = {
-    sm: "px-3 py-1 text-xs",
+      try {
+        if (isFollowing) {
+          await mediaAPI.unfollowUser(userId);
+          toast.success("Unfollowed");
+        } else {
+          await mediaAPI.followUser(userId);
+          toast.success("Followed!");
+        }
+        setIsFollowing((prev) => !prev);
+      } catch (error: any) {
+        toast.error(error.response?.data?.message || "Action failed");
+      } finally {
+        setLoading(false);
+      }
+    },
+    [isFollowing, userId]
+  );
+
+  // Size mapping for consistent spacing
+  const sizeClasses: Record<NonNullable<FollowButtonProps["size"]>, string> = {
+    sm: "px-4 py-1.5 text-xs",
     md: "px-5 py-2 text-sm",
-    lg: "px-8 py-2.5 text-[15px]",
+    lg: "px-7 py-2.5 text-[15px]",
   };
 
   return (
     <motion.button
-      whileTap={{ scale: 0.95 }}
+      whileTap={{ scale: 0.97 }}
+      whileHover={{ scale: 1.02 }}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       onClick={handleToggle}
       disabled={loading}
       className={`
-        relative overflow-hidden rounded-full font-bold transition-all duration-200 flex items-center justify-center gap-2
-        ${sizeClasses[size] || sizeClasses.md}
-        ${loading ? "cursor-wait" : "cursor-pointer"}
+        relative inline-flex items-center justify-center gap-2 rounded-full font-semibold
+        transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400
+        disabled:cursor-not-allowed
+        ${sizeClasses[size]}
         ${
           isFollowing
             ? "bg-white text-slate-700 ring-1 ring-slate-200 hover:ring-red-200 hover:text-red-600 hover:bg-red-50"
-            : "bg-[#1a237e] text-white hover:bg-[#0d1440] shadow-md shadow-indigo-100 active:shadow-none"
+            : "bg-gradient-to-r from-indigo-600 to-indigo-800 text-white shadow-md shadow-indigo-500/25 hover:shadow-lg hover:shadow-indigo-500/30"
         }
       `}
     >
@@ -77,9 +102,7 @@ export default function FollowButton({ userId, initialIsFollowing, size = "md" }
               <span>Unfollow</span>
             </>
           ) : (
-            <>
-              <span>Following</span>
-            </>
+            <span>Following</span>
           )}
         </>
       ) : (

@@ -1,30 +1,89 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { notificationAPI } from "@/lib/api"; // Updated to use your new API constant
-import { 
-  Heart, 
-  MessageCircle, 
-  UserPlus, 
-  Bell, 
-  Loader2, 
+import { notificationAPI } from "@/lib/api";
+import {
+  Heart,
+  MessageCircle,
+  UserPlus,
+  Bell,
+  Loader2,
   ArrowLeft,
   Circle,
-  CheckCheck
+  CheckCheck,
 } from "lucide-react";
-import { formatDistanceToNow } from "date-fns";
+import { formatDistanceToNowStrict } from "date-fns";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
+import { motion, AnimatePresence } from "framer-motion";
+
+// ---------- Helpers ----------
+const BASE_URL = "http://localhost:5000"; // or process.env.NEXT_PUBLIC_API_URL
+const getMediaUrl = (url: string) => {
+  if (!url) return "";
+  return url.startsWith("http") ? url : `${BASE_URL}${url}`;
+};
+
+// ---------- Types ----------
+interface NotificationSender {
+  _id: string;
+  fullName?: string;
+  profileImage?: string;
+}
+
+interface NotificationPost {
+  _id: string;
+  media?: { url: string }[];
+}
+
+interface NotificationItem {
+  _id: string;
+  type: "like" | "comment" | "follow" | string;
+  sender?: NotificationSender;
+  post?: NotificationPost;
+  isRead: boolean;
+  createdAt: string;
+}
+
+// ---------- icon + label for each notification type ----------
+const getNotificationDetails = (type: string) => {
+  switch (type) {
+    case "like":
+      return {
+        icon: <Heart className="w-3.5 h-3.5 text-white fill-white" />,
+        bgColor: "bg-rose-500",
+        label: "liked your post",
+      };
+    case "comment":
+      return {
+        icon: <MessageCircle className="w-3.5 h-3.5 text-white fill-white" />,
+        bgColor: "bg-blue-500",
+        label: "commented on your post",
+      };
+    case "follow":
+      return {
+        icon: <UserPlus className="w-3.5 h-3.5 text-white" />,
+        bgColor: "bg-emerald-500",
+        label: "started following you",
+      };
+    default:
+      return {
+        icon: <Bell className="w-3.5 h-3.5 text-white" />,
+        bgColor: "bg-slate-400",
+        label: "sent a notification",
+      };
+  }
+};
 
 export default function NotificationsPage() {
   const router = useRouter();
-  const [notifications, setNotifications] = useState<any[]>([]);
+  const [notifications, setNotifications] = useState<NotificationItem[]>([]);
   const [loading, setLoading] = useState(true);
 
   const fetchNotifications = async () => {
     try {
-      const res = await notificationAPI.getNotifications({ limit: 50 }); 
+      const res = await notificationAPI.getNotifications({ limit: 50 });
       setNotifications(res.data.notifications || []);
     } catch (error) {
       console.error("Failed to fetch notifications:", error);
@@ -40,150 +99,167 @@ export default function NotificationsPage() {
   const handleMarkAllRead = async () => {
     try {
       await notificationAPI.markAllAsRead();
-      setNotifications(prev => prev.map(n => ({ ...n, isRead: true })));
-      toast.success("All caught up!");
+      setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })));
+      toast.success("All caught up! 🎉");
     } catch (error) {
       toast.error("Failed to update notifications");
     }
   };
 
-  const getNotificationDetails = (type: string) => {
-    switch (type) {
-      case "like": 
-        return {
-          icon: <Heart className="w-3.5 h-3.5 text-white fill-white" />,
-          bgColor: "bg-rose-500",
-          label: "liked your post"
-        };
-      case "comment": 
-        return {
-          icon: <MessageCircle className="w-3.5 h-3.5 text-white fill-white" />,
-          bgColor: "bg-blue-500",
-          label: "commented on your post"
-        };
-      case "follow": 
-        return {
-          icon: <UserPlus className="w-3.5 h-3.5 text-white" />,
-          bgColor: "bg-emerald-500",
-          label: "started following you"
-        };
-      default: 
-        return {
-          icon: <Bell className="w-3.5 h-3.5 text-white" />,
-          bgColor: "bg-slate-400",
-          label: "sent a notification"
-        };
-    }
-  };
-
+  // ---------- Loading Skeleton ----------
   if (loading) {
     return (
-      <div className="flex flex-col items-center justify-center py-32 gap-4">
-        <Loader2 className="w-10 h-10 animate-spin text-[#1a237e] opacity-20" />
-        <p className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400">Syncing Activity</p>
+      <div className="max-w-2xl mx-auto px-4 py-8 space-y-4">
+        <div className="h-10 w-48 bg-slate-200/70 rounded-full animate-pulse mb-6" />
+        {[...Array(5)].map((_, i) => (
+          <div
+            key={i}
+            className="flex items-center gap-4 p-4 bg-white/50 backdrop-blur-sm rounded-2xl ring-1 ring-slate-900/5 animate-pulse"
+          >
+            <div className="w-12 h-12 rounded-full bg-slate-200" />
+            <div className="flex-1 space-y-2">
+              <div className="h-4 bg-slate-200 rounded w-3/4" />
+              <div className="h-3 bg-slate-100 rounded w-1/4" />
+            </div>
+          </div>
+        ))}
       </div>
     );
   }
 
+  const hasUnread = notifications.some((n) => !n.isRead);
+
   return (
-    <div className="max-w-2xl mx-auto px-4 pb-20">
-      {/* Header */}
-      <header className="sticky top-0 bg-white/80 backdrop-blur-md z-10 py-6 mb-4 flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <button 
-            onClick={() => router.back()}
-            className="p-2 hover:bg-slate-100 rounded-full transition-colors"
-          >
-            <ArrowLeft className="w-5 h-5 text-slate-600" />
-          </button>
-          <h1 className="text-2xl font-black text-slate-900 tracking-tight">Activity</h1>
+    <div className="max-w-2xl mx-auto px-4 pb-20 space-y-6">
+      {/* Sticky Header */}
+      <div className="sticky top-0 z-10 bg-transparent backdrop-blur-sm pt-6 pb-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <motion.button
+              whileTap={{ scale: 0.95 }}
+              onClick={() => router.back()}
+              className="p-2 rounded-xl hover:bg-slate-100/70 transition-colors"
+            >
+              <ArrowLeft className="w-5 h-5 text-slate-600" />
+            </motion.button>
+            <h1 className="text-2xl font-bold text-slate-900 tracking-tight">
+              Activity
+            </h1>
+          </div>
+
+          {hasUnread && (
+            <motion.button
+              whileTap={{ scale: 0.97 }}
+              onClick={handleMarkAllRead}
+              className="flex items-center gap-2 px-4 py-2 rounded-xl bg-indigo-50 text-indigo-700 text-xs font-semibold 
+                         hover:bg-indigo-100 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400"
+            >
+              <CheckCheck className="w-4 h-4" />
+              Mark all read
+            </motion.button>
+          )}
         </div>
+      </div>
 
-        {notifications.some(n => !n.isRead) && (
-          <button 
-            onClick={handleMarkAllRead}
-            className="flex items-center gap-2 px-4 py-2 bg-indigo-50 hover:bg-indigo-100 text-[#1a237e] rounded-2xl transition-all"
-          >
-            <CheckCheck className="w-4 h-4" />
-            <span className="text-[10px] font-bold uppercase tracking-widest">Mark read</span>
-          </button>
-        )}
-      </header>
-
-      <div className="space-y-3">
+      {/* Notification List */}
+      <AnimatePresence mode="popLayout">
         {notifications.length > 0 ? (
           notifications.map((n) => {
             const details = getNotificationDetails(n.type);
             return (
-              <div 
-                key={n._id} 
-                className={`group relative p-4 rounded-[2rem] transition-all border border-transparent hover:border-slate-100 hover:bg-slate-50/50 flex items-center gap-4 ${
-                  !n.isRead ? "bg-indigo-50/40" : "bg-white"
+              <motion.div
+                key={n._id}
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -8 }}
+                transition={{ duration: 0.2 }}
+                className={`group relative p-4 rounded-2xl transition-all ring-1 ${
+                  !n.isRead
+                    ? "bg-indigo-50/60 ring-indigo-100 shadow-sm"
+                    : "bg-white/70 backdrop-blur-md ring-slate-900/5 hover:shadow-sm"
                 }`}
               >
-                {/* Avatar */}
-                <div className="relative shrink-0">
-                  <Link href={`/news/profile/${n.sender?._id}`}>
-                    <div className="w-14 h-14 rounded-[1.25rem] bg-slate-200 overflow-hidden ring-2 ring-white shadow-sm">
+                <div className="flex items-center gap-4">
+                  {/* Avatar with badge */}
+                  <Link
+                    href={`/news/profile/${n.sender?._id}`}
+                    className="relative shrink-0"
+                  >
+                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-indigo-100 to-indigo-200 flex items-center justify-center text-indigo-700 font-bold text-lg ring-1 ring-indigo-300/60 overflow-hidden">
                       {n.sender?.profileImage ? (
-                        <img src={n.sender.profileImage} alt="" className="w-full h-full object-cover" />
+                        <img
+                          src={getMediaUrl(n.sender.profileImage)}  // ✅ FIXED
+                          alt=""
+                          className="w-full h-full object-cover"
+                        />
                       ) : (
-                        <div className="w-full h-full flex items-center justify-center bg-indigo-100 text-indigo-600 font-bold text-xl">
-                          {n.sender?.fullName?.charAt(0)}
-                        </div>
+                        n.sender?.fullName?.charAt(0) || "?"
                       )}
                     </div>
-                  </Link>
-                  <div className={`absolute -bottom-1 -right-1 p-1.5 rounded-xl shadow-lg ${details.bgColor} ring-2 ring-white`}>
-                    {details.icon}
-                  </div>
-                </div>
-
-                {/* Text Content */}
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-start justify-between gap-2">
-                    <p className="text-sm text-slate-600 leading-tight">
-                      <span className="font-bold text-slate-900 mr-1 hover:underline cursor-pointer">
-                        {n.sender?.fullName || "A user"}
-                      </span>
-                      {details.label}
-                    </p>
-                    {!n.isRead && (
-                      <Circle className="w-2.5 h-2.5 fill-indigo-500 text-indigo-500 shrink-0 mt-1" />
-                    )}
-                  </div>
-                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-tight mt-1.5">
-                    {n.createdAt ? formatDistanceToNow(new Date(n.createdAt)) : "recently"} ago
-                  </p>
-                </div>
-
-                {/* Post Preview Image */}
-                {n.post && n.post.media && n.post.media[0] && (
-                  <Link href={`/news/post/${n.post._id}`} className="shrink-0">
-                    <div className="w-14 h-14 rounded-2xl bg-slate-100 overflow-hidden border border-slate-100 group-hover:scale-105 transition-transform duration-300">
-                      <img 
-                        src={n.post.media[0].url} 
-                        className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity" 
-                        alt="preview"
-                      />
+                    <div
+                      className={`absolute -bottom-0.5 -right-0.5 p-1 rounded-lg shadow-md ring-2 ring-white ${details.bgColor}`}
+                    >
+                      {details.icon}
                     </div>
                   </Link>
-                )}
-              </div>
+
+                  {/* Text content */}
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-start justify-between gap-2">
+                      <p className="text-sm text-slate-600 leading-tight">
+                        <span className="font-semibold text-slate-900 mr-1">
+                          {n.sender?.fullName || "A user"}
+                        </span>
+                        {details.label}
+                      </p>
+                      {!n.isRead && (
+                        <Circle className="w-2.5 h-2.5 fill-indigo-500 text-indigo-500 shrink-0 mt-1" />
+                      )}
+                    </div>
+                    <p className="text-[11px] font-medium text-slate-400 mt-1">
+                      {n.createdAt
+                        ? formatDistanceToNowStrict(new Date(n.createdAt), { addSuffix: true })
+                        : "just now"}
+                    </p>
+                  </div>
+
+                  {/* Thumbnail preview */}
+                  {n.post && n.post.media?.[0] && (
+                    <Link
+                      href={`/news/post/${n.post._id}`}
+                      className="shrink-0"
+                    >
+                      <div className="w-12 h-12 rounded-xl bg-slate-100 overflow-hidden ring-1 ring-slate-200 group-hover:scale-105 transition-transform duration-300">
+                        <img
+                          src={getMediaUrl(n.post.media[0].url)}  // ✅ FIXED
+                          alt=""
+                          className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity"
+                        />
+                      </div>
+                    </Link>
+                  )}
+                </div>
+              </motion.div>
             );
           })
         ) : (
-          <div className="text-center py-32 bg-slate-50 rounded-[3rem] border-2 border-dashed border-slate-100">
-            <div className="w-20 h-20 bg-white rounded-[2.2rem] shadow-sm flex items-center justify-center mx-auto mb-6">
-              <Bell className="w-8 h-8 text-slate-200" />
+          <motion.div
+            initial={{ opacity: 0, scale: 0.96 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="py-20 text-center bg-white/70 backdrop-blur-md rounded-2xl ring-1 ring-slate-900/5 shadow-sm"
+          >
+            <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-slate-50 flex items-center justify-center ring-1 ring-slate-200/60">
+              <Bell className="w-8 h-8 text-slate-300" />
             </div>
-            <p className="font-bold text-slate-900">No activity yet</p>
-            <p className="text-slate-400 text-xs mt-1 px-10">
-              When people like your posts or follow you, you'll see it here.
+            <p className="text-sm font-semibold text-slate-700">
+              No activity yet
             </p>
-          </div>
+            <p className="text-xs text-slate-400 mt-1 max-w-xs mx-auto">
+              When people like your posts or follow you, they'll show up here.
+            </p>
+          </motion.div>
         )}
-      </div>
+      </AnimatePresence>
     </div>
   );
 }

@@ -1,4 +1,3 @@
-// app/news/page.tsx
 "use client";
 
 import { useEffect, useState, useRef, useCallback } from "react";
@@ -9,17 +8,53 @@ import { Loader2, Newspaper, Sparkles, Search } from "lucide-react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 
+// ---------- Types ----------
+interface Post {
+  _id: string;
+  title?: string;
+  content: string;
+  author: {
+    _id: string;
+    fullName?: string;
+    avatar?: string;
+  };
+  media?: { url: string }[];
+  likesCount: number;
+  commentsCount: number;
+  isLiked: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+// ---------- Skeleton Card for Loading ----------
+const SkeletonCard = () => (
+  <div className="bg-white/70 backdrop-blur-lg rounded-2xl ring-1 ring-slate-900/5 shadow-sm p-5 animate-pulse">
+    <div className="flex items-center gap-3 mb-4">
+      <div className="w-10 h-10 rounded-full bg-slate-200" />
+      <div className="space-y-2 flex-1">
+        <div className="h-3 bg-slate-200 rounded w-1/3" />
+        <div className="h-2 bg-slate-100 rounded w-1/4" />
+      </div>
+    </div>
+    <div className="space-y-3">
+      <div className="h-4 bg-slate-200 rounded w-3/4" />
+      <div className="h-4 bg-slate-100 rounded w-1/2" />
+    </div>
+    <div className="mt-4 h-40 bg-slate-100 rounded-xl" />
+  </div>
+);
+
 export default function FeedPage() {
   const { user } = useAuth();
-  const [posts, setPosts] = useState<any[]>([]);
+  const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const [isCreator, setIsCreator] = useState(false);
-  const observer = useRef<IntersectionObserver>();
+  const observer = useRef<IntersectionObserver | null>(null);
 
   const lastPostRef = useCallback(
-    (node: HTMLDivElement) => {
+    (node: HTMLDivElement | null) => {
       if (loading) return;
       if (observer.current) observer.current.disconnect();
       observer.current = new IntersectionObserver((entries) => {
@@ -31,6 +66,13 @@ export default function FeedPage() {
     },
     [loading, hasMore]
   );
+
+  // Cleanup observer on unmount
+  useEffect(() => {
+    return () => {
+      if (observer.current) observer.current.disconnect();
+    };
+  }, []);
 
   useEffect(() => {
     if (user?.mediaCreatorProfile?.isCreator !== undefined) {
@@ -50,10 +92,11 @@ export default function FeedPage() {
     setLoading(true);
     try {
       const res = await mediaAPI.getFeed({ page: pageNum, limit: 5 });
+      const newPosts: Post[] = res.data.posts;
       if (pageNum === 1) {
-        setPosts(res.data.posts);
+        setPosts(newPosts);
       } else {
-        setPosts((prev) => [...prev, ...res.data.posts]);
+        setPosts((prev) => [...prev, ...newPosts]);
       }
       setHasMore(res.data.currentPage < res.data.totalPages);
     } catch (error) {
@@ -63,14 +106,14 @@ export default function FeedPage() {
     }
   };
 
-  const handlePostUpdate = (postId: string, updatedData: any) => {
+  const handlePostUpdate = (postId: string, updatedData: Partial<Post>) => {
     setPosts((prev) =>
-      prev.map((p: any) => (p._id === postId ? { ...p, ...updatedData } : p))
+      prev.map((p) => (p._id === postId ? { ...p, ...updatedData } : p))
     );
   };
 
   const handlePostDelete = (postId: string) => {
-    setPosts((prev) => prev.filter((p: any) => p._id !== postId));
+    setPosts((prev) => prev.filter((p) => p._id !== postId));
   };
 
   const handleBecomeCreator = async () => {
@@ -82,27 +125,31 @@ export default function FeedPage() {
     }
   };
 
-  // 1. Unregistered Creator View
+  // 1. Non-Creator Welcome View
   if (!isCreator && !loading && posts.length === 0) {
     return (
-      <motion.div 
+      <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
-        className="bg-white rounded-3xl shadow-sm ring-1 ring-slate-900/5 p-10 text-center max-w-lg mx-auto"
+        className="bg-white/70 backdrop-blur-xl rounded-2xl ring-1 ring-slate-900/5 shadow-sm p-10 text-center max-w-lg mx-auto"
       >
-        <div className="w-20 h-20 bg-indigo-50 rounded-3xl flex items-center justify-center mx-auto mb-6">
-          <Sparkles className="w-10 h-10 text-[#1a237e]" />
+        <div className="w-16 h-16 mx-auto mb-5 rounded-2xl bg-white shadow-sm ring-1 ring-slate-900/5 flex items-center justify-center">
+          <Sparkles className="w-8 h-8 text-indigo-600" />
         </div>
-        <h2 className="text-2xl font-black text-slate-900 mb-3">
+        <h2 className="text-2xl font-bold text-slate-900 mb-3">
           Start Your Creator Journey
         </h2>
-        <p className="text-slate-500 mb-8 leading-relaxed">
-          Share news, regional updates, and stories with your community. Join our network of local voices today.
+        <p className="text-slate-600 mb-8 leading-relaxed">
+          Share news, regional updates, and stories with your community.
+          Join our network of local voices today.
         </p>
         <button
           onClick={handleBecomeCreator}
-          className="w-full bg-[#1a237e] text-white px-8 py-4 rounded-2xl font-bold hover:bg-[#0d1757] transition-all shadow-lg shadow-indigo-100 active:scale-[0.98]"
+          className="group relative inline-flex items-center gap-2 bg-gradient-to-r from-indigo-600 to-indigo-800 text-white px-8 py-3.5 rounded-full font-semibold text-sm
+                     shadow-lg shadow-indigo-500/25 transition-all duration-200 hover:shadow-xl hover:shadow-indigo-500/30
+                     hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400"
         >
+          <Sparkles className="w-4 h-4" />
           Become a Creator
         </button>
       </motion.div>
@@ -111,32 +158,52 @@ export default function FeedPage() {
 
   return (
     <div className="max-w-2xl mx-auto space-y-6">
-      {/* 2. Empty Feed View */}
-      {posts.length === 0 && !loading ? (
-        <div className="bg-white rounded-3xl ring-1 ring-slate-900/5 p-12 text-center">
-          <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-4">
+      {/* First‑load skeleton */}
+      {loading && posts.length === 0 && (
+        <div className="space-y-4">
+          {[...Array(3)].map((_, i) => (
+            <SkeletonCard key={i} />
+          ))}
+        </div>
+      )}
+
+      {/* Empty Feed State */}
+      {!loading && posts.length === 0 && (
+        <motion.div
+          initial={{ opacity: 0, scale: 0.96 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="bg-white/70 backdrop-blur-xl rounded-2xl ring-1 ring-slate-900/5 shadow-sm p-12 text-center"
+        >
+          <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-slate-50 flex items-center justify-center ring-1 ring-slate-200/60">
             <Newspaper className="w-8 h-8 text-slate-300" />
           </div>
-          <h3 className="text-lg font-bold text-slate-900 mb-2">Your feed is quiet</h3>
-          <p className="text-slate-500 mb-6">Follow some creators to start seeing the latest news and updates.</p>
-          <Link 
-            href="/news/search" 
-            className="inline-flex items-center gap-2 px-6 py-3 bg-slate-900 text-white rounded-full font-bold text-sm hover:bg-slate-800 transition-colors"
+          <h3 className="text-lg font-semibold text-slate-800 mb-2">
+            Your feed is quiet
+          </h3>
+          <p className="text-slate-500 mb-8 max-w-xs mx-auto">
+            Follow some creators to start seeing the latest news and updates.
+          </p>
+          <Link
+            href="/news/search"
+            className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-gradient-to-r from-indigo-600 to-indigo-800 text-white text-sm font-semibold shadow-md shadow-indigo-500/25
+                       hover:shadow-lg hover:shadow-indigo-500/30 transition-all"
           >
             <Search className="w-4 h-4" />
             Explore Creators
           </Link>
-        </div>
-      ) : (
-        // 3. Post List
-        <div className="space-y-6 pb-10">
+        </motion.div>
+      )}
+
+      {/* Post Feed */}
+      {posts.length > 0 && (
+        <div className="space-y-5">
           <AnimatePresence mode="popLayout">
-            {posts.map((post: any, index) => (
+            {posts.map((post, index) => (
               <motion.div
                 key={post._id}
-                initial={{ opacity: 0, y: 20 }}
+                initial={{ opacity: 0, y: 12 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.05 }}
+                transition={{ delay: index * 0.03, duration: 0.3 }}
                 ref={index === posts.length - 1 ? lastPostRef : null}
               >
                 <PostCard
@@ -150,22 +217,27 @@ export default function FeedPage() {
         </div>
       )}
 
-      {/* 4. Loading Footer */}
-      {loading && (
-        <div className="flex justify-center py-8">
-          <div className="flex items-center gap-3 px-4 py-2 bg-white rounded-full shadow-sm ring-1 ring-slate-900/5">
-            <Loader2 className="animate-spin h-5 w-5 text-[#1a237e]" />
-            <span className="text-xs font-bold text-slate-500 uppercase tracking-widest">Loading Feed</span>
-          </div>
+      {/* Loading More Indicator */}
+      {loading && posts.length > 0 && (
+        <div className="space-y-4 pt-2">
+          {[...Array(2)].map((_, i) => (
+            <SkeletonCard key={`loading-more-${i}`} />
+          ))}
         </div>
       )}
 
-      {/* 5. End of Feed */}
-      {!hasMore && posts.length > 0 && (
-        <div className="text-center py-10">
-          <div className="h-px bg-slate-100 w-full mb-6" />
-          <p className="text-slate-400 font-medium text-sm">You've reached the end of the feed ✨</p>
-        </div>
+      {/* End of Feed */}
+      {!hasMore && posts.length > 0 && !loading && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="text-center py-10"
+        >
+          <div className="h-px bg-slate-200/60 w-full mb-6" />
+          <p className="text-sm font-medium text-slate-400">
+            You’ve reached the end of the feed ✨
+          </p>
+        </motion.div>
       )}
     </div>
   );
