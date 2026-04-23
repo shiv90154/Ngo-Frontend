@@ -1,269 +1,187 @@
+// components/agriculture/Orders.tsx
 "use client";
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
-import SellerShell from "@/components/agriculture/seller/SellerShell";
 import api from "@/config/api";
 import {
-    Loader2,
-    ShoppingCart,
-    ArrowLeft,
-    CalendarDays,
-    User,
-    IndianRupee,
-    Package,
-    RefreshCw,
+  Loader2,
+  ShoppingCart,
+  CalendarDays,
+  Store,
+  IndianRupee,
+  Package,
+  Truck,
 } from "lucide-react";
 
-export default function SellerOrdersPage() {
-    const { user, loading: authLoading } = useAuth();
-    const router = useRouter();
+interface Order {
+  id: string;
+  sellerName?: string;
+  createdAt: string;
+  status: string;
+  total: number;
+  items?: any[];
+}
 
-    const [orders, setOrders] = useState([]);
-    const [stats, setStats] = useState(null);
-    const [loading, setLoading] = useState(true);
-    const [refreshing, setRefreshing] = useState(false);
+export default function Orders() {
+  const { user, loading: authLoading } = useAuth();
+  const router = useRouter();
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [loading, setLoading] = useState(true);
 
-    const isContractFarmer = Boolean(user?.farmerProfile?.isContractFarmer);
-
-    useEffect(() => {
-        if (!authLoading && !user) {
-            router.push("/login");
-            return;
-        }
-
-        if (!authLoading && user && !isContractFarmer) {
-            router.push("/agriculture");
-            return;
-        }
-
-        if (user && isContractFarmer) {
-            fetchSellerOrders();
-        }
-    }, [user, authLoading, isContractFarmer, router]);
-
-    const fetchSellerOrders = async () => {
-        try {
-            setLoading(true);
-
-            // change endpoint if your route is different
-            const res = await api.get("/seller/dashboard");
-
-            const dashboard = res?.data?.data || {};
-
-            setOrders(dashboard.recentOrders || []);
-            setStats(dashboard.stats || {});
-        } catch (error) {
-            console.error("Failed to fetch seller orders:", error);
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const handleRefresh = async () => {
-        try {
-            setRefreshing(true);
-            const res = await api.get("/seller/dashboard");
-
-            const dashboard = res?.data?.data || {};
-
-            setOrders(dashboard.recentOrders || []);
-            setStats(dashboard.stats || {});
-        } catch (error) {
-            console.error("Failed to refresh seller orders:", error);
-        } finally {
-            setRefreshing(false);
-        }
-    };
-
-    const getStatusStyles = (status) => {
-        const value = String(status || "").toLowerCase();
-
-        switch (value) {
-            case "delivered":
-                return "bg-green-100 text-green-700 border-green-200";
-            case "shipped":
-                return "bg-blue-100 text-blue-700 border-blue-200";
-            case "processing":
-                return "bg-yellow-100 text-yellow-700 border-yellow-200";
-            case "pending":
-                return "bg-orange-100 text-orange-700 border-orange-200";
-            case "cancelled":
-                return "bg-red-100 text-red-700 border-red-200";
-            default:
-                return "bg-gray-100 text-gray-700 border-gray-200";
-        }
-    };
-
-    const formatDate = (date) => {
-        if (!date) return "N/A";
-
-        return new Date(date).toLocaleDateString("en-IN", {
-            day: "2-digit",
-            month: "short",
-            year: "numeric",
-        });
-    };
-
-    if (authLoading || loading) {
-        return (
-            <div className="flex min-h-screen items-center justify-center bg-[#f8faf7]">
-                <div className="flex flex-col items-center gap-3 rounded-2xl border border-[#e5e7eb] bg-white px-8 py-10 shadow-sm">
-                    <Loader2 className="h-7 w-7 animate-spin text-[#138808]" />
-                    <p className="text-sm font-medium text-gray-600">
-                        Loading seller orders...
-                    </p>
-                </div>
-            </div>
-        );
+  useEffect(() => {
+    if (!authLoading && !user) {
+      router.push("/login");
+      return;
     }
+    if (user) {
+      fetchOrders();
+    }
+  }, [user, authLoading, router]);
 
-    if (!user || !isContractFarmer) return null;
+  const fetchOrders = async () => {
+    try {
+      setLoading(true);
+      // Adjust this endpoint to your actual API route for fetching user orders
+      const res = await api.get("/orders/my-orders");
+      setOrders(res.data?.data || []);
+    } catch (error) {
+      console.error("Failed to fetch orders:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
+  const getStatusStyles = (status: string) => {
+    switch (status?.toLowerCase()) {
+      case "delivered":
+        return "bg-green-100 text-green-700 border-green-200";
+      case "shipped":
+        return "bg-blue-100 text-blue-700 border-blue-200";
+      case "processing":
+        return "bg-yellow-100 text-yellow-700 border-yellow-200";
+      case "pending":
+        return "bg-orange-100 text-orange-700 border-orange-200";
+      case "cancelled":
+        return "bg-red-100 text-red-700 border-red-200";
+      default:
+        return "bg-gray-100 text-gray-700 border-gray-200";
+    }
+  };
+
+  const getStatusIcon = (status: string) => {
+    switch (status?.toLowerCase()) {
+      case "delivered":
+        return <Package size={16} />;
+      case "shipped":
+        return <Truck size={16} />;
+      default:
+        return <ShoppingCart size={16} />;
+    }
+  };
+
+  if (authLoading || loading) {
     return (
-        <SellerShell
-            title="Orders"
-            subtitle="Manage orders from customers here">
-            <div className="min-h-screen bg-gradient-to-br from-[#f4fbf4] via-[#f7faf7] to-[#eef8ee]">
-                <main className="mx-auto max-w-7xl space-y-5 px-4 py-5 sm:px-6 lg:px-8">
-
-
-                    <section className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                        <div className="rounded-2xl border border-green-200 bg-white p-4 shadow-sm">
-                            <p className="text-sm font-medium text-gray-500">Total Orders</p>
-                            <h3 className="mt-1 text-2xl font-bold text-gray-900">
-                                {stats?.totalOrders || 0}
-                            </h3>
-                        </div>
-
-                        <div className="rounded-2xl border border-emerald-200 bg-white p-4 shadow-sm">
-                            <p className="text-sm font-medium text-gray-500">Active Products</p>
-                            <h3 className="mt-1 text-2xl font-bold text-gray-900">
-                                {stats?.activeProducts || 0}
-                            </h3>
-                        </div>
-
-                        <div className="rounded-2xl border border-lime-200 bg-white p-4 shadow-sm">
-                            <p className="text-sm font-medium text-gray-500">Revenue</p>
-                            <h3 className="mt-1 text-2xl font-bold text-gray-900">
-                                ₹{Number(stats?.monthlyRevenue || 0).toLocaleString("en-IN")}
-                            </h3>
-                        </div>
-                    </section>
-
-                    <section className="rounded-2xl border border-green-100 bg-white p-4 shadow-sm">
-                        <div className="mb-4 flex items-center justify-between">
-                            <div>
-                                <h2 className="text-base font-bold text-gray-900">
-                                    Recent Orders
-                                </h2>
-                                <p className="text-sm text-gray-500">
-                                    Showing latest {orders.length} order{orders.length !== 1 ? "s" : ""}
-                                </p>
-                            </div>
-                        </div>
-
-                        {orders.length === 0 ? (
-                            <div className="flex h-48 flex-col items-center justify-center rounded-2xl border border-dashed border-gray-300 bg-gray-50">
-                                <ShoppingCart size={28} className="mb-3 text-gray-400" />
-                                <p className="text-sm font-medium text-gray-500">
-                                    No seller orders found
-                                </p>
-                            </div>
-                        ) : (
-                            <div className="overflow-hidden rounded-2xl border border-gray-100">
-                                <div className="overflow-x-auto">
-                                    <table className="min-w-full divide-y divide-gray-100">
-                                        <thead className="bg-[#f7fbf7]">
-                                            <tr>
-                                                <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
-                                                    Order
-                                                </th>
-                                                <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
-                                                    Buyer
-                                                </th>
-                                                <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
-                                                    Date
-                                                </th>
-                                                <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
-                                                    Status
-                                                </th>
-                                                <th className="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wide text-gray-500">
-                                                    Total
-                                                </th>
-                                            </tr>
-                                        </thead>
-
-                                        <tbody className="divide-y divide-gray-100 bg-white">
-                                            {orders.map((order, index) => (
-                                                <tr
-                                                    key={order.id || index}
-                                                    className="transition hover:bg-green-50/40"
-                                                >
-                                                    <td className="px-4 py-4">
-                                                        <div className="flex items-center gap-3">
-                                                            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-green-100">
-                                                                <ShoppingCart
-                                                                    size={18}
-                                                                    className="text-green-700"
-                                                                />
-                                                            </div>
-                                                            <div>
-                                                                <p className="text-sm font-semibold text-gray-900">
-                                                                    #{String(order.id || "").slice(-6) || "N/A"}
-                                                                </p>
-                                                                <p className="text-xs text-gray-500">
-                                                                    Seller Order
-                                                                </p>
-                                                            </div>
-                                                        </div>
-                                                    </td>
-
-                                                    <td className="px-4 py-4">
-                                                        <div className="flex items-center gap-2 text-sm text-gray-700">
-                                                            <User size={15} className="text-gray-400" />
-                                                            <span>{order.buyerName || "Buyer"}</span>
-                                                        </div>
-                                                    </td>
-
-                                                    <td className="px-4 py-4">
-                                                        <div className="flex items-center gap-2 text-sm text-gray-700">
-                                                            <CalendarDays size={15} className="text-gray-400" />
-                                                            <span>{formatDate(order.createdAt)}</span>
-                                                        </div>
-                                                    </td>
-
-                                                    <td className="px-4 py-4">
-                                                        <span
-                                                            className={`inline-flex rounded-full border px-3 py-1 text-xs font-semibold capitalize ${getStatusStyles(
-                                                                order.status
-                                                            )}`}
-                                                        >
-                                                            {order.status || "processing"}
-                                                        </span>
-                                                    </td>
-
-                                                    <td className="px-4 py-4 text-right">
-                                                        <div className="inline-flex items-center gap-1 text-sm font-bold text-gray-900">
-                                                            <IndianRupee size={15} />
-                                                            <span>
-                                                                {Number(order.total || 0).toLocaleString("en-IN")}
-                                                            </span>
-                                                        </div>
-                                                    </td>
-                                                </tr>
-                                            ))}
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        )}
-                    </section>
-                </main>
-            </div>
-        </SellerShell>
-
+      <div className="flex min-h-screen items-center justify-center bg-gray-50">
+        <div className="flex flex-col items-center gap-3">
+          <Loader2 className="h-8 w-8 animate-spin text-green-700" />
+          <p className="text-gray-600">Loading your orders...</p>
+        </div>
+      </div>
     );
+  }
 
+  if (!user) return null;
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-emerald-50 p-6">
+      <div className="mx-auto max-w-6xl">
+        {/* Header */}
+        <div className="mb-6">
+          <h1 className="text-3xl font-bold text-gray-800">My Orders</h1>
+          <p className="mt-1 text-gray-600">Track and manage your marketplace purchases</p>
+        </div>
+
+        {/* Orders List */}
+        {orders.length === 0 ? (
+          <div className="rounded-2xl border border-gray-200 bg-white p-12 text-center">
+            <ShoppingCart size={48} className="mx-auto mb-4 text-gray-300" />
+            <h2 className="text-xl font-semibold text-gray-800">No orders yet</h2>
+            <p className="mt-2 text-gray-500">When you place an order, it will appear here.</p>
+            <button
+              onClick={() => router.push("/agriculture/marketplace")}
+              className="mt-6 rounded-lg bg-green-700 px-6 py-2 text-white hover:bg-green-800 transition"
+            >
+              Browse Marketplace
+            </button>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {orders.map((order) => (
+              <div
+                key={order.id}
+                className="overflow-hidden rounded-2xl border border-gray-200 bg-white p-6 shadow-sm transition hover:shadow-md"
+              >
+                <div className="flex flex-wrap items-start justify-between gap-4">
+                  {/* Left side - Order info */}
+                  <div className="space-y-2">
+                    <div>
+                      <p className="text-sm text-gray-500">Order ID</p>
+                      <p className="font-mono text-lg font-semibold text-gray-800">
+                        #{String(order.id).slice(-8).toUpperCase()}
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-4 text-sm">
+                      <div className="flex items-center gap-1 text-gray-600">
+                        <Store size={16} className="text-gray-400" />
+                        <span>{order.sellerName || "FarmFresh Vendor"}</span>
+                      </div>
+                      <div className="flex items-center gap-1 text-gray-600">
+                        <CalendarDays size={16} className="text-gray-400" />
+                        <span>{new Date(order.createdAt).toLocaleDateString("en-IN", {
+                          day: "2-digit",
+                          month: "short",
+                          year: "numeric",
+                        })}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Right side - Status & Total */}
+                  <div className="flex flex-col items-end gap-2">
+                    <span
+                      className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-semibold capitalize ${getStatusStyles(
+                        order.status
+                      )}`}
+                    >
+                      {getStatusIcon(order.status)}
+                      {order.status || "Processing"}
+                    </span>
+                    <div className="text-right">
+                      <p className="text-sm text-gray-500">Total Amount</p>
+                      <p className="flex items-center text-xl font-bold text-gray-900">
+                        <IndianRupee size={18} />
+                        {Number(order.total || 0).toLocaleString("en-IN")}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Optional: View Details Button */}
+                <div className="mt-4 border-t border-gray-100 pt-4">
+                  <button
+                    onClick={() => router.push(`/agriculture/marketplace/orders/${order.id}`)}
+                    className="text-sm font-medium text-green-700 hover:text-green-800"
+                  >
+                    View Order Details →
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
 }
