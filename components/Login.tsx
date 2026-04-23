@@ -18,7 +18,7 @@ export default function LoginPage() {
 
   useEffect(() => {
     if (isClient && !authLoading && user) {
-      // 根据角色跳转：管理员去 /admin，其他用户去 /services
+      
       const isAdmin = user.role === "SUPER_ADMIN" || user.role === "ADDITIONAL_DIRECTOR";
       router.replace(isAdmin ? "/admin" : "/services");
     }
