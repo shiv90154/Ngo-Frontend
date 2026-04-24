@@ -9,6 +9,8 @@ import CommentItem from "@/components/news/CommentItem";
 import { Send, Loader2, MessageSquare, ChevronLeft } from "lucide-react";
 import { toast } from "react-toastify";
 import { motion, AnimatePresence } from "framer-motion";
+import Image from "next/image";
+import { getMediaUrl } from "@/utils/mediaUrl";
 
 // --- Types ---
 interface Comment {
@@ -16,7 +18,7 @@ interface Comment {
   user: {
     _id: string;
     fullName: string;
-    avatar?: string;
+    profileImage?: string;            // ✅ renamed from avatar
   };
   text: string;
   createdAt: string;
@@ -27,7 +29,7 @@ interface Post {
   author: {
     _id: string;
     fullName: string;
-    avatar?: string;
+    profileImage?: string;            // ✅ match backend
   };
   content: string;
   commentsCount?: number;
@@ -36,7 +38,6 @@ interface Post {
   isLiked?: boolean;
   createdAt: string;
   updatedAt: string;
-  // ...any other fields used
 }
 
 export default function PostDetailPage() {
@@ -122,17 +123,13 @@ export default function PostDetailPage() {
     setPost((prev) => (prev ? { ...prev, ...data } : prev));
   };
 
-  // --- Premium Loading Skeleton ---
+  // --- Loading Skeleton ---
   if (loading) {
     return (
       <div className="max-w-2xl mx-auto px-4 pb-24 space-y-6 pt-6">
-        {/* Back button skeleton */}
         <div className="h-8 w-28 bg-slate-200/70 rounded-full animate-pulse" />
-        {/* Post skeleton */}
         <div className="h-64 bg-white/70 rounded-2xl ring-1 ring-slate-900/5 animate-pulse" />
-        {/* Comment input skeleton */}
         <div className="h-16 bg-white/70 rounded-2xl ring-1 ring-slate-900/5 animate-pulse" />
-        {/* Comment skeletons */}
         <div className="space-y-4">
           {[...Array(3)].map((_, i) => (
             <div
@@ -154,6 +151,7 @@ export default function PostDetailPage() {
         whileTap={{ scale: 0.97 }}
         onClick={() => router.back()}
         className="inline-flex items-center gap-2 text-slate-500 hover:text-slate-900 transition-colors group mt-6"
+        aria-label="Return to feed"
       >
         <motion.div
           whileHover={{ x: -3 }}
@@ -164,7 +162,7 @@ export default function PostDetailPage() {
         <span className="font-semibold text-sm">Back to Feed</span>
       </motion.button>
 
-      {/* PostCard (already upgraded) */}
+      {/* PostCard */}
       <PostCard post={post} onUpdate={handlePostUpdate} />
 
       {/* Discussion Header */}
@@ -189,11 +187,14 @@ export default function PostDetailPage() {
         <form onSubmit={handleAddComment} className="flex items-center gap-3">
           {/* User avatar */}
           <div className="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-100 to-indigo-200 flex items-center justify-center text-indigo-700 font-bold text-sm ring-1 ring-indigo-300/60 shrink-0 overflow-hidden">
-            {user?.avatar ? (
-              <img
-                src={user.avatar}
-                alt=""
-                className="w-full h-full object-cover"
+            {user?.profileImage ? (
+              <Image
+                src={getMediaUrl(user.profileImage)}
+                alt={user?.fullName || "You"}
+                width={40}
+                height={40}
+                className="object-cover"
+                unoptimized
               />
             ) : (
               user?.fullName?.charAt(0) || "?"
@@ -201,7 +202,11 @@ export default function PostDetailPage() {
           </div>
 
           <div className="relative flex-1">
+            <label htmlFor="comment-input" className="sr-only">
+              Write a comment
+            </label>
             <input
+              id="comment-input"
               type="text"
               value={commentText}
               onChange={(e) => setCommentText(e.target.value)}
@@ -214,6 +219,7 @@ export default function PostDetailPage() {
               disabled={submitting || !commentText.trim()}
               className="absolute right-2 top-1/2 -translate-y-1/2 p-2 rounded-xl bg-gradient-to-r from-indigo-600 to-indigo-800 text-white shadow-sm 
                        disabled:opacity-40 disabled:shadow-none hover:shadow-md transition-all"
+              aria-label="Submit comment"
             >
               {submitting ? (
                 <Loader2 className="w-4 h-4 animate-spin" />

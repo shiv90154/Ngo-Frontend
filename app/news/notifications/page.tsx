@@ -14,16 +14,11 @@ import {
 } from "lucide-react";
 import { formatDistanceToNowStrict } from "date-fns";
 import Link from "next/link";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
 import { motion, AnimatePresence } from "framer-motion";
-
-// ---------- Helpers ----------
-const BASE_URL = "http://localhost:5000"; // or process.env.NEXT_PUBLIC_API_URL
-const getMediaUrl = (url: string) => {
-  if (!url) return "";
-  return url.startsWith("http") ? url : `${BASE_URL}${url}`;
-};
+import { getMediaUrl } from "@/utils/mediaUrl";
 
 // ---------- Types ----------
 interface NotificationSender {
@@ -139,6 +134,7 @@ export default function NotificationsPage() {
               whileTap={{ scale: 0.95 }}
               onClick={() => router.back()}
               className="p-2 rounded-xl hover:bg-slate-100/70 transition-colors"
+              aria-label="Go back"
             >
               <ArrowLeft className="w-5 h-5 text-slate-600" />
             </motion.button>
@@ -153,6 +149,7 @@ export default function NotificationsPage() {
               onClick={handleMarkAllRead}
               className="flex items-center gap-2 px-4 py-2 rounded-xl bg-indigo-50 text-indigo-700 text-xs font-semibold 
                          hover:bg-indigo-100 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400"
+              aria-label="Mark all notifications as read"
             >
               <CheckCheck className="w-4 h-4" />
               Mark all read
@@ -184,13 +181,17 @@ export default function NotificationsPage() {
                   <Link
                     href={`/news/profile/${n.sender?._id}`}
                     className="relative shrink-0"
+                    aria-label={`View ${n.sender?.fullName || "user"}'s profile`}
                   >
                     <div className="w-12 h-12 rounded-full bg-gradient-to-br from-indigo-100 to-indigo-200 flex items-center justify-center text-indigo-700 font-bold text-lg ring-1 ring-indigo-300/60 overflow-hidden">
                       {n.sender?.profileImage ? (
-                        <img
-                          src={getMediaUrl(n.sender.profileImage)}  // ✅ FIXED
-                          alt=""
-                          className="w-full h-full object-cover"
+                        <Image
+                          src={getMediaUrl(n.sender.profileImage)}
+                          alt={n.sender?.fullName || "Avatar"}
+                          width={48}
+                          height={48}
+                          className="object-cover"
+                          unoptimized
                         />
                       ) : (
                         n.sender?.fullName?.charAt(0) || "?"
@@ -228,12 +229,16 @@ export default function NotificationsPage() {
                     <Link
                       href={`/news/post/${n.post._id}`}
                       className="shrink-0"
+                      aria-label="View post"
                     >
                       <div className="w-12 h-12 rounded-xl bg-slate-100 overflow-hidden ring-1 ring-slate-200 group-hover:scale-105 transition-transform duration-300">
-                        <img
-                          src={getMediaUrl(n.post.media[0].url)}  // ✅ FIXED
+                        <Image
+                          src={getMediaUrl(n.post.media[0].url)}
                           alt=""
-                          className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity"
+                          width={48}
+                          height={48}
+                          className="object-cover opacity-80 group-hover:opacity-100 transition-opacity"
+                          unoptimized
                         />
                       </div>
                     </Link>

@@ -4,15 +4,11 @@
 import { useEffect, useState } from "react";
 import { mediaAPI } from "@/lib/api";
 import Link from "next/link";
+import Image from "next/image";
 import { Plus } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { motion } from "framer-motion";
-
-const BASE_URL = "http://localhost:5000"; // or process.env.NEXT_PUBLIC_API_URL
-const getMediaUrl = (url: string) => {
-  if (!url) return "";
-  return url.startsWith("http") ? url : `${BASE_URL}${url}`;
-};
+import { getMediaUrl } from "@/utils/mediaUrl";
 
 export default function StoryRow() {
   const { user } = useAuth();
@@ -54,7 +50,11 @@ export default function StoryRow() {
     <div className="bg-white/70 backdrop-blur-md rounded-2xl ring-1 ring-slate-900/5 shadow-sm p-4 overflow-x-auto scrollbar-hide">
       <div className="flex gap-5 min-w-max">
         {/* My Story */}
-        <Link href="/news/create" className="flex flex-col items-center gap-2 shrink-0 group">
+        <Link
+          href="/news/create"
+          className="flex flex-col items-center gap-2 shrink-0 group"
+          aria-label="Create your story"
+        >
           <div className="relative">
             <motion.div
               whileHover={{ scale: 1.05 }}
@@ -62,10 +62,13 @@ export default function StoryRow() {
               className="w-16 h-16 rounded-full bg-gradient-to-br from-indigo-100 to-indigo-200 flex items-center justify-center text-indigo-700 font-semibold text-xl ring-2 ring-offset-2 ring-transparent group-hover:ring-indigo-400/30 transition-all overflow-hidden"
             >
               {user?.profileImage ? (
-                <img
+                <Image
                   src={getMediaUrl(user.profileImage)}
-                  alt=""
-                  className="w-full h-full object-cover"
+                  alt="Your story"
+                  width={64}
+                  height={64}
+                  className="object-cover"
+                  unoptimized
                 />
               ) : (
                 user?.fullName?.charAt(0) || "U"
@@ -90,6 +93,7 @@ export default function StoryRow() {
             key={creator._id}
             href={`/news/profile/${creator._id}`}
             className="flex flex-col items-center gap-2 shrink-0 group"
+            aria-label={`${creator.fullName}'s story`}
           >
             <motion.div
               whileHover={{ scale: 1.05 }}
@@ -99,10 +103,13 @@ export default function StoryRow() {
               <div className="w-full h-full rounded-full bg-white p-0.5">
                 <div className="w-full h-full rounded-full bg-gradient-to-br from-indigo-100 to-indigo-200 flex items-center justify-center text-indigo-700 text-sm font-medium ring-2 ring-offset-2 ring-transparent group-hover:ring-indigo-400/30 transition-all overflow-hidden">
                   {creator.profileImage ? (
-                    <img
+                    <Image
                       src={getMediaUrl(creator.profileImage)}
-                      alt=""
-                      className="w-full h-full object-cover"
+                      alt={`${creator.fullName}'s story`}
+                      width={60}
+                      height={60}
+                      className="object-cover"
+                      unoptimized
                     />
                   ) : (
                     creator.fullName?.charAt(0)

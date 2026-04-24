@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { mediaAPI } from "@/lib/api";
 import {
@@ -15,11 +15,12 @@ import {
   X,
 } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 import { formatDistanceToNowStrict } from "date-fns";
 import { toast } from "react-toastify";
 import { motion, AnimatePresence } from "framer-motion";
-
-const BASE_URL = "http://localhost:5000";
+import { getMediaUrl } from "@/utils/mediaUrl";
+import ConfirmDialog from "@/components/ui/ConfirmDialog";
 
 const formatTime = (date: string) => {
   try {
@@ -27,11 +28,6 @@ const formatTime = (date: string) => {
   } catch {
     return "just now";
   }
-};
-
-const getMediaUrl = (url: string) => {
-  if (!url) return "";
-  return url.startsWith("http") ? url : `${BASE_URL}${url}`;
 };
 
 interface PostCardProps {
@@ -45,8 +41,9 @@ export default function PostCard({ post, onUpdate, onDelete }: PostCardProps) {
   const [isLiked, setIsLiked] = useState(post.isLiked || false);
   const [likesCount, setLikesCount] = useState(post.likesCount || 0);
   const [showMenu, setShowMenu] = useState(false);
+  const [confirmOpen, setConfirmOpen] = useState(false);
 
-  // ---------- Edit state ----------
+  // Edit state
   const [isEditing, setIsEditing] = useState(false);
   const [editContent, setEditContent] = useState(post.content || "");
   const [editTags, setEditTags] = useState((post.tags || []).join(", "));
@@ -55,13 +52,26 @@ export default function PostCard({ post, onUpdate, onDelete }: PostCardProps) {
 
   const isAuthor = currentUser?._id === post.author?._id;
 
-  // ---------- Like ----------
+  // Close menu on Escape
+  const handleKeyDown = useCallback((e: KeyboardEvent) => {
+    if (e.key === "Escape") {
+      setShowMenu(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (showMenu) {
+      document.addEventListener("keydown", handleKeyDown);
+    }
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [showMenu, handleKeyDown]);
+
+  // Like
   const handleLike = async () => {
     const prevLiked = isLiked;
     const prevCount = likesCount;
     setIsLiked(!prevLiked);
     setLikesCount(prevLiked ? prevCount - 1 : prevCount + 1);
-
     try {
       if (prevLiked) await mediaAPI.unlikePost(post._id);
       else await mediaAPI.likePost(post._id);
@@ -72,9 +82,13 @@ export default function PostCard({ post, onUpdate, onDelete }: PostCardProps) {
     }
   };
 
-  // ---------- Delete ----------
-  const handleDelete = async () => {
-    if (!window.confirm("Delete this post?")) return;
+  // Delete with confirmation
+  const handleDeleteRequest = () => {
+    setShowMenu(false);
+    setConfirmOpen(true);
+  };
+
+  const handleDeleteConfirm = async () => {
     try {
       await mediaAPI.deletePost(post._id);
       onDelete?.(post._id);
@@ -84,7 +98,24 @@ export default function PostCard({ post, onUpdate, onDelete }: PostCardProps) {
     }
   };
 
-  // ---------- Edit ----------
+  // Share
+  const handleShare = async () => {
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: post.title || "Check out this post",
+          url: `${window.location.origin}/news/post/${post._id}`,
+        });
+      } catch {}
+    } else {
+      await navigator.clipboard.writeText(
+        `${window.location.origin}/news/post/${post._id}`
+      );
+      toast.success("Link copied to clipboard!");
+    }
+  };
+
+  // Edit
   const handleStartEdit = () => {
     setEditContent(post.content || "");
     setEditTags((post.tags || []).join(", "));
@@ -93,9 +124,7 @@ export default function PostCard({ post, onUpdate, onDelete }: PostCardProps) {
     setShowMenu(false);
   };
 
-  const handleCancelEdit = () => {
-    setIsEditing(false);
-  };
+  const handleCancelEdit = () => setIsEditing(false);
 
   const handleSaveEdit = async () => {
     if (!editContent.trim() && post.media?.length === 0) {
@@ -108,22 +137,17 @@ export default function PostCard({ post, onUpdate, onDelete }: PostCardProps) {
         .split(",")
         .map((t) => t.trim())
         .filter(Boolean);
-
       const payload = {
         content: editContent.trim(),
         tags: tagsArray.join(","),
         location: editLocation.trim(),
       };
-
       await mediaAPI.updatePost(post._id, payload);
-
-      // Optimistic update to parent
       onUpdate?.(post._id, {
         content: editContent.trim(),
         tags: tagsArray,
         location: editLocation.trim(),
       });
-
       toast.success("Post updated");
       setIsEditing(false);
     } catch (err: any) {
@@ -145,13 +169,17 @@ export default function PostCard({ post, onUpdate, onDelete }: PostCardProps) {
         <Link
           href={`/news/profile/${post.author?._id}`}
           className="flex items-center gap-3 group"
+          aria-label={`View profile of ${post.author?.fullName}`}
         >
           <div className="relative w-10 h-10 rounded-full bg-gradient-to-br from-indigo-400 to-indigo-600 flex items-center justify-center text-white font-bold shadow-sm ring-2 ring-white/20 overflow-hidden group-hover:scale-105 transition-transform duration-200">
             {post.author?.profileImage ? (
-              <img
+              <Image
                 src={getMediaUrl(post.author.profileImage)}
-                alt=""
-                className="w-full h-full object-cover"
+                alt={post.author?.fullName || "Avatar"}
+                width={40}
+                height={40}
+                className="object-cover"
+                unoptimized
               />
             ) : (
               post.author?.fullName?.charAt(0) || "?"
@@ -175,6 +203,7 @@ export default function PostCard({ post, onUpdate, onDelete }: PostCardProps) {
             <button
               onClick={() => setShowMenu(!showMenu)}
               className="p-2 hover:bg-slate-100 rounded-xl text-slate-400 hover:text-slate-600 transition-colors"
+              aria-label="Post options"
             >
               <MoreHorizontal className="w-5 h-5" />
             </button>
@@ -187,16 +216,19 @@ export default function PostCard({ post, onUpdate, onDelete }: PostCardProps) {
                   exit={{ opacity: 0, scale: 0.95, y: 4 }}
                   transition={{ duration: 0.15 }}
                   className="absolute right-0 mt-2 w-48 bg-white/90 backdrop-blur-xl rounded-xl shadow-xl ring-1 ring-slate-900/5 z-30 py-1 overflow-hidden"
+                  role="menu"
                 >
                   <button
                     onClick={handleStartEdit}
                     className="w-full px-4 py-2.5 text-left text-sm text-slate-600 hover:bg-slate-50 flex items-center gap-2 transition-colors"
+                    role="menuitem"
                   >
                     <Edit3 className="w-4 h-4" /> Edit Post
                   </button>
                   <button
-                    onClick={handleDelete}
+                    onClick={handleDeleteRequest}
                     className="w-full px-4 py-2.5 text-left text-sm text-rose-600 hover:bg-rose-50 flex items-center gap-2 transition-colors"
+                    role="menuitem"
                   >
                     <Trash2 className="w-4 h-4" /> Delete
                   </button>
@@ -207,7 +239,7 @@ export default function PostCard({ post, onUpdate, onDelete }: PostCardProps) {
         )}
       </div>
 
-      {/* Content (view mode or edit mode) */}
+      {/* Content (View / Edit) */}
       <AnimatePresence mode="wait">
         {isEditing ? (
           <motion.div
@@ -223,26 +255,29 @@ export default function PostCard({ post, onUpdate, onDelete }: PostCardProps) {
               className="w-full bg-slate-50 rounded-xl p-3 text-sm text-slate-800 ring-1 ring-slate-200 focus:ring-2 focus:ring-indigo-500/20 resize-none"
               rows={3}
               placeholder="What's happening?"
+              aria-label="Edit content"
             />
             <input
               value={editTags}
               onChange={(e) => setEditTags(e.target.value)}
               className="w-full bg-slate-50 rounded-xl px-3 py-2 text-sm text-slate-800 ring-1 ring-slate-200 focus:ring-2 focus:ring-indigo-500/20"
               placeholder="Tags (comma separated)"
+              aria-label="Edit tags"
             />
             <input
               value={editLocation}
               onChange={(e) => setEditLocation(e.target.value)}
               className="w-full bg-slate-50 rounded-xl px-3 py-2 text-sm text-slate-800 ring-1 ring-slate-200 focus:ring-2 focus:ring-indigo-500/20"
               placeholder="Location (optional)"
+              aria-label="Edit location"
             />
             <div className="flex justify-end gap-2">
               <button
                 onClick={handleCancelEdit}
                 className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-semibold bg-white ring-1 ring-slate-200 text-slate-600 hover:bg-slate-50 transition"
+                aria-label="Cancel editing"
               >
-                <X className="w-4 h-4" />
-                Cancel
+                <X className="w-4 h-4" /> Cancel
               </button>
               <motion.button
                 whileHover={{ scale: 1.02 }}
@@ -250,9 +285,10 @@ export default function PostCard({ post, onUpdate, onDelete }: PostCardProps) {
                 onClick={handleSaveEdit}
                 disabled={saving}
                 className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-semibold bg-gradient-to-r from-indigo-600 to-indigo-800 text-white shadow-md shadow-indigo-500/25 hover:shadow-lg hover:shadow-indigo-500/30 disabled:opacity-50"
+                aria-label="Save changes"
               >
                 {saving ? (
-                  <X className="w-4 h-4 animate-spin" /> // maybe a spinner? we can use simple text
+                  <span className="animate-spin">⏳</span>
                 ) : (
                   <Save className="w-4 h-4" />
                 )}
@@ -269,14 +305,12 @@ export default function PostCard({ post, onUpdate, onDelete }: PostCardProps) {
             className="px-5 pb-4"
           >
             {post.title && (
-              <h3 className="text-lg font-bold text-slate-900 mb-1.5">
-                {post.title}
-              </h3>
+              <h3 className="text-lg font-bold text-slate-900 mb-1.5">{post.title}</h3>
             )}
             <p className="text-slate-700 text-sm leading-relaxed whitespace-pre-line">
               {post.content}
             </p>
-            {post.tags && post.tags.length > 0 && (
+            {post.tags?.length > 0 && (
               <div className="flex flex-wrap gap-1.5 mt-3">
                 {post.tags.map((tag: string) => (
                   <span
@@ -297,8 +331,8 @@ export default function PostCard({ post, onUpdate, onDelete }: PostCardProps) {
         )}
       </AnimatePresence>
 
-      {/* Media Gallery (unchanged) */}
-      {post.media && post.media.length > 0 && (
+      {/* Media Gallery */}
+      {post.media?.length > 0 && (
         <div className="px-5 pb-5">
           <div
             className={`grid gap-2 rounded-2xl overflow-hidden ${
@@ -310,7 +344,26 @@ export default function PostCard({ post, onUpdate, onDelete }: PostCardProps) {
               const isVideo =
                 item.url?.match(/\.(mp4|webm|mov|ogg)$/i) ||
                 item.type?.includes("video");
-
+              if (isVideo) {
+                return (
+                  <div key={idx} className="relative bg-slate-100 overflow-hidden group aspect-video">
+                    <video
+                      src={fullUrl}
+                      className="w-full h-full object-cover"
+                      muted
+                      loop
+                      playsInline
+                      onMouseOver={(e) => (e.target as HTMLVideoElement).play()}
+                      onMouseOut={(e) => (e.target as HTMLVideoElement).pause()}
+                    />
+                    <div className="absolute inset-0 flex items-center justify-center bg-black/10 group-hover:bg-transparent transition-colors pointer-events-none">
+                      <div className="bg-white/20 backdrop-blur-sm rounded-full p-3">
+                        <Play className="w-5 h-5 text-white fill-white" />
+                      </div>
+                    </div>
+                  </div>
+                );
+              }
               return (
                 <div
                   key={idx}
@@ -318,34 +371,13 @@ export default function PostCard({ post, onUpdate, onDelete }: PostCardProps) {
                     post.media.length === 1 ? "aspect-video" : "aspect-square"
                   }`}
                 >
-                  {isVideo ? (
-                    <div className="relative w-full h-full">
-                      <video
-                        src={fullUrl}
-                        className="w-full h-full object-cover"
-                        muted
-                        loop
-                        playsInline
-                        onMouseOver={(e) =>
-                          (e.target as HTMLVideoElement).play()
-                        }
-                        onMouseOut={(e) =>
-                          (e.target as HTMLVideoElement).pause()
-                        }
-                      />
-                      <div className="absolute inset-0 flex items-center justify-center bg-black/10 group-hover:bg-transparent transition-colors pointer-events-none">
-                        <div className="bg-white/20 backdrop-blur-sm rounded-full p-3">
-                          <Play className="w-5 h-5 text-white fill-white" />
-                        </div>
-                      </div>
-                    </div>
-                  ) : (
-                    <img
-                      src={fullUrl}
-                      alt=""
-                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                    />
-                  )}
+                  <Image
+                    src={fullUrl}
+                    alt=""
+                    fill
+                    className="object-cover transition-transform duration-500 group-hover:scale-105"
+                    unoptimized
+                  />
                 </div>
               );
             })}
@@ -361,6 +393,7 @@ export default function PostCard({ post, onUpdate, onDelete }: PostCardProps) {
               whileTap={{ scale: 0.9 }}
               onClick={handleLike}
               className="flex items-center gap-2 group"
+              aria-label={isLiked ? "Unlike post" : "Like post"}
             >
               <div
                 className={`p-2 rounded-xl transition-colors ${
@@ -375,30 +408,44 @@ export default function PostCard({ post, onUpdate, onDelete }: PostCardProps) {
                   }`}
                 />
               </div>
-              <span
-                className={`text-xs font-bold ${
-                  isLiked ? "text-rose-600" : "text-slate-500"
-                }`}
-              >
+              <span className="text-xs font-bold text-slate-500">
                 {likesCount}
               </span>
             </motion.button>
 
-         <Link href={`/news/post/${post._id}`} className="flex items-center gap-2 group">
-  <div className="p-2 rounded-xl bg-slate-50 text-slate-400 group-hover:bg-slate-100 transition-colors">
-    <MessageCircle className="w-4 h-4" />
-  </div>
-  <span className="text-xs font-bold text-slate-500">
-    {post.commentsCount || 0}
-  </span>
-</Link>
+            <Link
+              href={`/news/post/${post._id}`}
+              className="flex items-center gap-2 group"
+              aria-label={`View comments for ${post.author?.fullName}'s post`}
+            >
+              <div className="p-2 rounded-xl bg-slate-50 text-slate-400 group-hover:bg-slate-100 transition-colors">
+                <MessageCircle className="w-4 h-4" />
+              </div>
+              <span className="text-xs font-bold text-slate-500">
+                {post.commentsCount || 0}
+              </span>
+            </Link>
           </div>
 
-          <button className="p-2 rounded-xl bg-slate-50 text-slate-400 hover:bg-slate-100 transition-colors">
+          <button
+            onClick={handleShare}
+            className="p-2 rounded-xl bg-slate-50 text-slate-400 hover:bg-slate-100 transition-colors"
+            aria-label="Share post"
+          >
             <Share2 className="w-4 h-4" />
           </button>
         </div>
       )}
+
+      {/* Confirm Dialog for Delete */}
+      <ConfirmDialog
+        open={confirmOpen}
+        title="Delete Post"
+        message="Are you sure you want to delete this post? This action cannot be undone."
+        confirmLabel="Delete"
+        onConfirm={handleDeleteConfirm}
+        onClose={() => setConfirmOpen(false)}
+      />
     </motion.article>
   );
 }

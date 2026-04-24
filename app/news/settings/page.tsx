@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
 import { authAPI } from "@/lib/api";
@@ -14,9 +14,12 @@ import {
   FileText,
   AtSign,
   ArrowLeft,
+  Check,
+  AlertTriangle,
 } from "lucide-react";
 import { toast } from "react-toastify";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
+import { getMediaUrl } from "@/utils/mediaUrl";
 
 export default function SettingsPage() {
   const router = useRouter();
@@ -30,27 +33,81 @@ export default function SettingsPage() {
     username: "",
     bio: "",
   });
+  const [initialFormData, setInitialFormData] = useState({
+    fullName: "",
+    email: "",
+    phone: "",
+    username: "",
+    bio: "",
+  });
   const [profileImage, setProfileImage] = useState<File | null>(null);
   const [profileImagePreview, setProfileImagePreview] = useState("");
+  const [isDirty, setIsDirty] = useState(false);
+  const [showUnsavedDialog, setShowUnsavedDialog] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const pendingNavigation = useRef<(() => void) | null>(null);
 
+  // Initialize form with user data
   useEffect(() => {
     if (user) {
-      setFormData({
+      const initial = {
         fullName: user.fullName || "",
         email: user.email || "",
         phone: user.phone || "",
         username: user.socialProfile?.username || "",
         bio: user.mediaCreatorProfile?.bio || "",
-      });
+      };
+      setFormData(initial);
+      setInitialFormData(initial);
       if (user.profileImage) {
-        setProfileImagePreview(user.profileImage);
+        setProfileImagePreview(getMediaUrl(user.profileImage));
       }
     }
     setLoading(false);
   }, [user]);
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  // Detect unsaved changes (text fields + image)
+  useEffect(() => {
+    const hasChanges =
+      formData.fullName !== initialFormData.fullName ||
+      formData.phone !== initialFormData.phone ||
+      formData.username !== initialFormData.username ||
+      formData.bio !== initialFormData.bio ||
+      profileImage !== null;
+    setIsDirty(hasChanges);
+  }, [formData, initialFormData, profileImage]);
+
+  // Warn before closing tab/browser with unsaved changes
+  useEffect(() => {
+    const handler = (e: BeforeUnloadEvent) => {
+      if (isDirty) {
+        e.preventDefault();
+        e.returnValue = "";
+      }
+    };
+    window.addEventListener("beforeunload", handler);
+    return () => window.removeEventListener("beforeunload", handler);
+  }, [isDirty]);
+
+  // Keyboard shortcut: Ctrl+S / Cmd+S to save
+  const handleKeyDown = useCallback(
+    (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === "s") {
+        e.preventDefault();
+        handleSubmit();
+      }
+    },
+    [formData, profileImage]
+  );
+
+  useEffect(() => {
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [handleKeyDown]);
+
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
@@ -62,20 +119,27 @@ export default function SettingsPage() {
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    if (!formData.fullName.trim() || !formData.username.trim()) {
+      toast.error("Full name and handle are required");
+      return;
+    }
     setSaving(true);
     try {
       const fd = new FormData();
-      fd.append("fullName", formData.fullName);
-      fd.append("phone", formData.phone);
-      fd.append("username", formData.username);
-      fd.append("mediaBio", formData.bio);
+      fd.append("fullName", formData.fullName.trim());
+      fd.append("phone", formData.phone.trim());
+      fd.append("username", formData.username.trim());
+      fd.append("mediaBio", formData.bio.trim());
       if (profileImage) {
         fd.append("profileImage", profileImage);
       }
       const res = await authAPI.updateProfile(fd);
       setUser(res.data.user);
+      setInitialFormData({ ...formData });
+      setProfileImage(null);
+      setIsDirty(false);
       toast.success("Profile updated! 🎉");
       router.push(`/news/profile/${user?._id}`);
     } catch (error: any) {
@@ -85,7 +149,21 @@ export default function SettingsPage() {
     }
   };
 
-  // ---------- Loading Skeleton ----------
+  // Custom back navigation that respects unsaved changes
+  const goBack = () => {
+    if (isDirty) {
+      setShowUnsavedDialog(true);
+      pendingNavigation.current = () => router.back();
+    } else {
+      router.back();
+    }
+  };
+
+  const confirmLeave = () => {
+    setShowUnsavedDialog(false);
+    pendingNavigation.current?.();
+  };
+
   if (loading) {
     return (
       <div className="max-w-2xl mx-auto px-4 py-10 space-y-6">
@@ -106,185 +184,292 @@ export default function SettingsPage() {
   }
 
   return (
-    <div className="max-w-2xl mx-auto px-4 pb-20 space-y-8">
-      {/* Back Button + Title */}
-      <div className="flex flex-col gap-2 mt-6">
-        <button
-          onClick={() => router.back()}
-          className="inline-flex items-center gap-2 text-slate-500 hover:text-slate-900 transition-colors group self-start"
-        >
-          <motion.div whileHover={{ x: -3 }} transition={{ type: "spring", stiffness: 300 }}>
-            <ArrowLeft className="w-4 h-4" />
-          </motion.div>
-          <span className="text-xs font-semibold uppercase tracking-wider">Back</span>
-        </button>
-        <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Account Settings</h1>
-      </div>
-
-      {/* Main Card – glass surface */}
-      <motion.div
-        initial={{ opacity: 0, y: 12 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4 }}
-        className="bg-white/70 backdrop-blur-xl rounded-2xl ring-1 ring-slate-900/5 shadow-sm overflow-hidden"
-      >
-        <form onSubmit={handleSubmit}>
-          {/* Avatar Section */}
-          <div className="p-8 flex flex-col items-center gap-4 bg-slate-50/50 border-b border-slate-100">
-            <div className="relative group">
-              <div className="w-28 h-28 rounded-full overflow-hidden ring-4 ring-white shadow-lg bg-gradient-to-br from-indigo-100 to-indigo-200 flex items-center justify-center text-indigo-700 text-4xl font-bold">
-                {profileImagePreview ? (
-                  <img
-                    src={profileImagePreview}
-                    alt=""
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  user?.fullName?.charAt(0) || "?"
-                )}
+    <>
+      {/* Unsaved Changes Dialog */}
+      <AnimatePresence>
+        {showUnsavedDialog && (
+          <motion.div
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/20 backdrop-blur-sm"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setShowUnsavedDialog(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              onClick={(e) => e.stopPropagation()}
+              className="bg-white/90 backdrop-blur-xl rounded-2xl shadow-xl ring-1 ring-slate-900/10 p-6 w-full max-w-sm"
+            >
+              <div className="flex items-start gap-3">
+                <div className="p-1.5 rounded-full bg-amber-100 text-amber-600">
+                  <AlertTriangle className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-slate-900">
+                    Unsaved changes
+                  </h3>
+                  <p className="text-sm text-slate-500 mt-1">
+                    You have unsaved changes. Are you sure you want to leave?
+                  </p>
+                </div>
               </div>
+              <div className="flex justify-end gap-3 mt-6">
+                <button
+                  type="button"
+                  onClick={() => setShowUnsavedDialog(false)}
+                  className="px-4 py-2 rounded-full text-sm font-semibold text-slate-600 hover:bg-slate-100 transition-colors"
+                >
+                  Stay
+                </button>
+                <button
+                  type="button"
+                  onClick={confirmLeave}
+                  className="px-4 py-2 rounded-full text-sm font-semibold bg-rose-500 text-white hover:bg-rose-600 transition-colors"
+                >
+                  Leave
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <div className="max-w-2xl mx-auto px-4 pb-20 space-y-8">
+        {/* Header */}
+        <div className="flex flex-col gap-2 mt-6">
+          <button
+            type="button"
+            onClick={goBack}
+            className="inline-flex items-center gap-2 text-slate-500 hover:text-slate-900 transition-colors group self-start"
+            aria-label="Go back"
+          >
+            <motion.div
+              whileHover={{ x: -3 }}
+              transition={{ type: "spring", stiffness: 300 }}
+            >
+              <ArrowLeft className="w-4 h-4" />
+            </motion.div>
+            <span className="text-xs font-semibold uppercase tracking-wider">
+              Back
+            </span>
+          </button>
+          <h1 className="text-2xl font-bold text-slate-900 tracking-tight">
+            Account Settings
+          </h1>
+        </div>
+
+        {/* Main Card */}
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4 }}
+          className="bg-white/70 backdrop-blur-xl rounded-2xl ring-1 ring-slate-900/5 shadow-sm overflow-hidden"
+        >
+          <form onSubmit={handleSubmit}>
+            {/* Avatar Section */}
+            <div className="p-8 flex flex-col items-center gap-4 bg-slate-50/50 border-b border-slate-100">
+              <div className="relative group">
+                <motion.div
+                  className="w-28 h-28 rounded-full overflow-hidden ring-4 ring-white shadow-lg bg-gradient-to-br from-indigo-100 to-indigo-200 flex items-center justify-center text-indigo-700 text-4xl font-bold"
+                  key={profileImagePreview}
+                  initial={{ scale: 0.95 }}
+                  animate={{ scale: 1 }}
+                >
+                  {profileImagePreview ? (
+                    <img
+                      src={profileImagePreview}
+                      alt="Profile preview"
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    user?.fullName?.charAt(0) || "?"
+                  )}
+                </motion.div>
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  className="absolute -bottom-1 -right-1 bg-white p-2.5 rounded-xl shadow-md ring-1 ring-slate-200 text-indigo-600 hover:scale-110 transition-transform active:scale-95"
+                  aria-label="Change profile photo"
+                >
+                  <Camera className="w-5 h-5" />
+                </button>
+                <input
+                  ref={fileInputRef}
+                  id="profile-image-input"
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={handleFileChange}
+                />
+              </div>
+              <div className="text-center">
+                <p className="text-sm font-semibold text-slate-900">
+                  Profile Photo
+                </p>
+                <p className="text-xs text-slate-400 mt-0.5">
+                  Recommended: 400×400px
+                </p>
+              </div>
+            </div>
+
+            {/* Form Fields */}
+            <div className="p-8 space-y-5">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                {/* Full Name */}
+                <div className="space-y-1.5">
+                  <label
+                    htmlFor="fullName"
+                    className="text-xs font-semibold uppercase tracking-wider text-slate-400 ml-1"
+                  >
+                    Full Name
+                  </label>
+                  <div className="relative">
+                    <User className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                    <input
+                      id="fullName"
+                      type="text"
+                      name="fullName"
+                      value={formData.fullName}
+                      onChange={handleInputChange}
+                      className="w-full pl-10 pr-10 py-2.5 bg-slate-50/80 rounded-xl text-sm font-medium ring-1 ring-slate-200 focus:ring-2 focus:ring-indigo-500/20 focus:bg-white transition-all outline-none"
+                      required
+                    />
+                    {formData.fullName.trim().length > 0 && (
+                      <Check className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-green-500" />
+                    )}
+                  </div>
+                </div>
+
+                {/* Username */}
+                <div className="space-y-1.5">
+                  <label
+                    htmlFor="username"
+                    className="text-xs font-semibold uppercase tracking-wider text-slate-400 ml-1"
+                  >
+                    Handle
+                  </label>
+                  <div className="relative">
+                    <AtSign className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                    <input
+                      id="username"
+                      type="text"
+                      name="username"
+                      value={formData.username}
+                      onChange={handleInputChange}
+                      className="w-full pl-10 pr-10 py-2.5 bg-slate-50/80 rounded-xl text-sm font-medium ring-1 ring-slate-200 focus:ring-2 focus:ring-indigo-500/20 focus:bg-white transition-all outline-none"
+                      required
+                    />
+                    {formData.username.trim().length > 0 && (
+                      <Check className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-green-500" />
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Email (disabled) */}
+              <div className="space-y-1.5">
+                <label className="text-xs font-semibold uppercase tracking-wider text-slate-400 ml-1 flex items-center gap-2">
+                  Email{" "}
+                  <span className="text-[10px] bg-green-50 text-green-600 px-1.5 py-0.5 rounded-full font-semibold">
+                    Verified
+                  </span>
+                </label>
+                <div className="relative">
+                  <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-300" />
+                  <input
+                    type="email"
+                    value={formData.email}
+                    disabled
+                    className="w-full pl-10 pr-4 py-2.5 bg-slate-100 rounded-xl text-sm font-medium cursor-not-allowed opacity-60"
+                  />
+                </div>
+              </div>
+
+              {/* Phone */}
+              <div className="space-y-1.5">
+                <label
+                  htmlFor="phone"
+                  className="text-xs font-semibold uppercase tracking-wider text-slate-400 ml-1"
+                >
+                  Phone
+                </label>
+                <div className="relative">
+                  <Phone className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                  <input
+                    id="phone"
+                    type="tel"
+                    name="phone"
+                    value={formData.phone}
+                    onChange={handleInputChange}
+                    className="w-full pl-10 pr-10 py-2.5 bg-slate-50/80 rounded-xl text-sm font-medium ring-1 ring-slate-200 focus:ring-2 focus:ring-indigo-500/20 focus:bg-white transition-all outline-none"
+                  />
+                  {formData.phone.trim().length >= 10 && (
+                    <Check className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-green-500" />
+                  )}
+                </div>
+              </div>
+
+              {/* Bio */}
+              <div className="space-y-1.5">
+                <label
+                  htmlFor="bio"
+                  className="text-xs font-semibold uppercase tracking-wider text-slate-400 ml-1"
+                >
+                  Bio
+                </label>
+                <div className="relative">
+                  <FileText className="absolute left-3.5 top-3.5 w-4 h-4 text-slate-400" />
+                  <textarea
+                    id="bio"
+                    name="bio"
+                    value={formData.bio}
+                    onChange={handleInputChange}
+                    rows={4}
+                    className="w-full pl-10 pr-4 py-2.5 bg-slate-50/80 rounded-xl text-sm font-medium ring-1 ring-slate-200 focus:ring-2 focus:ring-indigo-500/20 focus:bg-white transition-all outline-none resize-none"
+                    placeholder="Share a bit about yourself..."
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="p-8 border-t border-slate-100 flex items-center justify-end gap-4">
               <button
                 type="button"
-                onClick={() => fileInputRef.current?.click()}
-                className="absolute -bottom-1 -right-1 bg-white p-2.5 rounded-xl shadow-md ring-1 ring-slate-200 text-indigo-600 hover:scale-110 transition-transform active:scale-95"
+                onClick={goBack}
+                className="px-6 py-2.5 rounded-full text-sm font-semibold text-slate-600 hover:text-slate-900 transition-colors"
               >
-                <Camera className="w-5 h-5" />
+                Cancel
               </button>
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept="image/*"
-                className="hidden"
-                onChange={handleFileChange}
-              />
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                type="submit"
+                disabled={saving}
+                className="group inline-flex items-center gap-2 px-8 py-3 rounded-full bg-gradient-to-r from-indigo-600 to-indigo-800 text-white text-sm font-semibold shadow-lg shadow-indigo-500/25 hover:shadow-xl hover:shadow-indigo-500/30 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                aria-label={saving ? "Saving changes" : "Save changes"}
+              >
+                {saving ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <Save className="w-4 h-4" />
+                )}
+                Save Changes
+              </motion.button>
             </div>
-            <div className="text-center">
-              <p className="text-sm font-semibold text-slate-900">Profile Photo</p>
-              <p className="text-xs text-slate-400 mt-0.5">
-                Recommended: 400×400px
+
+            {/* Keyboard shortcut hint */}
+            <div className="px-8 pb-4 text-right">
+              <p className="text-[10px] text-slate-400">
+                Press <kbd className="bg-slate-100 px-1 rounded">Ctrl</kbd> +{" "}
+                <kbd className="bg-slate-100 px-1 rounded">S</kbd> to save
               </p>
             </div>
-          </div>
-
-          {/* Form Fields */}
-          <div className="p-8 space-y-5">
-            {/* Full Name + Username */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-              <div className="space-y-1.5">
-                <label className="text-xs font-semibold uppercase tracking-wider text-slate-400 ml-1">
-                  Full Name
-                </label>
-                <div className="relative">
-                  <User className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                  <input
-                    type="text"
-                    name="fullName"
-                    value={formData.fullName}
-                    onChange={handleInputChange}
-                    className="w-full pl-10 pr-4 py-2.5 bg-slate-50/80 rounded-xl text-sm font-medium ring-1 ring-slate-200 focus:ring-2 focus:ring-indigo-500/20 focus:bg-white transition-all outline-none"
-                    required
-                  />
-                </div>
-              </div>
-              <div className="space-y-1.5">
-                <label className="text-xs font-semibold uppercase tracking-wider text-slate-400 ml-1">
-                  Handle
-                </label>
-                <div className="relative">
-                  <AtSign className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                  <input
-                    type="text"
-                    name="username"
-                    value={formData.username}
-                    onChange={handleInputChange}
-                    className="w-full pl-10 pr-4 py-2.5 bg-slate-50/80 rounded-xl text-sm font-medium ring-1 ring-slate-200 focus:ring-2 focus:ring-indigo-500/20 focus:bg-white transition-all outline-none"
-                    required
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* Email (read-only) */}
-            <div className="space-y-1.5">
-              <label className="text-xs font-semibold uppercase tracking-wider text-slate-400 ml-1 flex items-center gap-2">
-                Email{" "}
-                <span className="text-[10px] bg-green-50 text-green-600 px-1.5 py-0.5 rounded-full font-semibold">
-                  Verified
-                </span>
-              </label>
-              <div className="relative">
-                <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-300" />
-                <input
-                  type="email"
-                  value={formData.email}
-                  disabled
-                  className="w-full pl-10 pr-4 py-2.5 bg-slate-100 rounded-xl text-sm font-medium cursor-not-allowed opacity-60"
-                />
-              </div>
-            </div>
-
-            {/* Phone */}
-            <div className="space-y-1.5">
-              <label className="text-xs font-semibold uppercase tracking-wider text-slate-400 ml-1">
-                Phone
-              </label>
-              <div className="relative">
-                <Phone className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                <input
-                  type="tel"
-                  name="phone"
-                  value={formData.phone}
-                  onChange={handleInputChange}
-                  className="w-full pl-10 pr-4 py-2.5 bg-slate-50/80 rounded-xl text-sm font-medium ring-1 ring-slate-200 focus:ring-2 focus:ring-indigo-500/20 focus:bg-white transition-all outline-none"
-                />
-              </div>
-            </div>
-
-            {/* Bio */}
-            <div className="space-y-1.5">
-              <label className="text-xs font-semibold uppercase tracking-wider text-slate-400 ml-1">
-                Bio
-              </label>
-              <div className="relative">
-                <FileText className="absolute left-3.5 top-3.5 w-4 h-4 text-slate-400" />
-                <textarea
-                  name="bio"
-                  value={formData.bio}
-                  onChange={handleInputChange}
-                  rows={4}
-                  className="w-full pl-10 pr-4 py-2.5 bg-slate-50/80 rounded-xl text-sm font-medium ring-1 ring-slate-200 focus:ring-2 focus:ring-indigo-500/20 focus:bg-white transition-all outline-none resize-none"
-                  placeholder="Share a bit about yourself..."
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* Action Buttons */}
-          <div className="p-8 border-t border-slate-100 flex items-center justify-end gap-4">
-            <button
-              type="button"
-              onClick={() => router.back()}
-              className="px-6 py-2.5 rounded-full text-sm font-semibold text-slate-600 hover:text-slate-900 transition-colors"
-            >
-              Cancel
-            </button>
-            <motion.button
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              type="submit"
-              disabled={saving}
-              className="group inline-flex items-center gap-2 px-8 py-3 rounded-full bg-gradient-to-r from-indigo-600 to-indigo-800 text-white text-sm font-semibold shadow-lg shadow-indigo-500/25 hover:shadow-xl hover:shadow-indigo-500/30 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
-            >
-              {saving ? (
-                <Loader2 className="w-4 h-4 animate-spin" />
-              ) : (
-                <Save className="w-4 h-4" />
-              )}
-              Save Changes
-            </motion.button>
-          </div>
-        </form>
-      </motion.div>
-    </div>
+          </form>
+        </motion.div>
+      </div>
+    </>
   );
 }
