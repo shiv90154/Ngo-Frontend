@@ -18,7 +18,8 @@ const services = [
     features: ["Live Classes", "Tests", "Certs"],
     icon: GraduationCap,
     accent: "#7c3aed",
-    tag: "Learning"
+    tag: "Learning",
+    light: "#ede9fe"        // ✅ added light background
   },
   {
     title: "Finance",
@@ -27,7 +28,8 @@ const services = [
     features: ["Wallet", "Loans", "Bill Pay"],
     icon: Wallet,
     accent: "#0369a1",
-    tag: "Banking"
+    tag: "Banking",
+    light: "#e0f2fe"
   },
   {
     title: "Healthcare",
@@ -36,17 +38,19 @@ const services = [
     features: ["Consult", "Records", "Meds"],
     icon: HeartPulse,
     accent: "#be123c",
-    tag: "Wellness"
+    tag: "Wellness",
+    light: "#ffe4e6"
   },
-{
+  {
     title: "News",
     desc: "Live local news & community stories.",
     route: "news",           
     features: ["Live Feed", "Videos", "Local"],
     icon: Newspaper,
     accent: "#b45309",
-    tag: "Media"
-},
+    tag: "Media",
+    light: "#ffedd5"
+  },
   {
     title: "Agriculture",
     desc: "AI crop tips & smart market prices.",
@@ -54,7 +58,8 @@ const services = [
     features: ["Crop Tips", "Market", "AI Help"],
     icon: Sprout,
     accent: "#15803d",
-    tag: "Farming"
+    tag: "Farming",
+    light: "#dcfce7"
   },
   {
     title: "IT Services",
@@ -63,7 +68,8 @@ const services = [
     features: ["Billing", "Projects", "CRM"],
     icon: MonitorSmartphone,
     accent: "#0f766e",
-    tag: "Tech"
+    tag: "Tech",
+    light: "#ccfbf1"
   },
 ];
 
@@ -110,11 +116,11 @@ export default function Services() {
       {/* ── Sticky Header ── */}
       <div className="sticky top-0 z-50 bg-white border-b border-gray-200 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-wrap justify-between items-center gap-4  px-3 py-4">
-              <div>
-                <h1 className="text-lg md:text-xl font-bold text-[#1a237e] font-serif leading-tight">Samraddh Bharat</h1>
-                <p className="text-xs text-gray-400 hidden sm:block">डिजिटल इंडिया · Unified Service Portal</p>
-              </div>
+          <div className="flex flex-wrap justify-between items-center gap-4 px-3 py-4">
+            <div>
+              <h1 className="text-lg md:text-xl font-bold text-[#1a237e] font-serif leading-tight">Samraddh Bharat</h1>
+              <p className="text-xs text-gray-400 hidden sm:block">डिजिटल इंडिया · Unified Service Portal</p>
+            </div>
             <div className="flex items-center gap-3">
               <div className="hidden sm:flex items-center gap-2 bg-gray-50 rounded-full px-4 py-2 border border-gray-200">
                 <Shield size={14} className="text-green-600" />
@@ -158,7 +164,7 @@ export default function Services() {
                   className={`rounded-xl shadow-md border transition-all duration-300 cursor-pointer overflow-hidden hover:shadow-xl hover:-translate-y-1 ${
                     isHovered ? 'border-transparent' : 'border-gray-100'
                   }`}
-                  style={{ background: service.light }}
+                  style={{ background: service.light }}         // ✅ now uses service.light
                   onMouseEnter={() => setHoveredIndex(idx)}
                   onMouseLeave={() => setHoveredIndex(null)}
                   onClick={() => router.push(`/${service.route}`)}

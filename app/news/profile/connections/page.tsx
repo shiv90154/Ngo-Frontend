@@ -1,5 +1,6 @@
 "use client";
 
+import { Suspense } from "react";
 import { useEffect, useState, useCallback } from "react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { mediaAPI } from "@/lib/api";
@@ -25,7 +26,8 @@ interface UserConnection {
   };
 }
 
-export default function ConnectionsPage() {
+// The main component that uses useSearchParams()
+function ConnectionsContent() {
   const params = useParams();
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -207,5 +209,20 @@ export default function ConnectionsPage() {
         )}
       </div>
     </div>
+  );
+}
+
+// Default export with Suspense boundary
+export default function ConnectionsPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex justify-center items-center min-h-[400px]">
+          <Loader2 className="w-8 h-8 animate-spin text-indigo-600" />
+        </div>
+      }
+    >
+      <ConnectionsContent />
+    </Suspense>
   );
 }

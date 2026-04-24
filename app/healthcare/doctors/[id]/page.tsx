@@ -23,6 +23,10 @@ export default function DoctorProfilePage() {
   const params = useParams();
   const router = useRouter();
   const { user } = useAuth();
+  
+  // ✅ Extract doctorId safely (handle both string and string[])
+  const doctorId = Array.isArray(params.id) ? params.id[0] : params.id;
+
   const [doctor, setDoctor] = useState<any>(null);
   const [availability, setAvailability] = useState<any>(null);
   const [selectedDate, setSelectedDate] = useState<string>(
@@ -37,7 +41,7 @@ export default function DoctorProfilePage() {
 
   useEffect(() => {
     fetchDoctorDetails();
-  }, [params.id]);
+  }, [doctorId]);
 
   useEffect(() => {
     if (selectedDate && doctor) {
@@ -48,8 +52,8 @@ export default function DoctorProfilePage() {
   const fetchDoctorDetails = async () => {
     try {
       const [doctorRes, availRes] = await Promise.all([
-        healthcareAPI.getDoctorById(params.id as string),
-        healthcareAPI.getDoctorAvailability(params.id as string),
+        healthcareAPI.getDoctorById(doctorId),
+        healthcareAPI.getDoctorAvailability(doctorId),
       ]);
       setDoctor(doctorRes.data.user || doctorRes.data.doctor);
       setAvailability(availRes.data.availability);
@@ -62,7 +66,7 @@ export default function DoctorProfilePage() {
 
   const fetchAvailableSlots = async () => {
     try {
-      const res = await healthcareAPI.getAvailableSlots(params.id as string, selectedDate);
+      const res = await healthcareAPI.getAvailableSlots(doctorId, selectedDate);
       setAvailableSlots(res.data.slots);
     } catch (error) {
       console.error("Failed to fetch slots:", error);
@@ -76,9 +80,9 @@ export default function DoctorProfilePage() {
     }
     try {
       await healthcareAPI.bookAppointment({
-        doctorId: params.id,
+        doctorId: doctorId, // ✅ now guaranteed to be string
         appointmentDate: selectedDate,
-        timeSlot: selectedSlot,
+        timeSlot: selectedSlot.start, // ✅ assuming API expects start time string
         consultationType,
         symptoms,
       });
