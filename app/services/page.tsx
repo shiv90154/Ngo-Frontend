@@ -9,6 +9,7 @@ import {
   Newspaper, Sprout, MonitorSmartphone, User, LogOut,
   ChevronRight, Shield, Globe, Award
 } from 'lucide-react';
+import NotificationBell from '@/components/NotificationBell'; // 🆕 added
 
 const services = [
   {
@@ -19,7 +20,7 @@ const services = [
     icon: GraduationCap,
     accent: "#7c3aed",
     tag: "Learning",
-    light: "#ede9fe"        // ✅ added light background
+    light: "#ede9fe"
   },
   {
     title: "Finance",
@@ -44,7 +45,7 @@ const services = [
   {
     title: "News",
     desc: "Live local news & community stories.",
-    route: "news",           
+    route: "news",
     features: ["Live Feed", "Videos", "Local"],
     icon: Newspaper,
     accent: "#b45309",
@@ -121,7 +122,10 @@ export default function Services() {
               <h1 className="text-lg md:text-xl font-bold text-[#1a237e] font-serif leading-tight">Samraddh Bharat</h1>
               <p className="text-xs text-gray-400 hidden sm:block">डिजिटल इंडिया · Unified Service Portal</p>
             </div>
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 sm:gap-3">
+              {/* 🆕 NotificationBell */}
+              <NotificationBell />
+
               <div className="hidden sm:flex items-center gap-2 bg-gray-50 rounded-full px-4 py-2 border border-gray-200">
                 <Shield size={14} className="text-green-600" />
                 <span className="text-sm font-medium text-gray-700">{user.fullName || user.email}</span>
@@ -164,7 +168,7 @@ export default function Services() {
                   className={`rounded-xl shadow-md border transition-all duration-300 cursor-pointer overflow-hidden hover:shadow-xl hover:-translate-y-1 ${
                     isHovered ? 'border-transparent' : 'border-gray-100'
                   }`}
-                  style={{ background: service.light }}         // ✅ now uses service.light
+                  style={{ background: service.light }}
                   onMouseEnter={() => setHoveredIndex(idx)}
                   onMouseLeave={() => setHoveredIndex(null)}
                   onClick={() => router.push(`/${service.route}`)}

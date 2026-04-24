@@ -1,15 +1,24 @@
-import { Metadata } from "next";
+"use client";
+import { useAuth } from "@/contexts/AuthContext";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 import AdminNavbar from "@/components/admin/AdminNavbar";
 import AdminSidebar from "@/components/admin/AdminSidebar";
-import { redirect } from "next/navigation";
-import { cookies } from "next/headers"; // only if using cookie-based auth
-
-export const metadata: Metadata = {
-  title: "Admin Panel | Samraddh Bharat",
-  description: "System administration",
-};
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
+  const { isAdmin, loading } = useAuth();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!loading && !isAdmin) {
+      router.replace("/services");
+    }
+  }, [loading, isAdmin, router]);
+
+  if (loading || !isAdmin) {
+    return <div className="p-8 text-center">Checking permissions...</div>;
+  }
+
   return (
     <div className="min-h-screen bg-gray-100">
       <AdminNavbar />

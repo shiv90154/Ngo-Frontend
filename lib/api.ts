@@ -259,7 +259,7 @@ export const itAPI = {
 };
 
 // ======================
-// ADMIN API (🆕 extended with hierarchy)
+// ADMIN API (full version)
 // ======================
 export const adminAPI = {
   // Dashboard stats
@@ -277,6 +277,24 @@ export const adminAPI = {
   getHierarchy: () => api.get("/admin/hierarchy"),
   getSubordinates: (userId?: string) =>
     api.get(userId ? `/admin/subordinates/${userId}` : "/admin/subordinates"),
+
+  // 🆕 System Settings
+  getSettings: () => api.get("/admin/settings"),
+  updateSettings: (data: any) => api.put("/admin/settings", data),
+
+  // 🆕 Activity Logs
+  getLogs: (params?: { page?: number; limit?: number; action?: string; userId?: string }) =>
+    api.get("/admin/logs", { params }),
+
+  // 🆕 Module Oversight (for dashboard cards)
+  getModuleData: (module: string) => api.get(`/admin/module/${module}`),
+
+  // 🆕 Global Notifications
+  sendGlobalNotification: (title: string, message: string) =>
+    api.post("/admin/notifications/send", { title, message }),
+
+  // 🆕 CSV Export
+  exportUsersCSV: () => api.get("/admin/users/export/csv", { responseType: "blob" }),
 };
 
 // ======================
