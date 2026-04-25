@@ -9,24 +9,26 @@ import Link from "next/link";
 import { toast } from "react-toastify";
 import { Newspaper, Sparkles, UserPlus } from "lucide-react";
 
-// --- Types ---
+// ---------- Types ----------
 interface Post {
   _id: string;
-  title: string;
   content: string;
-  media?: string[];
-  likes: number;
-  comments: number;
+  tags?: string[];
+  location?: string;
+  media?: { url: string; type: "image" | "video" }[];
+  likesCount: number;
+  commentsCount: number;
+  isLiked: boolean;
   author: {
     _id: string;
-    name: string;
-    avatar?: string;
+    fullName: string;
+    profileImage?: string;
   };
   createdAt: string;
   updatedAt: string;
 }
 
-// --- Reusable components ---
+// ---------- Skeleton ----------
 const SkeletonCard = () => (
   <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 ring-1 ring-slate-900/5 shadow-sm animate-pulse">
     <div className="flex items-center gap-3 mb-4">
@@ -44,6 +46,7 @@ const SkeletonCard = () => (
   </div>
 );
 
+// ---------- Empty feed state ----------
 const EmptyFeed = () => (
   <div className="relative bg-white/60 backdrop-blur-sm rounded-3xl p-12 text-center ring-1 ring-slate-900/5 shadow-sm overflow-hidden">
     <div className="absolute inset-0 bg-gradient-to-br from-indigo-50/30 to-white/80" />
@@ -69,6 +72,7 @@ const EmptyFeed = () => (
   </div>
 );
 
+// ---------- Creator onboarding ----------
 const CreatorOnboarding = ({ onBecomeCreator }: { onBecomeCreator: () => void }) => (
   <div className="relative bg-white/70 backdrop-blur-md rounded-3xl p-10 text-center ring-1 ring-slate-900/5 shadow-xl shadow-indigo-500/5 overflow-hidden mt-8">
     <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/5 to-amber-300/5" />
@@ -88,6 +92,7 @@ const CreatorOnboarding = ({ onBecomeCreator }: { onBecomeCreator: () => void })
         className="group relative inline-flex items-center gap-2 bg-gradient-to-r from-indigo-600 to-indigo-800 text-white px-8 py-3 rounded-full font-medium 
                    shadow-lg shadow-indigo-500/25 transition-all duration-200 hover:shadow-xl hover:shadow-indigo-500/40 
                    hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400"
+        aria-label="Become a media creator"
       >
         <UserPlus className="w-4 h-4 transition-transform group-hover:scale-110" />
         Start Creating Now
@@ -96,7 +101,7 @@ const CreatorOnboarding = ({ onBecomeCreator }: { onBecomeCreator: () => void })
   </div>
 );
 
-// --- Main Page Component ---
+// ---------- Main Feed Page ----------
 export default function NewsFeedPage() {
   const { user } = useAuth();
   const [posts, setPosts] = useState<Post[]>([]);
@@ -122,7 +127,12 @@ export default function NewsFeedPage() {
     [loading, hasMore]
   );
 
-  // Check if user is a creator
+  // Cleanup observer
+  useEffect(() => {
+    return () => observer.current?.disconnect();
+  }, []);
+
+  // Check if user is creator
   useEffect(() => {
     if (user?.mediaCreatorProfile?.isCreator !== undefined) {
       setIsCreator(user.mediaCreatorProfile.isCreator);
@@ -132,13 +142,10 @@ export default function NewsFeedPage() {
   // Initial fetch
   useEffect(() => {
     fetchFeed(1);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Fetch next page when `page` changes
   useEffect(() => {
     if (page > 1) fetchFeed(page);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [page]);
 
   const fetchFeed = async (pageNum: number) => {
@@ -182,14 +189,13 @@ export default function NewsFeedPage() {
     }
   };
 
-  // Not a creator – show onboarding
   if (!isCreator && !loading) {
     return <CreatorOnboarding onBecomeCreator={handleBecomeCreator} />;
   }
 
   return (
     <div className="space-y-6 sm:space-y-8">
-      {/* Stories Row (unchanged, but respecting spacing) */}
+      {/* Stories row */}
       <StoryRow />
 
       {/* First load skeleton */}
@@ -204,9 +210,10 @@ export default function NewsFeedPage() {
       {/* Empty state */}
       {!loading && posts.length === 0 && <EmptyFeed />}
 
-      {/* Post feed with fade-in animation */}
+      {/* Post feed */}
       {posts.length > 0 && (
-        <div className="space-y-5 sm:space-y-6">
+        <div role="feed" aria-label="News feed" className="space-y-5 sm:space-y-6">
+          <h2 className="sr-only">Latest posts</h2>
           {posts.map((post, index) => {
             const isLast = index === posts.length - 1;
             return (
@@ -227,12 +234,22 @@ export default function NewsFeedPage() {
         </div>
       )}
 
-      {/* Loading more indicator (bottom) */}
+      {/* Loading more skeleton */}
       {loading && posts.length > 0 && (
-        <div className="space-y-4 pt-2">
+        <div className="space-y-4 pt-2" aria-label="Loading more posts">
           {[...Array(2)].map((_, i) => (
             <SkeletonCard key={`loading-more-${i}`} />
           ))}
+        </div>
+      )}
+
+      {/* End marker */}
+      {!hasMore && posts.length > 0 && !loading && (
+        <div className="text-center py-10">
+          <div className="h-px bg-slate-200/60 w-full mb-6" />
+          <p className="text-sm font-medium text-slate-400">
+            You’ve reached the end of the feed ✨
+          </p>
         </div>
       )}
     </div>

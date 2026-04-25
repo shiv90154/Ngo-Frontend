@@ -2,15 +2,17 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { Settings, MapPin, Calendar } from "lucide-react";
 import FollowButton from "./FollowButton";
 import { motion } from "framer-motion";
+import { getMediaUrl } from "@/utils/mediaUrl";
 
 interface UserProfile {
   _id: string;
   fullName?: string;
   email?: string;
-  profileImage?: string;                 // ✅ added
+  profileImage?: string;
   socialProfile?: { username?: string };
   mediaCreatorProfile?: {
     bio?: string;
@@ -27,13 +29,6 @@ interface ProfileHeaderProps {
   isOwnProfile: boolean;
   postsCount: number;
 }
-
-const BASE_URL = "http://localhost:5000";   // or process.env.NEXT_PUBLIC_API_URL
-
-const getMediaUrl = (url: string) => {
-  if (!url) return "";
-  return url.startsWith("http") ? url : `${BASE_URL}${url}`;
-};
 
 export default function ProfileHeader({ user, isOwnProfile, postsCount }: ProfileHeaderProps) {
   const username = user?.socialProfile?.username || user?.email?.split("@")[0] || "user";
@@ -52,18 +47,24 @@ export default function ProfileHeader({ user, isOwnProfile, postsCount }: Profil
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 -mt-12">
           <div className="flex items-end gap-5">
             <motion.div whileHover={{ scale: 1.03 }} className="relative shrink-0">
-              <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-full ring-4 ring-white shadow-lg bg-gradient-to-br from-indigo-100 to-indigo-200 flex items-center justify-center text-indigo-700 text-3xl sm:text-4xl font-bold overflow-hidden">
+              <div
+                className="w-24 h-24 sm:w-28 sm:h-28 rounded-full ring-4 ring-white shadow-lg bg-gradient-to-br from-indigo-100 to-indigo-200 flex items-center justify-center text-indigo-700 text-3xl sm:text-4xl font-bold overflow-hidden"
+                aria-label={`${user.fullName || "User"}'s avatar`}
+              >
                 {user.profileImage ? (
-                  <img
+                  <Image
                     src={getMediaUrl(user.profileImage)}
-                    alt=""
-                    className="w-full h-full object-cover"
+                    alt={`${user.fullName || "User"}'s avatar`}
+                    width={112}
+                    height={112}
+                    className="object-cover"
+                    unoptimized
                   />
                 ) : (
                   user.fullName?.charAt(0) || "U"
                 )}
               </div>
-              <div className="absolute inset-0 rounded-full ring-1 ring-slate-900/5" />
+              <div className="absolute inset-0 rounded-full ring-1 ring-slate-900/5 pointer-events-none" />
             </motion.div>
 
             <div className="mb-1.5">
@@ -99,6 +100,7 @@ export default function ProfileHeader({ user, isOwnProfile, postsCount }: Profil
                 href="/news/settings"
                 className="inline-flex items-center gap-2 px-5 py-2 rounded-full text-sm font-semibold bg-white ring-1 ring-slate-200 text-slate-700 
                          hover:ring-slate-300 hover:bg-slate-50 transition-all"
+                aria-label="Edit your profile"
               >
                 <Settings className="w-4 h-4" />
                 Edit Profile
@@ -110,12 +112,24 @@ export default function ProfileHeader({ user, isOwnProfile, postsCount }: Profil
         </div>
 
         <div className="flex gap-8 mt-6 pt-5 border-t border-slate-100 text-sm">
-          <Link href={`/news/followers/${user._id}`} className="hover:text-indigo-700 transition-colors group">
-            <span className="font-bold text-slate-800">{user.mediaCreatorProfile?.totalFollowers || 0}</span>
+          <Link
+            href={`/news/followers/${user._id}`}
+            className="hover:text-indigo-700 transition-colors group"
+            aria-label={`${user.mediaCreatorProfile?.totalFollowers || 0} followers`}
+          >
+            <span className="font-bold text-slate-800">
+              {user.mediaCreatorProfile?.totalFollowers || 0}
+            </span>
             <span className="text-slate-500 ml-1.5 group-hover:text-indigo-600">followers</span>
           </Link>
-          <Link href={`/news/following/${user._id}`} className="hover:text-indigo-700 transition-colors group">
-            <span className="font-bold text-slate-800">{user.mediaCreatorProfile?.totalFollowing || 0}</span>
+          <Link
+            href={`/news/following/${user._id}`}
+            className="hover:text-indigo-700 transition-colors group"
+            aria-label={`${user.mediaCreatorProfile?.totalFollowing || 0} following`}
+          >
+            <span className="font-bold text-slate-800">
+              {user.mediaCreatorProfile?.totalFollowing || 0}
+            </span>
             <span className="text-slate-500 ml-1.5 group-hover:text-indigo-600">following</span>
           </Link>
           <div>

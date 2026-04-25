@@ -1,4 +1,3 @@
-// components/news/FollowButton.tsx
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
@@ -22,7 +21,6 @@ export default function FollowButton({
   const [loading, setLoading] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
 
-  // Verify initial follow status if not provided
   useEffect(() => {
     if (initialIsFollowing !== undefined) return;
     let cancelled = false;
@@ -44,7 +42,7 @@ export default function FollowButton({
 
   const handleToggle = useCallback(
     async (e: React.MouseEvent) => {
-      e.preventDefault(); // Prevent navigation if inside a link
+      e.preventDefault();
       setLoading(true);
 
       try {
@@ -65,21 +63,31 @@ export default function FollowButton({
     [isFollowing, userId]
   );
 
-  // Size mapping for consistent spacing
   const sizeClasses: Record<NonNullable<FollowButtonProps["size"]>, string> = {
     sm: "px-4 py-1.5 text-xs",
     md: "px-5 py-2 text-sm",
     lg: "px-7 py-2.5 text-[15px]",
   };
 
+  // Determine accessible label
+  const ariaLabel = loading
+    ? "Loading"
+    : isFollowing
+    ? isHovered
+      ? "Unfollow"
+      : "Following"
+    : "Follow";
+
   return (
     <motion.button
+      type="button"
       whileTap={{ scale: 0.97 }}
       whileHover={{ scale: 1.02 }}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       onClick={handleToggle}
       disabled={loading}
+      aria-label={ariaLabel}
       className={`
         relative inline-flex items-center justify-center gap-2 rounded-full font-semibold
         transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400

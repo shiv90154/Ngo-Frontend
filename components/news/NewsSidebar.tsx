@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { Home, Search, User, TrendingUp, PlusCircle, Bell } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
@@ -8,11 +9,12 @@ import { useEffect, useState, useMemo } from "react";
 import { mediaAPI, notificationAPI } from "@/lib/api";
 import { motion } from "framer-motion";
 import FollowButton from "./FollowButton";
+import { getMediaUrl } from "@/utils/mediaUrl";
 
 interface Creator {
   _id: string;
   fullName?: string;
-  profileImage?: string; // ✅ added
+  profileImage?: string;
   mediaCreatorProfile?: {
     totalFollowers?: number;
     totalFollowing?: number;
@@ -25,12 +27,6 @@ interface NavLink {
   icon: React.ElementType;
   badge?: number;
 }
-
-const BASE_URL = "http://localhost:5000"; // or process.env.NEXT_PUBLIC_API_URL
-const getMediaUrl = (url: string) => {
-  if (!url) return "";
-  return url.startsWith("http") ? url : `${BASE_URL}${url}`;
-};
 
 export default function NewsSidebar() {
   const pathname = usePathname();
@@ -116,16 +112,20 @@ export default function NewsSidebar() {
       <Link
         href={`/news/profile/${user?._id}`}
         className="flex items-center gap-3 p-4 mb-6 bg-white/70 backdrop-blur-sm rounded-2xl ring-1 ring-slate-900/5 shadow-sm hover:shadow-md hover:ring-slate-900/10 transition-all duration-200 group"
+        aria-label={`View my profile – ${user?.fullName}`}
       >
         <div className="w-12 h-12 rounded-full bg-gradient-to-br from-indigo-100 to-indigo-200 flex items-center justify-center text-indigo-700 font-bold text-lg ring-1 ring-indigo-300 shrink-0 overflow-hidden group-hover:scale-105 transition-transform">
           {user?.profileImage ? (
-            <img
+            <Image
               src={getMediaUrl(user.profileImage)}
-              alt=""
-              className="w-full h-full object-cover"
+              alt={user?.fullName || "My avatar"}
+              width={48}
+              height={48}
+              className="object-cover"
+              unoptimized
             />
           ) : (
-            (user?.fullName?.charAt(0) || "U")
+            user?.fullName?.charAt(0) || "U"
           )}
         </div>
         <div className="flex-1 min-w-0">
@@ -167,6 +167,7 @@ export default function NewsSidebar() {
                   ? "bg-gradient-to-r from-indigo-600 to-indigo-800 text-white shadow-md shadow-indigo-500/20"
                   : "text-slate-600 hover:bg-slate-200/60 hover:text-slate-900"
               }`}
+              aria-current={active ? "page" : undefined}
             >
               <Icon className={`w-5 h-5 ${active ? "text-indigo-100" : "text-slate-400"}`} />
               <span>{link.name}</span>
@@ -206,13 +207,17 @@ export default function NewsSidebar() {
                 <Link
                   href={`/news/profile/${creator._id}`}
                   className="flex items-center gap-3 flex-1 min-w-0"
+                  aria-label={`View ${creator.fullName}'s profile`}
                 >
                   <div className="w-9 h-9 rounded-full bg-slate-100 flex items-center justify-center text-slate-600 font-bold text-sm shrink-0 ring-1 ring-slate-200 group-hover:ring-indigo-200 transition-all overflow-hidden">
                     {creator.profileImage ? (
-                      <img
+                      <Image
                         src={getMediaUrl(creator.profileImage)}
-                        alt=""
-                        className="w-full h-full object-cover"
+                        alt={creator.fullName || "Creator"}
+                        width={36}
+                        height={36}
+                        className="object-cover"
+                        unoptimized
                       />
                     ) : (
                       creator.fullName?.charAt(0)

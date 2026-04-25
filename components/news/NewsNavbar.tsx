@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import {
   Newspaper,
@@ -11,18 +12,12 @@ import {
   Bell,
   Settings,
 } from "lucide-react";
-import { useState, useEffect, useMemo, useCallback } from "react";
+import { useState, useEffect, useMemo, useCallback, useRef } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { notificationAPI } from "@/lib/api";
 import { motion, AnimatePresence } from "framer-motion";
 import LogoutButton from "@/components/LogoutButton";
-
-// ---------- Helper ----------
-const BASE_URL = "http://localhost:5000"; // or process.env.NEXT_PUBLIC_API_URL
-const getMediaUrl = (url: string) => {
-  if (!url) return "";
-  return url.startsWith("http") ? url : `${BASE_URL}${url}`;
-};
+import { getMediaUrl } from "@/utils/mediaUrl";   // ✅ shared
 
 interface NavItem {
   name: string;
@@ -37,7 +32,10 @@ export default function NewsNavbar() {
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
+  const menuRef = useRef<HTMLDivElement>(null);
+  const triggerRef = useRef<HTMLButtonElement>(null);
 
+  // ----- notification polling -----
   const fetchUnreadCount = useCallback(async () => {
     if (!user) return;
     try {
@@ -62,6 +60,36 @@ export default function NewsNavbar() {
     return () => clearInterval(interval);
   }, [mounted, fetchUnreadCount]);
 
+  // ----- keyboard & click‑outside handling -----
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setShowUserMenu(false);
+        triggerRef.current?.focus();
+      }
+    };
+
+    const handleClickOutside = (e: MouseEvent) => {
+      if (
+        showUserMenu &&
+        menuRef.current &&
+        !menuRef.current.contains(e.target as Node) &&
+        triggerRef.current &&
+        !triggerRef.current.contains(e.target as Node)
+      ) {
+        setShowUserMenu(false);
+      }
+    };
+
+    document.addEventListener("keydown", handleKeyDown);
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [showUserMenu]);
+
+  // ----- navigation items -----
   const navItems = useMemo<NavItem[]>(() => {
     const base: NavItem[] = [
       { name: "Home", href: "/news", icon: Home },
@@ -85,6 +113,7 @@ export default function NewsNavbar() {
     [pathname]
   );
 
+  // ----- no hydration mismatch -----
   if (!mounted) {
     return (
       <header className="hidden lg:block sticky top-0 z-50 bg-white/70 backdrop-blur-xl border-b border-slate-200/60 h-16" />
@@ -102,7 +131,7 @@ export default function NewsNavbar() {
         <div className="max-w-7xl mx-auto px-6">
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
-            <Link href="/news" className="flex items-center gap-3 group">
+            <Link href="/news" className="flex items-center gap-3 group" aria-label="Samraddh News home">
               <div className="flex flex-col">
                 <span className="text-xl font-black tracking-tight bg-gradient-to-r from-indigo-800 to-indigo-600 bg-clip-text text-transparent">
                   Samraddh
@@ -116,18 +145,25 @@ export default function NewsNavbar() {
             {/* Right side – user menu */}
             <div className="relative">
               <button
-                onClick={() => setShowUserMenu(!showUserMenu)}
+                ref={triggerRef}
+                onClick={() => setShowUserMenu((prev) => !prev)}
                 className="flex items-center gap-2.5 py-1.5 pl-3 pr-1.5 rounded-full hover:bg-slate-100/70 ring-1 ring-transparent hover:ring-slate-200/80 transition-all duration-200"
+                aria-expanded={showUserMenu}
+                aria-haspopup="true"
+                aria-label="User menu"
               >
                 <span className="text-sm font-medium text-slate-700">
                   {userFullName}
                 </span>
                 <div className="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-600 to-indigo-800 text-white flex items-center justify-center text-sm font-bold shadow-sm ring-1 ring-white/20 overflow-hidden">
                   {user?.profileImage ? (
-                    <img
+                    <Image
                       src={getMediaUrl(user.profileImage)}
-                      alt=""
-                      className="w-full h-full object-cover"
+                      alt={`${userFullName}'s avatar`}
+                      width={32}
+                      height={32}
+                      className="object-cover"
+                      unoptimized
                     />
                   ) : (
                     userInitial
@@ -138,24 +174,25 @@ export default function NewsNavbar() {
               <AnimatePresence>
                 {showUserMenu && (
                   <motion.div
+                    ref={menuRef}
                     initial={{ opacity: 0, y: 10, scale: 0.96 }}
                     animate={{ opacity: 1, y: 0, scale: 1 }}
                     exit={{ opacity: 0, y: 10, scale: 0.96 }}
                     transition={{ duration: 0.15, ease: "easeOut" }}
                     className="absolute right-0 mt-3 w-64 bg-white/90 backdrop-blur-xl rounded-2xl shadow-xl shadow-slate-200/50 ring-1 ring-slate-900/5 py-2 z-50 overflow-hidden"
+                    role="menu"
                   >
-                    {/* User info */}
                     <div className="px-5 py-4 border-b border-slate-100 bg-slate-50/50">
                       <p className="font-semibold text-slate-900">{userFullName}</p>
                       <p className="text-xs text-slate-500 truncate mt-0.5">{userEmail}</p>
                     </div>
 
-                    {/* Links */}
                     <div className="py-2">
                       <Link
                         href={`/news/profile/${user?._id}`}
                         className="flex items-center gap-3 px-5 py-2.5 text-sm text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition-colors"
                         onClick={() => setShowUserMenu(false)}
+                        role="menuitem"
                       >
                         <User className="w-4 h-4 text-slate-400" /> My Profile
                       </Link>
@@ -163,6 +200,7 @@ export default function NewsNavbar() {
                         href="/news/settings"
                         className="flex items-center gap-3 px-5 py-2.5 text-sm text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition-colors"
                         onClick={() => setShowUserMenu(false)}
+                        role="menuitem"
                       >
                         <Settings className="w-4 h-4 text-slate-400" /> Settings
                       </Link>
@@ -170,12 +208,12 @@ export default function NewsNavbar() {
                         href="/services"
                         className="flex items-center gap-3 px-5 py-2.5 text-sm text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition-colors"
                         onClick={() => setShowUserMenu(false)}
+                        role="menuitem"
                       >
                         <Newspaper className="w-4 h-4 text-slate-400" /> All Services
                       </Link>
                     </div>
 
-                    {/* Logout */}
                     <div className="border-t border-slate-100 pt-1">
                       <LogoutButton />
                     </div>
@@ -187,7 +225,7 @@ export default function NewsNavbar() {
         </div>
       </header>
 
-      {/* Mobile Bottom Navigation (unchanged, no avatar needed) */}
+      {/* Mobile Bottom Navigation */}
       <nav className="lg:hidden fixed bottom-0 left-0 right-0 bg-white/80 backdrop-blur-xl border-t border-slate-200/70 z-50 pb-safe shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.03)]">
         <div className="flex items-center justify-around py-2">
           {navItems.map((item) => {
@@ -200,6 +238,7 @@ export default function NewsNavbar() {
                 className={`relative flex flex-col items-center px-4 py-2 rounded-xl transition-colors duration-200 ${
                   active ? "text-indigo-600" : "text-slate-500 hover:text-slate-800"
                 }`}
+                aria-label={`${item.name}${item.badge ? ` (${item.badge} unread)` : ""}`}
               >
                 <div className="relative">
                   <Icon

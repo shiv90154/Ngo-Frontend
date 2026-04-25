@@ -1,19 +1,22 @@
 "use client";
 
+import { Suspense } from "react";
 import { useEffect, useState, useCallback } from "react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { mediaAPI } from "@/lib/api";
 import { ArrowLeft, Search, Loader2 } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 import FollowButton from "@/components/news/FollowButton";
 import { motion, AnimatePresence } from "framer-motion";
+import { getMediaUrl } from "@/utils/mediaUrl";
 
 type ConnectionType = "followers" | "following";
 
 interface UserConnection {
   _id: string;
   fullName?: string;
-  profileImage?: string;          // ✅ changed from avatar
+  profileImage?: string;
   socialProfile?: {
     username?: string;
   };
@@ -23,13 +26,8 @@ interface UserConnection {
   };
 }
 
-const BASE_URL = "http://localhost:5000"; // or process.env.NEXT_PUBLIC_API_URL
-const getMediaUrl = (url: string) => {
-  if (!url) return "";
-  return url.startsWith("http") ? url : `${BASE_URL}${url}`;
-};
-
-export default function ConnectionsPage() {
+// The main component that uses useSearchParams()
+function ConnectionsContent() {
   const params = useParams();
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -76,6 +74,7 @@ export default function ConnectionsPage() {
           whileTap={{ scale: 0.95 }}
           onClick={() => router.back()}
           className="p-2 rounded-xl hover:bg-slate-100/70 backdrop-blur-sm transition-colors"
+          aria-label="Go back"
         >
           <ArrowLeft className="w-5 h-5 text-slate-600" />
         </motion.button>
@@ -95,6 +94,7 @@ export default function ConnectionsPage() {
                 ? "text-white"
                 : "text-slate-500 hover:text-slate-800"
             }`}
+            aria-pressed={activeTab === tab}
           >
             {activeTab === tab && (
               <motion.div
@@ -111,7 +111,11 @@ export default function ConnectionsPage() {
       {/* Search Input */}
       <div className="relative">
         <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+        <label htmlFor="connections-search" className="sr-only">
+          Search {activeTab}
+        </label>
         <input
+          id="connections-search"
           type="text"
           placeholder={`Search ${activeTab}...`}
           value={searchQuery}
@@ -146,14 +150,18 @@ export default function ConnectionsPage() {
                     <Link
                       href={`/news/profile/${user._id}`}
                       className="flex items-center gap-4 flex-1 min-w-0 group"
+                      aria-label={`View profile of ${user.fullName}`}
                     >
                       {/* Avatar with image or fallback */}
                       <div className="w-11 h-11 rounded-full bg-gradient-to-br from-indigo-100 to-indigo-200 flex items-center justify-center text-indigo-700 font-bold text-sm shrink-0 ring-1 ring-indigo-300/60 overflow-hidden">
                         {user.profileImage ? (
-                          <img
+                          <Image
                             src={getMediaUrl(user.profileImage)}
-                            alt=""
-                            className="w-full h-full object-cover"
+                            alt={user.fullName || "User avatar"}
+                            width={44}
+                            height={44}
+                            className="object-cover"
+                            unoptimized
                           />
                         ) : (
                           user.fullName?.charAt(0) || "?"
@@ -192,7 +200,7 @@ export default function ConnectionsPage() {
                   <p className="text-xs text-slate-400 mt-1">
                     {searchQuery
                       ? "Try a different search term"
-                      : "When people follow this user, they’ll appear here."}
+                      : "When people follow this user, they'll appear here."}
                   </p>
                 </motion.div>
               )}
@@ -201,5 +209,20 @@ export default function ConnectionsPage() {
         )}
       </div>
     </div>
+  );
+}
+
+// Default export with Suspense boundary
+export default function ConnectionsPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex justify-center items-center min-h-[400px]">
+          <Loader2 className="w-8 h-8 animate-spin text-indigo-600" />
+        </div>
+      }
+    >
+      <ConnectionsContent />
+    </Suspense>
   );
 }

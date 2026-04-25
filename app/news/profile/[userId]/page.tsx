@@ -9,12 +9,14 @@ import ProfileHeader from "@/components/news/ProfileHeader";
 import { Loader2, ImageIcon, FileText, Camera } from "lucide-react";
 import { toast } from "react-toastify";
 import { motion, AnimatePresence } from "framer-motion";
+import Image from "next/image";
+import { getMediaUrl } from "@/utils/mediaUrl";
 
 interface UserProfile {
   _id: string;
   fullName?: string;
   email?: string;
-  profileImage?: string;                 // ✅ added
+  profileImage?: string;
   socialProfile?: { username?: string };
   mediaCreatorProfile?: {
     bio?: string;
@@ -31,14 +33,7 @@ interface Post {
   _id: string;
   author: UserProfile;
   media?: { url: string }[];
-  // ...other fields
 }
-
-const BASE_URL = "http://localhost:5000"; // or process.env.NEXT_PUBLIC_API_URL
-const getMediaUrl = (url: string) => {
-  if (!url) return "";
-  return url.startsWith("http") ? url : `${BASE_URL}${url}`;
-};
 
 export default function ProfilePage() {
   const params = useParams();
@@ -116,7 +111,7 @@ export default function ProfilePage() {
 
   const mediaPosts = posts.filter((p) => p.media?.length > 0);
 
-  // --- Premium Loading Skeleton ---
+  // Loading skeleton
   if (loading) {
     return (
       <div className="max-w-3xl mx-auto py-10 px-4 space-y-8">
@@ -137,12 +132,10 @@ export default function ProfilePage() {
             </div>
           </div>
         </div>
-
         <div className="flex bg-white p-1.5 rounded-2xl ring-1 ring-slate-900/5 max-w-sm mx-auto">
           <div className="flex-1 h-9 bg-slate-100 rounded-xl" />
           <div className="flex-1 h-9 bg-slate-50 rounded-xl" />
         </div>
-
         <div className="space-y-4">
           {[...Array(2)].map((_, i) => (
             <div
@@ -173,6 +166,7 @@ export default function ProfilePage() {
             className={`relative flex-1 flex items-center justify-center gap-2 py-2.5 text-xs font-semibold uppercase tracking-wide rounded-xl transition-colors duration-200 ${
               activeTab === "posts" ? "text-white" : "text-slate-500 hover:text-slate-800"
             }`}
+            aria-pressed={activeTab === "posts"}
           >
             {activeTab === "posts" && (
               <motion.div
@@ -192,6 +186,7 @@ export default function ProfilePage() {
             className={`relative flex-1 flex items-center justify-center gap-2 py-2.5 text-xs font-semibold uppercase tracking-wide rounded-xl transition-colors duration-200 ${
               activeTab === "media" ? "text-white" : "text-slate-500 hover:text-slate-800"
             }`}
+            aria-pressed={activeTab === "media"}
           >
             {activeTab === "media" && (
               <motion.div
@@ -254,11 +249,14 @@ export default function ProfilePage() {
                       whileTap={{ scale: 0.98 }}
                       onClick={() => setActiveTab("posts")}
                       className="relative aspect-square rounded-2xl overflow-hidden ring-1 ring-slate-200/70 shadow-sm group"
+                      aria-label="View post"
                     >
-                      <img
-                        src={getMediaUrl(post.media[0].url)}   // ✅ fixed
+                      <Image
+                        src={getMediaUrl(post.media[0].url)}
                         alt=""
-                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                        fill
+                        className="object-cover transition-transform duration-500 group-hover:scale-105"
+                        unoptimized
                       />
                       <div className="absolute inset-0 bg-black/10 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                         <ImageIcon className="text-white w-6 h-6 drop-shadow" />

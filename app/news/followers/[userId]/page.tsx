@@ -4,22 +4,17 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { mediaAPI } from "@/lib/api";
 import Link from "next/link";
+import Image from "next/image";
 import { Loader2, Users, ChevronLeft, Search } from "lucide-react";
 import FollowButton from "@/components/news/FollowButton";
 import { motion, AnimatePresence } from "framer-motion";
-
-// ---------- Helpers ----------
-const BASE_URL = "http://localhost:5000"; // or process.env.NEXT_PUBLIC_API_URL
-const getMediaUrl = (url: string) => {
-  if (!url) return "";
-  return url.startsWith("http") ? url : `${BASE_URL}${url}`;
-};
+import { getMediaUrl } from "@/utils/mediaUrl";
 
 // ---------- Types ----------
 interface FollowerUser {
   _id: string;
   fullName?: string;
-  profileImage?: string;                 // ✅ renamed from avatar
+  profileImage?: string;
   mediaCreatorProfile?: {
     totalFollowers?: number;
     totalFollowing?: number;
@@ -93,6 +88,7 @@ export default function FollowersPage() {
           whileTap={{ scale: 0.95 }}
           onClick={() => router.back()}
           className="p-2 rounded-xl hover:bg-slate-100/70 transition-colors"
+          aria-label="Go back"
         >
           <ChevronLeft className="w-5 h-5 text-slate-600" />
         </motion.button>
@@ -119,7 +115,7 @@ export default function FollowersPage() {
               No followers yet
             </h3>
             <p className="text-sm text-slate-500 max-w-xs mx-auto">
-              When people follow this creator, they’ll appear here.
+              When people follow this creator, they'll appear here.
             </p>
           </motion.div>
         ) : (
@@ -136,13 +132,17 @@ export default function FollowersPage() {
                   <Link
                     href={`/news/profile/${user._id}`}
                     className="flex items-center gap-4 flex-1 min-w-0"
+                    aria-label={`View profile of ${user.fullName}`}
                   >
                     <div className="w-11 h-11 rounded-full bg-gradient-to-br from-indigo-100 to-indigo-200 flex items-center justify-center text-indigo-700 font-bold text-sm ring-1 ring-indigo-300/60 overflow-hidden shrink-0">
                       {user.profileImage ? (
-                        <img
-                          src={getMediaUrl(user.profileImage)}   // ✅ FIXED
-                          alt=""
-                          className="w-full h-full object-cover"
+                        <Image
+                          src={getMediaUrl(user.profileImage)}
+                          alt={user.fullName || "User"}
+                          width={44}
+                          height={44}
+                          className="object-cover"
+                          unoptimized
                         />
                       ) : (
                         user.fullName?.charAt(0) || "?"
@@ -205,6 +205,7 @@ export default function FollowersPage() {
         <Link
           href="/news/search"
           className="p-2.5 bg-white rounded-xl shadow-sm text-indigo-700 hover:bg-indigo-600 hover:text-white transition-all active:scale-95"
+          aria-label="Search creators"
         >
           <Search className="w-5 h-5" />
         </Link>

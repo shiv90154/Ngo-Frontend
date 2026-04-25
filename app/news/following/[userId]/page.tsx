@@ -4,22 +4,17 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { mediaAPI } from "@/lib/api";
 import Link from "next/link";
+import Image from "next/image";
 import { Loader2, UserPlus, ChevronLeft, Compass } from "lucide-react";
 import FollowButton from "@/components/news/FollowButton";
 import { motion, AnimatePresence } from "framer-motion";
-
-// ---------- Helpers ----------
-const BASE_URL = "http://localhost:5000"; // or process.env.NEXT_PUBLIC_API_URL
-const getMediaUrl = (url: string) => {
-  if (!url) return "";
-  return url.startsWith("http") ? url : `${BASE_URL}${url}`;
-};
+import { getMediaUrl } from "@/utils/mediaUrl";
 
 // ---------- Types ----------
 interface FollowingUser {
   _id: string;
   fullName?: string;
-  profileImage?: string;                 // ✅ renamed from avatar
+  profileImage?: string;
   mediaCreatorProfile?: {
     totalFollowers?: number;
     totalFollowing?: number;
@@ -91,6 +86,7 @@ export default function FollowingPage() {
           whileTap={{ scale: 0.95 }}
           onClick={() => router.back()}
           className="p-2 rounded-xl hover:bg-slate-100/70 transition-colors"
+          aria-label="Go back"
         >
           <ChevronLeft className="w-5 h-5 text-slate-600" />
         </motion.button>
@@ -123,6 +119,7 @@ export default function FollowingPage() {
               href="/news/search"
               className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-gradient-to-r from-indigo-600 to-indigo-800 text-white text-sm font-semibold shadow-md shadow-indigo-500/25
                          hover:shadow-lg hover:shadow-indigo-500/30 transition-all active:scale-[0.98]"
+              aria-label="Find creators to follow"
             >
               <UserPlus className="w-4 h-4" />
               Find Creators
@@ -142,13 +139,17 @@ export default function FollowingPage() {
                   <Link
                     href={`/news/profile/${user._id}`}
                     className="flex items-center gap-4 flex-1 min-w-0"
+                    aria-label={`View profile of ${user.fullName}`}
                   >
                     <div className="w-11 h-11 rounded-full bg-gradient-to-br from-indigo-100 to-indigo-200 flex items-center justify-center text-indigo-700 font-bold text-sm ring-1 ring-indigo-300/60 overflow-hidden shrink-0">
                       {user.profileImage ? (
-                        <img
-                          src={getMediaUrl(user.profileImage)}   // ✅ FIXED
-                          alt=""
-                          className="w-full h-full object-cover"
+                        <Image
+                          src={getMediaUrl(user.profileImage)}
+                          alt={user.fullName || "User"}
+                          width={44}
+                          height={44}
+                          className="object-cover"
+                          unoptimized
                         />
                       ) : (
                         user.fullName?.charAt(0) || "?"

@@ -259,17 +259,42 @@ export const itAPI = {
 };
 
 // ======================
-// ADMIN API
+// ADMIN API (full version)
 // ======================
 export const adminAPI = {
+  // Dashboard stats
   getStats: () => api.get("/admin/stats"),
 
+  // User management
   getUsers: (params?: { page?: number; limit?: number; role?: string; search?: string }) =>
     api.get("/admin/users", { params }),
   getUser: (id: string) => api.get(`/admin/users/${id}`),
   updateUser: (id: string, data: any) => api.put(`/admin/users/${id}`, data),
   deleteUser: (id: string) => api.delete(`/admin/users/${id}`),
   toggleUserActive: (id: string) => api.patch(`/admin/users/${id}/toggle-active`),
+
+  // Hierarchy endpoints
+  getHierarchy: () => api.get("/admin/hierarchy"),
+  getSubordinates: (userId?: string) =>
+    api.get(userId ? `/admin/subordinates/${userId}` : "/admin/subordinates"),
+
+  // 🆕 System Settings
+  getSettings: () => api.get("/admin/settings"),
+  updateSettings: (data: any) => api.put("/admin/settings", data),
+
+  // 🆕 Activity Logs
+  getLogs: (params?: { page?: number; limit?: number; action?: string; userId?: string }) =>
+    api.get("/admin/logs", { params }),
+
+  // 🆕 Module Oversight (for dashboard cards)
+  getModuleData: (module: string) => api.get(`/admin/module/${module}`),
+
+  // 🆕 Global Notifications
+  sendGlobalNotification: (title: string, message: string) =>
+    api.post("/admin/notifications/send", { title, message }),
+
+  // 🆕 CSV Export
+  exportUsersCSV: () => api.get("/admin/users/export/csv", { responseType: "blob" }),
 };
 
 // ======================
