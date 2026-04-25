@@ -1,3 +1,4 @@
+// app/market/products/[productId]/page.tsx (or wherever this component lives)
 "use client";
 
 import { useState, useEffect } from "react";
@@ -20,25 +21,52 @@ import {
     Leaf,
 } from "lucide-react";
 
-const MarketProducts = ({ productId }) => {
+// ===================== Type Definitions =====================
+
+// Product data as returned from the API
+interface Product {
+    id: string | number;
+    title: string;
+    price: number;
+    quantity_available: number;
+    description: string;
+    images?: string[];
+    rating?: number;          // optional, default shown as "4.5" if missing
+}
+
+// API response wrapper
+interface ApiResponse<T> {
+    success: boolean;
+    data?: T;
+    message?: string;
+}
+
+// Props for this component
+interface MarketProductsProps {
+    productId: string | number;
+}
+
+// ===================== Component =====================
+
+const MarketProducts = ({ productId }: MarketProductsProps) => {
     const router = useRouter();
-    const [product, setProduct] = useState(null);
-    const [loading, setLoading] = useState(true);
-    const [quantity, setQuantity] = useState(1);
-    const [addingToCart, setAddingToCart] = useState(false);
-    const [error, setError] = useState(null);
+    const [product, setProduct] = useState<Product | null>(null);
+    const [loading, setLoading] = useState<boolean>(true);
+    const [quantity, setQuantity] = useState<number>(1);
+    const [addingToCart, setAddingToCart] = useState<boolean>(false);
+    const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
         fetchProduct();
     }, [productId]);
 
-    const fetchProduct = async () => {
+    const fetchProduct = async (): Promise<void> => {
         try {
             setLoading(true);
             setError(null);
 
             const token = localStorage.getItem("token");
-            const response = await axios.get(
+            const response = await axios.get<ApiResponse<Product>>(
                 `${process.env.NEXT_PUBLIC_API_URL}/agriculture/products/${productId}`,
                 {
                     headers: token ? { Authorization: `Bearer ${token}` } : {},
@@ -46,28 +74,32 @@ const MarketProducts = ({ productId }) => {
             );
 
             if (response.data.success) {
-                setProduct(response.data.data);
+                setProduct(response.data.data ?? null);
             } else {
                 throw new Error(response.data.message || "Product not found");
             }
-        } catch (err) {
-            setError(err.response?.data?.message || "Failed to load product details");
+        } catch (err: unknown) {
+            const errorMessage =
+                axios.isAxiosError(err) && err.response?.data?.message
+                    ? err.response.data.message
+                    : "Failed to load product details";
+            setError(errorMessage);
             toast.error("Could not load product");
         } finally {
             setLoading(false);
         }
     };
 
-    const handleQuantityChange = (delta) => {
+    const handleQuantityChange = (delta: number): void => {
         const newQty = quantity + delta;
         if (newQty >= 1 && (!product || newQty <= product.quantity_available)) {
             setQuantity(newQty);
-        } else if (newQty > product?.quantity_available) {
+        } else if (product && newQty > product.quantity_available) {
             toast.warning(`Only ${product.quantity_available} units available`);
         }
     };
 
-    const handleAddToCart = async () => {
+    const handleAddToCart = async (): Promise<void> => {
         const token = localStorage.getItem("token");
         if (!token) {
             toast.warning("Please login to add items to cart");
@@ -91,14 +123,18 @@ const MarketProducts = ({ productId }) => {
                 }
             );
             toast.success(`Added ${quantity} × ${product.title} to cart`);
-        } catch (err) {
-            toast.error(err.response?.data?.message || "Failed to add to cart");
+        } catch (err: unknown) {
+            const errorMsg =
+                axios.isAxiosError(err) && err.response?.data?.message
+                    ? err.response.data.message
+                    : "Failed to add to cart";
+            toast.error(errorMsg);
         } finally {
             setAddingToCart(false);
         }
     };
 
-    const totalPrice = product ? product.price * quantity : 0;
+    const totalPrice: number = product ? product.price * quantity : 0;
 
     if (loading) {
         return (
@@ -151,6 +187,7 @@ const MarketProducts = ({ productId }) => {
                         {/* LEFT - IMAGE */}
                         <div className="rounded-3xl border border-emerald-200 bg-white/80 backdrop-blur p-6 shadow-xl shadow-emerald-100">
                             {product.images?.[0] ? (
+                                // eslint-disable-next-line @next/next/no-img-element
                                 <img
                                     src={product.images[0]}
                                     alt={product.title}
@@ -173,7 +210,7 @@ const MarketProducts = ({ productId }) => {
 
                             <div className="flex items-center gap-2 text-emerald-700">
                                 <Star size={16} className="fill-emerald-500" />
-                                <span className="font-medium">{product.rating || "4.5"}</span>
+                                <span className="font-medium">{product.rating ?? "4.5"}</span>
                             </div>
 
                             {/* PRICE BOX */}
@@ -215,9 +252,10 @@ const MarketProducts = ({ productId }) => {
                             {/* BUTTON */}
                             <button
                                 onClick={handleAddToCart}
-                                className="w-full rounded-xl bg-gradient-to-r from-emerald-600 to-green-700 py-4 text-white font-semibold shadow-lg shadow-emerald-200 hover:from-emerald-700 hover:to-green-800 transition"
+                                disabled={addingToCart}
+                                className="w-full rounded-xl bg-gradient-to-r from-emerald-600 to-green-700 py-4 text-white font-semibold shadow-lg shadow-emerald-200 hover:from-emerald-700 hover:to-green-800 transition disabled:opacity-50"
                             >
-                                Add to Cart
+                                {addingToCart ? "Adding..." : "Add to Cart"}
                             </button>
                         </div>
                     </div>

@@ -1,16 +1,25 @@
+// components/agriculture/seller/SellerShell.tsx
 "use client";
 
-import React from "react";
+import React, { ReactNode } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import {
     LayoutDashboard,
     Package,
     PlusCircle,
     ShoppingBag,
-    ShieldCheck
+    ShieldCheck,
+    LucideIcon
 } from "lucide-react";
 
-const navItems = [
+// Type for each navigation item
+interface NavItem {
+    label: string;
+    icon: LucideIcon;
+    path: string;
+}
+
+const navItems: NavItem[] = [
     {
         label: "Dashboard",
         icon: LayoutDashboard,
@@ -33,21 +42,28 @@ const navItems = [
     }
 ];
 
+// Props type for the SellerShell component
+interface SellerShellProps {
+    title: string;
+    subtitle?: string;          // optional
+    badge?: string;            // optional, defaults to "Contractor Portal"
+    children: ReactNode;
+}
+
 export default function SellerShell({
     title,
     subtitle,
     badge = "Contractor Portal",
     children
-}) {
+}: SellerShellProps) {
     const router = useRouter();
     const pathname = usePathname();
 
-    const isActive = (item) => {
+    const isActive = (item: NavItem): boolean => {
         if (pathname === item.path) return true;
         if (pathname.startsWith("/agriculture/seller/products/new")) {
             return item.path === "/agriculture/seller/products/new";
         }
-
         return pathname.startsWith(item.path + "/");
     };
 
@@ -108,9 +124,11 @@ export default function SellerShell({
                                     <h1 className="truncate text-xl font-bold text-slate-900 sm:text-3xl">
                                         {title}
                                     </h1>
-                                    <p className="mt-1 text-sm text-slate-500">
-                                        {subtitle}
-                                    </p>
+                                    {subtitle && (
+                                        <p className="mt-1 text-sm text-slate-500">
+                                            {subtitle}
+                                        </p>
+                                    )}
                                 </div>
                             </div>
                         </div>
@@ -122,7 +140,7 @@ export default function SellerShell({
 
             {/* Mobile Bottom Navigation */}
             <div className="fixed inset-x-0 bottom-0 z-50 border-t border-slate-200 bg-white/95 backdrop-blur lg:hidden">
-                <div className="grid grid-cols-5 px-2 py-2">
+                <div className="grid grid-cols-4 px-2 py-2">  {/* Changed from grid-cols-5 to 4 because navItems has 4 items */}
                     {navItems.map((item) => {
                         const Icon = item.icon;
                         const active = isActive(item);

@@ -1,47 +1,62 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { ChangeEvent, FormEvent, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 import { useAuth } from "@/contexts/AuthContext";
 import {
-    ArrowLeft,
     Loader2,
-    ShieldCheck,
     Save,
-    Package,
     MapPin,
     Image as ImageIcon,
     Leaf,
     FileText,
     IndianRupee,
-    Boxes
+    Boxes,
 } from "lucide-react";
 import SellerShell from "@/components/agriculture/seller/SellerShell";
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
+const API_BASE: string =
+    process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
 
-const categoryOptions = [
+type ProductForm = {
+    name: string;
+    description: string;
+    category: string;
+    price: string;
+    quantity: string;
+    unit: string;
+    location: string;
+    imageUrl: string;
+    isOrganic: boolean;
+};
+
+type ApiResponse = {
+    success: boolean;
+    message?: string;
+};
+
+const categoryOptions: { value: string; label: string }[] = [
     { value: "seeds", label: "Seeds" },
     { value: "fertilizers", label: "Fertilizers" },
     { value: "equipment", label: "Equipment" },
     { value: "livestock", label: "Livestock" },
     { value: "produce", label: "Produce" },
     { value: "pesticides", label: "Pesticides" },
-    { value: "tools", label: "Tools" }
+    { value: "tools", label: "Tools" },
 ];
 
-const unitOptions = [
+const unitOptions: string[] = [
     "kg",
     "litre",
     "piece",
     "bundle",
     "dozen",
     "tonne",
-    "bag"
+    "bag",
 ];
 
-const initialForm = {
+const initialForm: ProductForm = {
     name: "",
     description: "",
     category: "seeds",
@@ -50,55 +65,70 @@ const initialForm = {
     unit: "kg",
     location: "",
     imageUrl: "",
-    isOrganic: false
+    isOrganic: false,
 };
 
-export default function NewProduct() {
+export default function NewProduct(): JSX.Element {
     const router = useRouter();
     const { user, loading: authLoading } = useAuth();
 
-    const [pageLoading, setPageLoading] = useState(true);
-    const [submitting, setSubmitting] = useState(false);
-    const [form, setForm] = useState(initialForm);
-    const [error, setError] = useState("");
+    const [pageLoading, setPageLoading] = useState < boolean > (true);
+    const [submitting, setSubmitting] = useState < boolean > (false);
+    const [form, setForm] = useState < ProductForm > (initialForm);
+    const [error, setError] = useState < string > ("");
 
     useEffect(() => {
         if (authLoading) return;
 
         const token = localStorage.getItem("token");
         const isContractFarmer = user?.farmerProfile?.isContractFarmer === true;
-        if (!isContractFarmer) {
-            router.replace("/agriculture/marketplace");
-            return;
-        }
+
         if (!token || !user) {
             router.replace("/login");
             return;
         }
+
+        if (!isContractFarmer) {
+            router.replace("/agriculture/marketplace");
+            return;
+        }
+
         setPageLoading(false);
     }, [authLoading, router, user]);
 
-    const handleChange = (e) => {
-        const { name, value, type, checked } = e.target;
+    const handleChange = (
+        e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+    ): void => {
+        const { name, value, type } = e.target;
+
+        const nextValue =
+            type === "checkbox" ? (e.target as HTMLInputElement).checked : value;
+
         setForm((prev) => ({
             ...prev,
-            [name]: type === "checkbox" ? checked : value
+            [name]: nextValue,
         }));
     };
 
-    const validateForm = () => {
+    const validateForm = (): string => {
         if (!form.name.trim()) return "Product name is required.";
         if (!form.category) return "Category is required.";
-        if (form.price === "" || Number(form.price) < 0) return "Enter a valid price.";
-        if (form.quantity === "" || Number(form.quantity) < 0) return "Enter a valid quantity.";
+        if (form.price === "" || Number(form.price) < 0)
+            return "Enter a valid price.";
+        if (form.quantity === "" || Number(form.quantity) < 0)
+            return "Enter a valid quantity.";
         if (!form.unit) return "Unit is required.";
+
         return "";
     };
 
-    const handleSubmit = async (e) => {
+    const handleSubmit = async (
+        e: FormEvent<HTMLFormElement>
+    ): Promise<void> => {
         e.preventDefault();
 
         const validationError = validateForm();
+
         if (validationError) {
             setError(validationError);
             return;
@@ -119,24 +149,30 @@ export default function NewProduct() {
                 unit: form.unit,
                 location: form.location.trim(),
                 imageUrl: form.imageUrl.trim(),
-                isOrganic: !!form.isOrganic
+                isOrganic: Boolean(form.isOrganic),
             };
 
-            const { data } = await axios.post(
+            const { data } = await axios.post < ApiResponse > (
                 `${API_BASE}/agriculture/seller/products`,
                 payload,
                 {
                     headers: {
-                        Authorization: `Bearer ${token}`
-                    }
+                        Authorization: `Bearer ${token}`,
+                    },
                 }
             );
 
             if (data.success) {
                 router.push("/agriculture/seller/products");
+            } else {
+                setError(data.message || "Failed to create product.");
             }
         } catch (err) {
-            setError(err.response?.data?.message || "Failed to create product.");
+            const error = err as AxiosError<{ message?: string }>;
+
+            setError(
+                error.response?.data?.message || "Failed to create product."
+            );
         } finally {
             setSubmitting(false);
         }
@@ -166,7 +202,9 @@ export default function NewProduct() {
                     <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
                         <div className="mb-4 flex items-center gap-2">
                             <FileText size={18} className="text-[#2f6b45]" />
-                            <h2 className="text-lg font-bold text-slate-900">Basic Information</h2>
+                            <h2 className="text-lg font-bold text-slate-900">
+                                Basic Information
+                            </h2>
                         </div>
 
                         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
@@ -189,7 +227,10 @@ export default function NewProduct() {
                                     Category
                                 </label>
                                 <div className="relative">
-                                    <Boxes size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" />
+                                    <Boxes
+                                        size={16}
+                                        className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500"
+                                    />
                                     <select
                                         name="category"
                                         value={form.category}
@@ -228,7 +269,10 @@ export default function NewProduct() {
                                     Price
                                 </label>
                                 <div className="relative">
-                                    <IndianRupee size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" />
+                                    <IndianRupee
+                                        size={16}
+                                        className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500"
+                                    />
                                     <input
                                         type="number"
                                         min="0"
@@ -277,7 +321,9 @@ export default function NewProduct() {
                     <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
                         <div className="mb-4 flex items-center gap-2">
                             <MapPin size={18} className="text-[#2f6b45]" />
-                            <h2 className="text-lg font-bold text-slate-900">Location & Media</h2>
+                            <h2 className="text-lg font-bold text-slate-900">
+                                Location & Media
+                            </h2>
                         </div>
 
                         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
@@ -300,7 +346,10 @@ export default function NewProduct() {
                                     Image URL
                                 </label>
                                 <div className="relative">
-                                    <ImageIcon size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" />
+                                    <ImageIcon
+                                        size={16}
+                                        className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500"
+                                    />
                                     <input
                                         type="text"
                                         name="imageUrl"
@@ -330,7 +379,9 @@ export default function NewProduct() {
 
                     {form.imageUrl && (
                         <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-                            <h2 className="mb-4 text-lg font-bold text-slate-900">Preview</h2>
+                            <h2 className="mb-4 text-lg font-bold text-slate-900">
+                                Preview
+                            </h2>
 
                             <div className="overflow-hidden rounded-2xl border border-slate-200 bg-gradient-to-b from-green-50 to-slate-100">
                                 <div className="flex h-64 items-center justify-center">
@@ -375,7 +426,6 @@ export default function NewProduct() {
                         </button>
                     </div>
                 </form>
-
             </div>
         </SellerShell>
     );

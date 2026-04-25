@@ -1,4 +1,4 @@
-// components/agriculture/seller/Orders.js
+// components/agriculture/seller/Orders.tsx
 "use client";
 
 import { useEffect, useState } from "react";
@@ -6,24 +6,60 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
 import SellerShell from "@/components/agriculture/seller/SellerShell";
 import api from "@/config/api";
-import {
-  Loader2,
-  ShoppingCart,
-  CalendarDays,
-  User,
-  IndianRupee,
-} from "lucide-react";
+import { Loader2, ShoppingCart, CalendarDays, User, IndianRupee } from "lucide-react";
+
+// ===================== Type Definitions =====================
+
+// Shape of an order as returned by the backend
+interface Order {
+  id: string | number;
+  buyerName?: string;
+  createdAt: string;
+  status: "delivered" | "shipped" | "processing" | "pending" | "cancelled" | string;
+  total: number;
+}
+
+// Dashboard statistics
+interface Stats {
+  totalOrders?: number;
+  activeProducts?: number;
+  monthlyRevenue?: number;
+}
+
+// Response from GET /agriculture/seller/dashboard
+interface DashboardResponse {
+  data?: {
+    recentOrders?: Order[];
+    stats?: Stats;
+  };
+}
+
+// Minimal User type based on what the component uses
+interface User {
+  farmerProfile?: {
+    isContractFarmer?: boolean;
+  };
+}
+
+// Extend useAuth hook's return type (adjust to match your actual AuthContext)
+interface AuthContextType {
+  user: User | null;
+  loading: boolean;
+}
+
+// ===================== Component =====================
 
 export default function SellerOrdersPage() {
-  const { user, loading: authLoading } = useAuth();
+  const { user, loading: authLoading } = useAuth() as AuthContextType;
   const router = useRouter();
 
-  const [orders, setOrders] = useState([]);
-  const [stats, setStats] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [orders, setOrders] = useState < Order[] > ([]);
+  const [stats, setStats] = useState < Stats | null > (null);
+  const [loading, setLoading] = useState < boolean > (true);
 
   const isContractFarmer = Boolean(user?.farmerProfile?.isContractFarmer);
 
+  // Redirect unauthenticated or non‑contract farmers
   useEffect(() => {
     if (!authLoading && !user) {
       router.push("/login");
@@ -38,10 +74,10 @@ export default function SellerOrdersPage() {
     }
   }, [user, authLoading, isContractFarmer, router]);
 
-  const fetchSellerOrders = async () => {
+  const fetchSellerOrders = async (): Promise<void> => {
     try {
       setLoading(true);
-      const res = await api.get("/seller/dashboard");
+      const res = await api.get < DashboardResponse > ("agriculture/seller/dashboard");
       const dashboard = res?.data?.data || {};
       setOrders(dashboard.recentOrders || []);
       setStats(dashboard.stats || {});
@@ -52,7 +88,7 @@ export default function SellerOrdersPage() {
     }
   };
 
-  const getStatusStyles = (status) => {
+  const getStatusStyles = (status: string): string => {
     const value = String(status || "").toLowerCase();
     switch (value) {
       case "delivered":
@@ -70,7 +106,7 @@ export default function SellerOrdersPage() {
     }
   };
 
-  const formatDate = (date) => {
+  const formatDate = (date?: string): string => {
     if (!date) return "N/A";
     return new Date(date).toLocaleDateString("en-IN", {
       day: "2-digit",
@@ -151,7 +187,7 @@ export default function SellerOrdersPage() {
                     </thead>
                     <tbody className="divide-y divide-gray-100 bg-white">
                       {orders.map((order, index) => (
-                        <tr key={order.id || index} className="transition hover:bg-green-50/40">
+                        <tr key={order.id ?? index} className="transition hover:bg-green-50/40">
                           <td className="px-4 py-4">
                             <div className="flex items-center gap-3">
                               <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-green-100">
@@ -159,7 +195,7 @@ export default function SellerOrdersPage() {
                               </div>
                               <div>
                                 <p className="text-sm font-semibold text-gray-900">
-                                  #{String(order.id || "").slice(-6) || "N/A"}
+                                  #{String(order.id ?? "").slice(-6) || "N/A"}
                                 </p>
                                 <p className="text-xs text-gray-500">Seller Order</p>
                               </div>
@@ -168,7 +204,7 @@ export default function SellerOrdersPage() {
                           <td className="px-4 py-4">
                             <div className="flex items-center gap-2 text-sm text-gray-700">
                               <User size={15} className="text-gray-400" />
-                              <span>{order.buyerName || "Buyer"}</span>
+                              <span>{order.buyerName ?? "Buyer"}</span>
                             </div>
                           </td>
                           <td className="px-4 py-4">
@@ -185,7 +221,7 @@ export default function SellerOrdersPage() {
                           <td className="px-4 py-4 text-right">
                             <div className="inline-flex items-center gap-1 text-sm font-bold text-gray-900">
                               <IndianRupee size={15} />
-                              <span>{Number(order.total || 0).toLocaleString("en-IN")}</span>
+                              <span>{(order.total ?? 0).toLocaleString("en-IN")}</span>
                             </div>
                           </td>
                         </tr>
