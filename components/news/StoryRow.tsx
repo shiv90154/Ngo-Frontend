@@ -6,7 +6,7 @@ import { mediaAPI } from "@/lib/api";
 import Link from "next/link";
 import Image from "next/image";
 import { Plus } from "lucide-react";
-import { useAuth } from "@/contexts/AuthContext";
+import { useAuth } from "@/contexts/AuthContext"; 
 import { motion } from "framer-motion";
 import { getMediaUrl } from "@/utils/mediaUrl";
 
@@ -19,6 +19,7 @@ export default function StoryRow() {
     setMounted(true);
   }, []);
 
+  
   useEffect(() => {
     const fetchStories = async () => {
       try {
