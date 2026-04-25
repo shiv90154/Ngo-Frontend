@@ -21,7 +21,7 @@ export default function EducationNavbar() {
     { name: "My Learning", href: "/education/my-courses", icon: GraduationCap },
     ...(user?.role === "TEACHER" ? [{ name: "Instructor", href: "/education/instructor/dashboard", icon: PenTool }] : []),
     // 🆕 Wikipedia search link
-    { name: "Wiki", href: "/WikipediaSearch", icon: Search },
+    { name: "Wiki", href: "/education/WikipediaSearch", icon: Search },
   ];
 
   const isActive = (href: string) => pathname === href || pathname.startsWith(href + "/");

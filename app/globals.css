@@ -1,15 +1,7 @@
 @import "tailwindcss";
 
 /* ===== Custom theme extensions (Tailwind v4 way) ===== */
-@theme {
-  /* Custom animations */
-  --animate-fadeInUp: fadeInUp 0.5s ease-out forwards;
-  --animate-shimmer: shimmer 1.5s infinite linear;
 
-  /* Optional: you can set default font stacks here */
-  --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
-  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
-}
 
 /* ===== Keyframes ===== */
 @keyframes fadeInUp {

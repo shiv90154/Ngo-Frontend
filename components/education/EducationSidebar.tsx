@@ -14,6 +14,7 @@ export default function EducationSidebar() {
     { name: "My Learning", href: "/education/my-courses", icon: Clock },
     { name: "Live Classes", href: "/education/live", icon: Video },
     { name: "Certificates", href: "/education/certificates", icon: Award },
+    
   ];
 
   const instructorLinks = [
