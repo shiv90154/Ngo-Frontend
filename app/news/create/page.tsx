@@ -78,9 +78,11 @@ export default function CreatePostPage() {
     <div className="max-w-2xl mx-auto px-4 pb-20 space-y-6">
       {/* Back button – glass, subtle hover */}
       <motion.button
+        type="button"
         whileTap={{ scale: 0.97 }}
         onClick={() => router.back()}
         className="inline-flex items-center gap-2 text-slate-500 hover:text-slate-900 transition-colors group mt-6"
+        aria-label="Go back"
       >
         <motion.div
           whileHover={{ x: -3 }}
@@ -104,6 +106,7 @@ export default function CreatePostPage() {
                 ? "bg-rose-50 text-rose-600"
                 : "bg-slate-100 text-slate-500"
             }`}
+            aria-live="polite"
           >
             {content.length}/500
           </div>
@@ -118,6 +121,7 @@ export default function CreatePostPage() {
             rows={5}
             maxLength={500}
             className="w-full text-lg text-slate-800 placeholder:text-slate-400 bg-transparent border-none focus:ring-0 resize-none p-0 font-medium leading-relaxed"
+            aria-label="Post content"
           />
 
           {/* Media preview grid with animations */}
@@ -154,6 +158,7 @@ export default function CreatePostPage() {
                       type="button"
                       onClick={() => removeMedia(idx)}
                       className="absolute top-2 right-2 bg-black/40 backdrop-blur-md hover:bg-black/80 text-white p-1.5 rounded-full transition-colors shadow-md"
+                      aria-label="Remove media"
                     >
                       <X className="w-3.5 h-3.5" />
                     </button>
@@ -167,7 +172,11 @@ export default function CreatePostPage() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="relative group">
               <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-indigo-600 transition-colors" />
+              <label htmlFor="post-location" className="sr-only">
+                Location
+              </label>
               <input
+                id="post-location"
                 type="text"
                 value={location}
                 onChange={(e) => setLocation(e.target.value)}
@@ -177,7 +186,11 @@ export default function CreatePostPage() {
             </div>
             <div className="relative group">
               <Hash className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-indigo-600 transition-colors" />
+              <label htmlFor="post-tags" className="sr-only">
+                Tags (comma separated)
+              </label>
               <input
+                id="post-tags"
                 type="text"
                 value={tags}
                 onChange={(e) => setTags(e.target.value)}
@@ -191,6 +204,15 @@ export default function CreatePostPage() {
           <div
             onClick={() => fileInputRef.current?.click()}
             className="group border-2 border-dashed border-slate-300 rounded-2xl p-8 text-center cursor-pointer hover:border-indigo-400 hover:bg-indigo-50/40 transition-all"
+            role="button"
+            aria-label="Upload photos or videos"
+            tabIndex={0}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                fileInputRef.current?.click();
+              }
+            }}
           >
             <div className="w-14 h-14 bg-white rounded-full flex items-center justify-center mx-auto mb-3 shadow-sm ring-1 ring-slate-200 group-hover:ring-indigo-200 group-hover:scale-110 transition-transform">
               <ImagePlus className="w-6 h-6 text-slate-400 group-hover:text-indigo-600 transition-colors" />
@@ -221,6 +243,7 @@ export default function CreatePostPage() {
               disabled={loading}
               className="group relative inline-flex items-center gap-2 bg-gradient-to-r from-indigo-600 to-indigo-800 text-white px-8 py-3 rounded-full font-semibold text-sm
                          shadow-lg shadow-indigo-500/25 hover:shadow-xl hover:shadow-indigo-500/30 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+              aria-label={loading ? "Publishing your post" : "Publish post"}
             >
               {loading ? (
                 <Loader2 className="w-4 h-4 animate-spin" />

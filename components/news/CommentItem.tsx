@@ -1,17 +1,19 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useAuth } from "@/contexts/AuthContext";
 import { Trash2 } from "lucide-react";
 import { formatDistanceToNowStrict } from "date-fns";
 import { mediaAPI } from "@/lib/api";
 import { toast } from "react-toastify";
 import { motion } from "framer-motion";
+import { getMediaUrl } from "@/utils/mediaUrl";
 
 interface CommentUser {
   _id: string;
   fullName?: string;
-  avatar?: string;
+  profileImage?: string;             // ✅ renamed from avatar
 }
 
 interface Comment {
@@ -52,12 +54,27 @@ export default function CommentItem({ comment, onDelete, postAuthorId }: Comment
       className="flex gap-3 px-4 py-3 group"
     >
       {/* Avatar */}
-      <Link href={`/news/profile/${comment.user._id}`} className="shrink-0">
+      <Link
+        href={`/news/profile/${comment.user._id}`}
+        className="shrink-0"
+        aria-label={`View ${comment.user.fullName}'s profile`}
+      >
         <motion.div
           whileHover={{ scale: 1.05 }}
-          className="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-100 to-indigo-200 text-indigo-700 flex items-center justify-center text-xs font-bold ring-1 ring-indigo-300/50 shadow-sm"
+          className="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-100 to-indigo-200 text-indigo-700 flex items-center justify-center text-xs font-bold ring-1 ring-indigo-300/50 shadow-sm overflow-hidden"
         >
-          {comment.user.fullName?.charAt(0) || "?"}
+          {comment.user.profileImage ? (
+            <Image
+              src={getMediaUrl(comment.user.profileImage)}
+              alt={comment.user.fullName || "Avatar"}
+              width={32}
+              height={32}
+              className="object-cover"
+              unoptimized
+            />
+          ) : (
+            comment.user.fullName?.charAt(0) || "?"
+          )}
         </motion.div>
       </Link>
 
@@ -89,6 +106,7 @@ export default function CommentItem({ comment, onDelete, postAuthorId }: Comment
             transition={{ delay: 0.1 }}
             onClick={handleDelete}
             className="flex items-center gap-1 ml-1 text-[11px] font-bold text-slate-400 hover:text-rose-600 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+            aria-label="Delete comment"
           >
             <Trash2 className="w-3 h-3" />
             <span>Delete</span>

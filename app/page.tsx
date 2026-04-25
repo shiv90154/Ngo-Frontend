@@ -29,8 +29,8 @@ export default function Home() {
       color: "#7c3aed", 
       desc: "Scholarships, DIKSHA, SWAYAM, NPTEL Courses", 
       href: "/education",
-      
-      stats: "50+ Schemes"
+      stats: "50+ Schemes",
+      badge: "50+ Schemes"               // ✅ added for hero & card badge
     },
     { 
       title: "Finance", 
@@ -38,8 +38,8 @@ export default function Home() {
       color: "#0369a1", 
       desc: "PM Jan Dhan, Atal Pension, Sukanya Samriddhi", 
       href: "/finance",
-     
-      stats: "₹50K+ Cr Disbursed"
+      stats: "₹50K+ Cr Disbursed",
+      badge: "₹50K+ Cr Disbursed"
     },
     { 
       title: "Healthcare", 
@@ -47,8 +47,8 @@ export default function Home() {
       color: "#be123c", 
       desc: "Ayushman Bharat, e-Sanjeevani, CoWIN", 
       href: "/healthcare",
-     
-      stats: "50Cr+ Beneficiaries"
+      stats: "50Cr+ Beneficiaries",
+      badge: "50Cr+ Beneficiaries"
     },
     { 
       title: "Agriculture", 
@@ -56,8 +56,8 @@ export default function Home() {
       color: "#15803d", 
       desc: "PM KISAN, e-NAM, Soil Health Card", 
       href: "/agriculture",
-     
-      stats: "11Cr+ Farmers"
+      stats: "11Cr+ Farmers",
+      badge: "11Cr+ Farmers"
     },
     { 
       title: "Digital Services", 
@@ -65,8 +65,8 @@ export default function Home() {
       color: "#0f766e", 
       desc: "DigiLocker, UMANG, GeM Portal", 
       href: "/it",
-     
-      stats: "15Cr+ Users"
+      stats: "15Cr+ Users",
+      badge: "15Cr+ Users"
     },
     { 
       title: "News & Info", 
@@ -74,8 +74,8 @@ export default function Home() {
       color: "#b45309", 
       desc: "PIB, MyGov, DD News, Mann Ki Baat", 
       href: "/news",
-     
-      stats: "Live Updates"
+      stats: "Live Updates",
+      badge: "Live Updates"
     },
   ];
 
@@ -156,7 +156,7 @@ export default function Home() {
                         <div key={i} className="bg-white/10 rounded-xl p-5 text-center border border-white/20 hover:scale-105 transition-transform">
                           <service.icon size={32} className="mx-auto mb-3 text-[#FF9933]" />
                           <p className="text-sm font-semibold">{service.title}</p>
-                          <p className="text-xs text-blue-200 mt-1">{service.badge}</p>
+                          <p className="text-xs text-blue-200 mt-1">{service.badge}</p>  {/* ✅ fixed */}
                         </div>
                       ))}
                     </div>
@@ -328,7 +328,7 @@ export default function Home() {
                     <iframe 
                       width="100%" 
                       height="100%" 
-                      src={`https://youtube.com/shorts/AR3IuNG5Uj4?si=Llaeg82yhbVvUoaU`}
+                      src="https://youtube.com/shorts/AR3IuNG5Uj4?si=Llaeg82yhbVvUoaU"
                       title="Samraddh Bharat Official Tutorial"
                       allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
                       allowFullScreen

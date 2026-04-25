@@ -1,11 +1,33 @@
 "use client";
 
 import { createContext, useState, useContext, useEffect } from "react";
-import api from "@/config/api";
+import api from "@/lib/api"; // 🆕 use the centralized API client
 
-const AuthContext = createContext();
+// ======================
+// Role definitions
+// ======================
+const ADMIN_ROLES = [
+  "SUPER_ADMIN",
+  "ADDITIONAL_DIRECTOR",
+  "STATE_OFFICER",
+  "DISTRICT_MANAGER",
+  "DISTRICT_PRESIDENT",
+  "FIELD_OFFICER",
+  "BLOCK_OFFICER",
+  "VILLAGE_OFFICER",
+];
+
+const SUPER_ADMIN_ROLES = ["SUPER_ADMIN"];
+
+// ======================
+// Context & hook
+// ======================
+const AuthContext = createContext<any>(null);
 export const useAuth = () => useContext(AuthContext);
 
+// ======================
+// Helper to read stored user
+// ======================
 const getInitialUser = () => {
   if (typeof window === "undefined") return null;
   if (!localStorage.getItem("token")) return null;
@@ -20,9 +42,16 @@ const getInitialUser = () => {
   return null;
 };
 
-export function AuthProvider({ children }) {
-  const [user, setUser] = useState(getInitialUser);
+// ======================
+// Provider
+// ======================
+export function AuthProvider({ children }: { children: React.ReactNode }) {
+  const [user, setUser] = useState<any>(getInitialUser);
   const [loading, setLoading] = useState(true);
+
+  // Derived values
+  const isAdmin = user ? ADMIN_ROLES.includes(user.role) : false;
+  const isSuperAdmin = user ? SUPER_ADMIN_ROLES.includes(user.role) : false;
 
   useEffect(() => {
     const verifyToken = async () => {
@@ -34,26 +63,21 @@ export function AuthProvider({ children }) {
         return;
       }
 
-      // Set token in API headers
-      api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-
+      // The interceptor in lib/api.ts already handles setting Authorization header
+      // but we need to set it for the initial call in case the interceptor hasn't run yet.
+      // (Actually, the interceptor runs on every request, so it's fine.)
       try {
         const res = await api.get("/users/profile");
         if (res.data.user) {
           setUser(res.data.user);
           localStorage.setItem("user", JSON.stringify(res.data.user));
         }
-      } catch (err) {
+      } catch (err: any) {
         console.warn("Profile refresh failed:", err.message);
-        
-        // If token is invalid/expired (401), clear localStorage
         if (err.response?.status === 401) {
-          console.warn("Token expired or invalid. Logging out.");
           localStorage.clear();
-          delete api.defaults.headers.common["Authorization"];
           setUser(null);
         }
-        // For other errors (network, 500), keep the stored user
       } finally {
         setLoading(false);
       }
@@ -62,58 +86,39 @@ export function AuthProvider({ children }) {
     verifyToken();
   }, []);
 
-  const login = async (email, password) => {
+  const login = async (email: string, password: string) => {
     try {
       const res = await api.post("/users/login", { email, password });
       const { token, user } = res.data;
       localStorage.setItem("token", token);
       localStorage.setItem("user", JSON.stringify(user));
-      api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+      // No need to manually set Authorization header because the interceptor will do it
       setUser(user);
       return { success: true };
-    } catch (error) {
-      return { 
-        success: false, 
-        error: error?.response?.data?.message || "Login failed" 
+    } catch (error: any) {
+      return {
+        success: false,
+        error: error?.response?.data?.message || "Login failed",
       };
     }
   };
 
   const logout = () => {
     localStorage.clear();
-    delete api.defaults.headers.common["Authorization"];
     setUser(null);
-  };
-
-  const register = async (userData) => {
-    try {
-      const res = await api.post("/users/register", userData);
-      const { token, user } = res.data;
-      localStorage.setItem("token", token);
-      localStorage.setItem("user", JSON.stringify(user));
-      api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-      setUser(user);
-      return { success: true };
-    } catch (error) {
-      return { 
-        success: false, 
-        error: error?.response?.data?.message || "Registration failed" 
-      };
-    }
   };
 
   const value = {
     user,
     setUser,
     loading,
-    register,
     login,
     logout,
+    isAdmin,
+    isSuperAdmin,
   };
 
   return (
-    <AuthContext.Provider value={value}>
-      {children}
-    </AuthContext.Provider>
+    <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
   );
 }

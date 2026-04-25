@@ -1,9 +1,11 @@
+
 "use client";
 
 import { useEffect, useState, useRef, useCallback } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { mediaAPI } from "@/lib/api";
 import PostCard from "@/components/news/PostCard";
+import StoryRow from "@/components/news/StoryRow";
 import { Loader2, Newspaper, Sparkles, Search } from "lucide-react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
@@ -11,22 +13,23 @@ import { motion, AnimatePresence } from "framer-motion";
 // ---------- Types ----------
 interface Post {
   _id: string;
-  title?: string;
   content: string;
-  author: {
-    _id: string;
-    fullName?: string;
-    avatar?: string;
-  };
-  media?: { url: string }[];
+  tags?: string[];
+  location?: string;
+  media?: { url: string; type: "image" | "video" }[];
   likesCount: number;
   commentsCount: number;
   isLiked: boolean;
+  author: {
+    _id: string;
+    fullName: string;
+    profileImage?: string;   // ✅ uses the correct backend field
+  };
   createdAt: string;
   updatedAt: string;
 }
 
-// ---------- Skeleton Card for Loading ----------
+// ---------- Skeleton Card ----------
 const SkeletonCard = () => (
   <div className="bg-white/70 backdrop-blur-lg rounded-2xl ring-1 ring-slate-900/5 shadow-sm p-5 animate-pulse">
     <div className="flex items-center gap-3 mb-4">
@@ -148,6 +151,7 @@ export default function FeedPage() {
           className="group relative inline-flex items-center gap-2 bg-gradient-to-r from-indigo-600 to-indigo-800 text-white px-8 py-3.5 rounded-full font-semibold text-sm
                      shadow-lg shadow-indigo-500/25 transition-all duration-200 hover:shadow-xl hover:shadow-indigo-500/30
                      hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400"
+          aria-label="Become a media creator"
         >
           <Sparkles className="w-4 h-4" />
           Become a Creator
@@ -158,6 +162,9 @@ export default function FeedPage() {
 
   return (
     <div className="max-w-2xl mx-auto space-y-6">
+      {/* Stories Row */}
+      <StoryRow />
+
       {/* First‑load skeleton */}
       {loading && posts.length === 0 && (
         <div className="space-y-4">
@@ -187,6 +194,7 @@ export default function FeedPage() {
             href="/news/search"
             className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-gradient-to-r from-indigo-600 to-indigo-800 text-white text-sm font-semibold shadow-md shadow-indigo-500/25
                        hover:shadow-lg hover:shadow-indigo-500/30 transition-all"
+            aria-label="Explore creators"
           >
             <Search className="w-4 h-4" />
             Explore Creators
@@ -196,7 +204,8 @@ export default function FeedPage() {
 
       {/* Post Feed */}
       {posts.length > 0 && (
-        <div className="space-y-5">
+        <div role="feed" aria-label="News feed" className="space-y-5">
+          <h2 className="sr-only">Latest posts</h2>
           <AnimatePresence mode="popLayout">
             {posts.map((post, index) => (
               <motion.div
@@ -219,7 +228,7 @@ export default function FeedPage() {
 
       {/* Loading More Indicator */}
       {loading && posts.length > 0 && (
-        <div className="space-y-4 pt-2">
+        <div className="space-y-4 pt-2" aria-label="Loading more posts">
           {[...Array(2)].map((_, i) => (
             <SkeletonCard key={`loading-more-${i}`} />
           ))}

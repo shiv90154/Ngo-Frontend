@@ -20,7 +20,6 @@ export default function HealthcareDashboard() {
       router.replace("/login");
       return;
     }
-    // 如果是医生，重定向到医生仪表盘
     if (user.role === "DOCTOR") {
       router.replace("/healthcare/doctor/dashboard");
       return;
@@ -30,14 +29,14 @@ export default function HealthcareDashboard() {
       try {
         const [aptRes, presRes, recRes] = await Promise.all([
           healthcareAPI.getPatientAppointments({ status: "confirmed", limit: 5 }),
-          healthcareAPI.getPatientPrescriptions({ limit: 5 }),
-          healthcareAPI.getPatientHealthRecords({ limit: 1 }),
+          healthcareAPI.getPatientPrescriptions(),      // ✅ no argument
+          healthcareAPI.getPatientHealthRecords(),      // ✅ no argument
         ]);
         setRecentAppointments(aptRes.data.appointments || []);
         setStats({
           appointments: aptRes.data.total || 0,
-          prescriptions: presRes.data.total || 0,
-          records: recRes.data.total || 0,
+          prescriptions: presRes.data?.length || 0,     // ✅ use array length
+          records: recRes.data?.length || 0,            // ✅ use array length
         });
       } catch (error) {
         console.error("Failed to load dashboard:", error);
