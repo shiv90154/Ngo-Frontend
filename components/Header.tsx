@@ -41,7 +41,7 @@ const Header = () => {
             <Link href="/" className="flex items-center gap-3">
               <div className="relative w-20 h-30 md:w-12 md:h-12 flex-shrink-0">
                 <Image
-                  src="/logo.png"
+                  src="/logo.webp"
     
                   alt="Samraddh Bharat Logo"
                   fill
