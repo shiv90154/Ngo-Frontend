@@ -593,28 +593,28 @@ export default function WikipediaSearchEnhanced() {
     if ("speechSynthesis" in window) { window.speechSynthesis.cancel(); setToastMsg("Reading stopped"); }
   }
 
-  // Category chips (UI only)
+  // Category chips (UI only - non-functional, just for visual)
   const categories = ["All", "Math", "Science", "History", "Geography", "English", "Computer"];
-  const [topicCategory, setTopicCategory] = useState("All");
+  const [topicCategory, setTopicCategory] = useState("All"); // state kept but not used for filtering
 
-  // -------------------- UI --------------------
+  // -------------------- Responsive UI --------------------
   return (
     <main className="min-h-screen bg-gray-50">
       <div className="mx-auto max-w-7xl space-y-6 px-4 py-6 sm:px-6">
 
-        {/* ==== HERO BANNER ==== */}
-        <div className="bg-gradient-to-r from-[#1a237e] to-[#283593] rounded-2xl p-8 text-white">
-          <h1 className="text-3xl font-bold flex items-center gap-3">
-            <Globe size={34} className="text-white/80" />
+        {/* ==== HERO BANNER - fully responsive ==== */}
+        <div className="bg-gradient-to-r from-[#1a237e] to-[#283593] rounded-2xl p-6 sm:p-8 text-white">
+          <h1 className="text-2xl sm:text-3xl font-bold flex flex-wrap items-center gap-2 sm:gap-3">
+            <Globe size={28} className="text-white/80 sm:size-[34]" />
             Samraddh Education
           </h1>
           <p className="mt-2 text-blue-100 text-sm sm:text-base">
             Search any Wikipedia article, translate, save favorites, and more.
           </p>
 
-          {/* Search box inside hero */}
+          {/* Search box - full width with responsive padding */}
           <div className="mt-6 relative max-w-2xl" ref={searchBoxRef}>
-            <Search className="absolute left-3 top-3 text-gray-400" size={20} />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
             <input
               ref={inputRef}
               type="text"
@@ -629,15 +629,15 @@ export default function WikipediaSearchEnhanced() {
                 if (e.key === "Enter") fetchAndDisplay(query);
                 if (e.key === "Escape") setShowSuggestions(false);
               }}
-              className="w-full pl-10 pr-12 py-3 rounded-lg text-gray-800 bg-white border-2 border-white focus:border-blue-300 focus:ring-4 focus:ring-blue-200 outline-none transition"
+              className="w-full pl-10 pr-12 py-3 rounded-lg text-gray-800 bg-white border-2 border-white focus:border-blue-300 focus:ring-4 focus:ring-blue-200 outline-none transition text-base"
             />
             {query && (
-              <button onClick={clearSearch} className="absolute right-3 top-3 text-gray-400 hover:text-red-500">
+              <button onClick={clearSearch} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-red-500">
                 <X size={18} />
               </button>
             )}
 
-            {/* Suggestion dropdown */}
+            {/* Suggestion dropdown - responsive max-height */}
             {showSuggestions && (suggestions.length > 0 || recentSearches.length > 0) && (
               <div className="absolute left-0 right-0 top-full z-40 mt-2 max-h-80 overflow-y-auto rounded-xl border border-gray-200 bg-white p-2 shadow-2xl animate-in fade-in slide-in-from-top-1">
                 {recentSearches.length > 0 && (
@@ -678,12 +678,12 @@ export default function WikipediaSearchEnhanced() {
             )}
           </div>
 
-          {/* Action buttons */}
-          <div className="mt-4 flex gap-3">
+          {/* Action buttons - wrap on mobile */}
+          <div className="mt-4 flex flex-wrap gap-3">
             <button
               onClick={() => fetchAndDisplay(query)}
               disabled={loading}
-              className="inline-flex items-center gap-2 rounded-lg bg-white text-[#1a237e] font-bold px-5 py-2.5 shadow-md hover:bg-gray-50 disabled:opacity-60 transition"
+              className="inline-flex items-center gap-2 rounded-lg bg-white text-[#1a237e] font-bold px-4 py-2 sm:px-5 sm:py-2.5 shadow-md hover:bg-gray-50 disabled:opacity-60 transition text-sm sm:text-base"
             >
               {loading ? <Loader2 size={18} className="animate-spin" /> : <Search size={18} />}
               Search
@@ -691,16 +691,15 @@ export default function WikipediaSearchEnhanced() {
             <button
               onClick={handleRandomArticle}
               disabled={loading}
-              className="inline-flex items-center gap-2 rounded-lg bg-white/20 backdrop-blur text-white font-bold px-5 py-2.5 hover:bg-white/30 disabled:opacity-60 transition"
+              className="inline-flex items-center gap-2 rounded-lg bg-white/20 backdrop-blur text-white font-bold px-4 py-2 sm:px-5 sm:py-2.5 hover:bg-white/30 disabled:opacity-60 transition text-sm sm:text-base"
             >
               <Shuffle size={18} /> Random
             </button>
           </div>
         </div>
 
-        {/* ==== FILTER ROW (with Library button) ==== */}
+        {/* ==== FILTER ROW (responsive scrolling) ==== */}
         <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-hide">
-          {/* Language selector pill */}
           <select
             value={lang}
             onChange={(e) => {
@@ -709,15 +708,14 @@ export default function WikipediaSearchEnhanced() {
               setSuggestions([]);
               setShowSuggestions(false);
             }}
-            className="bg-white border border-gray-200 rounded-full px-4 py-2 text-sm font-bold text-slate-700 outline-none cursor-pointer transition"
+            className="bg-white border border-gray-200 rounded-full px-3 py-1.5 sm:px-4 sm:py-2 text-sm font-bold text-slate-700 outline-none cursor-pointer transition whitespace-nowrap"
           >
             {LANGUAGES.map((l) => <option key={l.code} value={l.code}>🌐 {l.label}</option>)}
           </select>
 
-          {/* Education Mode toggle pill */}
           <button
             onClick={() => setEducationMode(!educationMode)}
-            className={`inline-flex items-center gap-1 rounded-full px-4 py-2 text-sm font-bold transition ${
+            className={`inline-flex items-center gap-1 rounded-full px-3 py-1.5 sm:px-4 sm:py-2 text-sm font-bold transition whitespace-nowrap ${
               educationMode ? "bg-green-600 text-white shadow-md" : "bg-white border border-gray-200 text-slate-700"
             }`}
           >
@@ -725,12 +723,12 @@ export default function WikipediaSearchEnhanced() {
             {educationMode ? "School Mode ON" : "School Mode OFF"}
           </button>
 
-          {/* Topic category pills */}
+          {/* Category pills - non-functional, purely visual, responsive */}
           {categories.map((cat) => (
             <button
               key={cat}
               onClick={() => setTopicCategory(cat)}
-              className={`px-4 py-2 rounded-full text-sm font-bold whitespace-nowrap transition ${
+              className={`px-3 py-1.5 sm:px-4 sm:py-2 rounded-full text-sm font-bold whitespace-nowrap transition ${
                 topicCategory === cat
                   ? "bg-[#1a237e] text-white shadow-md"
                   : "bg-white border border-gray-200 text-slate-700 hover:bg-gray-50"
@@ -740,7 +738,7 @@ export default function WikipediaSearchEnhanced() {
             </button>
           ))}
 
-          {/* 📚 Library Button (opens popover / mobile drawer) */}
+          {/* Library Button */}
           <div className="relative ml-auto" ref={libraryRef}>
             <button
               onClick={() => setShowLibrary(!showLibrary)}
@@ -749,20 +747,14 @@ export default function WikipediaSearchEnhanced() {
               <Clock size={18} />
             </button>
 
-            {/* Library Popover (desktop) */}
+            {/* Desktop Library Popover */}
             {showLibrary && (
               <div className="absolute right-0 top-full mt-2 w-72 bg-white rounded-2xl shadow-xl border p-4 z-50 hidden sm:block animate-in fade-in slide-in-from-top-2">
-                {/* History */}
                 <div className="mb-4">
                   <div className="flex items-center justify-between mb-2">
                     <h3 className="text-xs font-bold uppercase tracking-wide text-slate-500">History</h3>
                     {historyStack.length > 0 && (
-                      <button
-                        onClick={clearHistory}
-                        className="text-slate-400 hover:text-red-500"
-                      >
-                        <Trash2 size={14} />
-                      </button>
+                      <button onClick={clearHistory} className="text-slate-400 hover:text-red-500"><Trash2 size={14} /></button>
                     )}
                   </div>
                   {historyStack.length === 0 ? (
@@ -787,8 +779,6 @@ export default function WikipediaSearchEnhanced() {
                     </ul>
                   )}
                 </div>
-
-                {/* Favorites */}
                 <div>
                   <h3 className="mb-2 text-xs font-bold uppercase tracking-wide text-slate-500">Favorites</h3>
                   {favorites.length === 0 ? (
@@ -812,7 +802,7 @@ export default function WikipediaSearchEnhanced() {
           </div>
         </div>
 
-        {/* ==== TRANSLATION BAR ==== */}
+        {/* ==== TRANSLATION BAR - responsive wrapping ==== */}
         {data && !loading && (
           <div className="flex flex-wrap items-center gap-2 rounded-2xl bg-white border border-gray-200 p-3">
             <span className="flex items-center gap-2 text-sm font-bold text-slate-700">
@@ -853,8 +843,8 @@ export default function WikipediaSearchEnhanced() {
         )}
 
         {data && !loading && (
-          <article className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
-            {/* Navigation bar */}
+          <article className="rounded-2xl border border-gray-200 bg-white p-4 sm:p-6 shadow-sm">
+            {/* Navigation bar - responsive wrap */}
             <div className="flex flex-wrap items-center justify-between gap-3 border-b border-gray-200 pb-4 mb-4">
               <div className="flex items-center gap-2">
                 <button onClick={goBack} disabled={historyIndex <= 0} className="rounded-full bg-slate-100 p-2 text-slate-700 disabled:opacity-40 hover:bg-slate-200 transition">
@@ -882,18 +872,18 @@ export default function WikipediaSearchEnhanced() {
               </div>
             </div>
 
-            {/* Article content */}
+            {/* Article content - responsive grid: stacks on mobile, side by side on desktop */}
             <div className="grid gap-7 lg:grid-cols-[minmax(0,1fr)_320px]">
               <div>
-                <h2 className="text-2xl sm:text-3xl font-bold text-slate-900">{data.title}</h2>
-                {data.description && <p className="mt-2 italic text-slate-500">{data.description}</p>}
+                <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-slate-900">{data.title}</h2>
+                {data.description && <p className="mt-2 italic text-slate-500 text-sm sm:text-base">{data.description}</p>}
                 <div className="mt-3 flex flex-wrap gap-3 text-sm font-bold text-slate-600">
                   <span className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-3 py-1"><Timer size={14} /> {wordCount} words</span>
                   <span className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-3 py-1"><Clock size={14} /> {readTime} min read</span>
                   {details?.fullText && details.fullText.length > (data.extract?.length || 0) + 100 && (
                     <button
                       onClick={() => setShowFullText((v) => !v)}
-                      className="rounded-full bg-purple-100 px-3 py-1 text-purple-700 hover:bg-purple-200 transition"
+                      className="rounded-full bg-purple-100 px-3 py-1 text-purple-700 hover:bg-purple-200 transition text-sm"
                     >
                       {showFullText ? "Show Summary" : "Show Full Article"}
                     </button>
@@ -906,10 +896,10 @@ export default function WikipediaSearchEnhanced() {
               <div>
                 {data.thumbnail?.source ? (
                   <button onClick={() => window.open(data.thumbnail?.source, "_blank")} className="block w-full overflow-hidden rounded-xl bg-slate-200 shadow-lg">
-                    <img src={data.thumbnail.source} alt={data.title} className="h-72 w-full object-cover" loading="lazy" onError={(e) => (e.currentTarget.style.display = "none")} />
+                    <img src={data.thumbnail.source} alt={data.title} className="h-48 sm:h-64 lg:h-72 w-full object-cover" loading="lazy" onError={(e) => (e.currentTarget.style.display = "none")} />
                   </button>
                 ) : (
-                  <div className="flex h-72 w-full items-center justify-center rounded-xl bg-slate-200 text-slate-400"><ImageIcon size={46} /></div>
+                  <div className="flex h-48 sm:h-64 lg:h-72 w-full items-center justify-center rounded-xl bg-slate-200 text-slate-400"><ImageIcon size={46} /></div>
                 )}
                 {details?.images && details.images.length > 0 && (
                   <div className="mt-4">
@@ -917,7 +907,7 @@ export default function WikipediaSearchEnhanced() {
                     <div className="grid grid-cols-2 gap-3">
                       {details.images.map((img, idx) => (
                         <button key={`img-${idx}`} onClick={() => window.open(img, "_blank")} className="overflow-hidden rounded-lg bg-slate-200">
-                          <img src={img} alt={`${data.title} ${idx+1}`} className="h-28 w-full object-cover hover:scale-105 transition" loading="lazy" onError={(e) => (e.currentTarget.style.display = "none")} />
+                          <img src={img} alt={`${data.title} ${idx+1}`} className="h-24 sm:h-28 w-full object-cover hover:scale-105 transition" loading="lazy" onError={(e) => (e.currentTarget.style.display = "none")} />
                         </button>
                       ))}
                     </div>
@@ -926,7 +916,7 @@ export default function WikipediaSearchEnhanced() {
               </div>
             </div>
 
-            {/* Action buttons */}
+            {/* Action buttons - wrap on mobile */}
             <div className="mt-6 flex flex-wrap gap-3">
               {data.content_urls?.desktop?.page && (
                 <a href={data.content_urls.desktop.page} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 rounded-full bg-[#1a237e] px-4 py-2 text-sm font-bold text-white hover:bg-[#283593] transition">
@@ -948,13 +938,13 @@ export default function WikipediaSearchEnhanced() {
         {!loading && !data && !error && (
           <div className="rounded-2xl border border-dashed border-slate-300 bg-white/60 px-4 py-12 text-center">
             <Search size={48} className="mx-auto mb-4 text-slate-300" />
-            <h2 className="text-2xl font-bold text-slate-800">Search Wikipedia articles</h2>
-            <p className="mt-2 text-slate-500">Type a topic and press Search. {educationMode && "🎓 School Mode is active – showing only class 1-12 relevant results."}</p>
+            <h2 className="text-xl sm:text-2xl font-bold text-slate-800">Search Wikipedia articles</h2>
+            <p className="mt-2 text-slate-500 text-sm sm:text-base">Type a topic and press Search. {educationMode && "🎓 School Mode is active – showing only class 1-12 relevant results."}</p>
           </div>
         )}
       </div>
 
-      {/* Mobile Library Drawer (overlay) */}
+      {/* Mobile Library Drawer (overlay) - fully responsive */}
       {showLibrary && (
         <div className="fixed inset-0 z-50 sm:hidden">
           <div className="absolute inset-0 bg-black/50" onClick={() => setShowLibrary(false)} />
