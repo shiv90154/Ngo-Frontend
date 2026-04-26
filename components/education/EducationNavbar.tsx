@@ -2,10 +2,10 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { GraduationCap, Home, BookOpen, PenTool, Users, User, Menu, X, ChevronDown } from "lucide-react";
+import { GraduationCap, Home, BookOpen, PenTool, Users, User, Menu, X, ChevronDown, Search } from "lucide-react"; // Search icon added
 import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
-import LogoutButton from "@/components/LogoutButton"; // 🆕 导入独立注销组件
+import LogoutButton from "@/components/LogoutButton";
 
 export default function EducationNavbar() {
   const pathname = usePathname();
@@ -20,17 +20,20 @@ export default function EducationNavbar() {
     { name: "Browse", href: "/education/courses", icon: BookOpen },
     { name: "My Learning", href: "/education/my-courses", icon: GraduationCap },
     ...(user?.role === "TEACHER" ? [{ name: "Instructor", href: "/education/instructor/dashboard", icon: PenTool }] : []),
+    // 🆕 Wikipedia search link
+    { name: "Wiki", href: "/education/WikipediaSearch", icon: Search },
   ];
 
   const isActive = (href: string) => pathname === href || pathname.startsWith(href + "/");
 
   return (
     <>
+      {/* Desktop Header – wahi pura code */}
       <header className="hidden lg:block sticky top-0 z-40 bg-white border-b border-gray-200 shadow-sm">
         <div className="px-6 h-16 flex items-center justify-between">
           <Link href="/education" className="flex items-center gap-3">
             <div className="flex items-center gap-1">
-              {/* 如果需要，可以保留徽标 */}
+              {/* logo etc. */}
             </div>
             <div>
               <h1 className="text-lg font-bold text-[#1a237e]">Samraddh</h1>
@@ -44,6 +47,7 @@ export default function EducationNavbar() {
               </Link>
             ))}
           </nav>
+          {/* User menu (same) */}
           <div className="relative">
             {mounted && (
               <>
@@ -56,7 +60,7 @@ export default function EducationNavbar() {
                 {showUserMenu && (
                   <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg border py-1 z-50">
                     <Link href="/profile" className="flex items-center gap-2 px-4 py-2 hover:bg-gray-50"><User size={16} /> Profile</Link>
-                    <LogoutButton /> {/* 🆕 使用独立注销组件 */}
+                    <LogoutButton />
                   </div>
                 )}
               </>
@@ -64,7 +68,8 @@ export default function EducationNavbar() {
           </div>
         </div>
       </header>
-      {/* Mobile bottom nav */}
+
+      {/* Mobile bottom nav – Wiki add karein */}
       <nav className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-50">
         <div className="flex justify-around py-2">
           {navItems.map((item) => (

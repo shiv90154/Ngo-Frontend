@@ -16,11 +16,7 @@ export default function MyCoursesPage() {
     if (!user) return;
     const fetchMyCourses = async () => {
       try {
-        // 方案A：后端提供专门的 /education/my-courses 接口（推荐）
-        // const res = await educationAPI.getMyEnrollments();
-        // setEnrollments(res.data.enrollments);
-
-        // 方案B（临时）：获取所有公开课程，逐一检查是否已注册
+        
         const coursesRes = await educationAPI.getPublishedCourses({ limit: 50 });
         const courses = coursesRes.data.courses;
         const enrolledList = [];
@@ -125,7 +121,7 @@ export default function MyCoursesPage() {
                   </div>
                 </div>
 
-                {/* 状态标签 */}
+            
                 <div className="mt-4 flex items-center justify-between">
                   {enrollment?.completedAt ? (
                     <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full flex items-center gap-1">
@@ -146,7 +142,7 @@ export default function MyCoursesPage() {
         </div>
       )}
 
-      {/* 快捷链接 */}
+  
       <div className="pt-4">
         <Link
           href="/education/courses"

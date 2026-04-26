@@ -8,7 +8,7 @@ const api = axios.create({
   headers: { "Content-Type": "application/json" },
 });
 
-// 请求拦截器：自动添加 token（仅客户端）
+// Request interceptor – adds token from localStorage (client‑side only)
 api.interceptors.request.use((config) => {
   if (typeof window !== "undefined") {
     const token = localStorage.getItem("token");
@@ -259,7 +259,7 @@ export const itAPI = {
 };
 
 // ======================
-// ADMIN API (full version)
+// ADMIN API (extended with MLM endpoints)
 // ======================
 export const adminAPI = {
   // Dashboard stats
@@ -278,23 +278,38 @@ export const adminAPI = {
   getSubordinates: (userId?: string) =>
     api.get(userId ? `/admin/subordinates/${userId}` : "/admin/subordinates"),
 
-  // 🆕 System Settings
+  // System Settings
   getSettings: () => api.get("/admin/settings"),
   updateSettings: (data: any) => api.put("/admin/settings", data),
 
-  // 🆕 Activity Logs
+  // Activity Logs
   getLogs: (params?: { page?: number; limit?: number; action?: string; userId?: string }) =>
     api.get("/admin/logs", { params }),
 
-  // 🆕 Module Oversight (for dashboard cards)
+  // Module Oversight (for dashboard cards)
   getModuleData: (module: string) => api.get(`/admin/module/${module}`),
 
-  // 🆕 Global Notifications
+  // Global Notifications
   sendGlobalNotification: (title: string, message: string) =>
     api.post("/admin/notifications/send", { title, message }),
 
-  // 🆕 CSV Export
+  // CSV Export
   exportUsersCSV: () => api.get("/admin/users/export/csv", { responseType: "blob" }),
+
+  // --- MLM Admin endpoints ---
+  getCommissions: (params?: { status?: string; userId?: string; page?: number; limit?: number }) =>
+    api.get("/mlm/commissions", { params }),
+  payoutUser: (userId: string) => api.post(`/mlm/payout/${userId}`),
+  batchPayout: () => api.post("/mlm/payout/batch"),
+};
+
+// ======================
+// MLM USER API (for individual earnings & downline)
+// ======================
+export const mlmAPI = {
+  getMyEarnings: () => api.get("/mlm/earnings"),
+  getDownline: (userId?: string) =>
+    api.get(userId ? `/mlm/downline/${userId}` : "/mlm/downline"),
 };
 
 // ======================
@@ -372,6 +387,18 @@ export const educationAPI = {
   endLiveClass: (liveClassId: string, recordingUrl?: string) => api.put(`/liveclass/${liveClassId}/end`, { recordingUrl }),
 };
 
+
+export const subscriptionAPI = {
+  getPlans: () => api.get('/subscription/plans'),
+  purchase: (planId: string) => api.post('/subscription/purchase', { planId }),
+  verify: (data: any) => api.post('/subscription/verify', data),
+  mySubscription: () => api.get('/subscription/my'),
+  cancel: () => api.post('/subscription/cancel'),
+  createPlan: (data: any) => api.post('/subscription/plans', data),
+  updatePlan: (id: string, data: any) => api.put(`/subscription/plans/${id}`, data),
+  deletePlan: (id: string) => api.delete(`/subscription/plans/${id}`),
+  getPayments: (params?: any) => api.get('/subscription/payments', { params }),
+};
 // ======================
 // AUTH API
 // ======================

@@ -3,7 +3,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   LayoutDashboard, Users, GitBranch, BarChart3, Settings,
-  FileText, Bell, Shield, Database
+  FileText, Bell, Shield, Database, TrendingUp,CreditCard,Wallet
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useState, useEffect } from "react";
@@ -12,11 +12,16 @@ const links = [
   { href: "/admin", label: "Dashboard", icon: LayoutDashboard, roles: ['*'] },
   { href: "/admin/users", label: "Users", icon: Users, roles: ['*'] },
   { href: "/admin/hierarchy", label: "Hierarchy", icon: GitBranch, roles: ['SUPER_ADMIN','ADDITIONAL_DIRECTOR'] },
+  { href: "/admin/mlm", label: "MLM Commissions", icon: TrendingUp, roles: ['SUPER_ADMIN','ADDITIONAL_DIRECTOR'] },  // 🆕 MLM link
   { href: "/admin/modules", label: "Modules", icon: Database, roles: ['*'] },
   { href: "/admin/analytics", label: "Analytics", icon: BarChart3, roles: ['*'] },
   { href: "/admin/logs", label: "Activity Logs", icon: FileText, roles: ['SUPER_ADMIN'] },
+    { href: "/admin/subscription/plans", label: "Subs. Plans", icon: CreditCard, roles: ['SUPER_ADMIN'] },
+{ href: "/admin/subscription/payments", label: "Subs. Payments", icon: Wallet, roles: ['SUPER_ADMIN'] },
   { href: "/admin/notifications/send", label: "Send Alert", icon: Bell, roles: ['SUPER_ADMIN'] },
+
   { href: "/admin/settings", label: "Settings", icon: Settings, roles: ['SUPER_ADMIN'] },
+
 ];
 
 export default function AdminSidebar() {
