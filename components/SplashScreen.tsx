@@ -35,7 +35,7 @@ export default function SplashScreen() {
 
           {/* ── Logo with entrance animation ── */}
           <motion.img
-            src="/logo.webp"
+            src="/logo-Photoroom.png"
             alt="Samraddh Bharat"
             className="w-28 h-28 md:w-36 md:h-36 object-contain"
             initial={{ scale: 0.5, opacity: 0, y: -20 }}
