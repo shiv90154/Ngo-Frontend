@@ -1,6 +1,7 @@
 import { Metadata } from "next";
 import EducationNavbar from "@/components/education/EducationNavbar";
 import EducationSidebar from "@/components/education/EducationSidebar";
+import wikipediaSearch from "@/lib/wikipediaSearch";
 
 export const metadata: Metadata = {
   title: "Samraddh Education | Government of India",
@@ -14,6 +15,7 @@ export default function EducationLayout({ children }: { children: React.ReactNod
       <EducationNavbar />
       <div className="flex">
         <EducationSidebar />
+        
         <main className="flex-1 p-4 lg:p-6 pb-20 lg:pb-6 max-w-7xl mx-auto w-full">
           {children}
         </main>
