@@ -399,6 +399,11 @@ export const subscriptionAPI = {
   deletePlan: (id: string) => api.delete(`/subscription/plans/${id}`),
   getPayments: (params?: any) => api.get('/subscription/payments', { params }),
 };
+
+
+export const searchAPI = {
+  globalSearch: (q: string) => api.get('/search', { params: { q } }),
+};
 // ======================
 // AUTH API
 // ======================

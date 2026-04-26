@@ -4,7 +4,8 @@ import "./globals.css";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import SplashScreen from "@/components/SplashScreen";   // 🆕
+import SplashScreen from "@/components/SplashScreen";
+import OnboardingTutorial from "@/components/OnboardingTutorial";   // 🆕
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -21,7 +22,8 @@ export default function RootLayout({
     <html lang="en">
       <body className={inter.className}>
         <AuthProvider>
-          <SplashScreen />        {/* 🆕 beautiful loading screen */}
+          <SplashScreen />
+          <OnboardingTutorial />   {/* 🆕 guided tour for new users */}
           {children}
           <ToastContainer
             position="top-right"
