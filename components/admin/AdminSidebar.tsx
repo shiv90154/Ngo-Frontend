@@ -16,10 +16,12 @@ const links = [
   { href: "/admin/modules", label: "Modules", icon: Database, roles: ['*'] },
   { href: "/admin/analytics", label: "Analytics", icon: BarChart3, roles: ['*'] },
   { href: "/admin/logs", label: "Activity Logs", icon: FileText, roles: ['SUPER_ADMIN'] },
-  { href: "/admin/notifications/send", label: "Send Alert", icon: Bell, roles: ['SUPER_ADMIN'] },
-  { href: "/admin/settings", label: "Settings", icon: Settings, roles: ['SUPER_ADMIN'] },
-  { href: "/admin/subscription/plans", label: "Subs. Plans", icon: CreditCard, roles: ['SUPER_ADMIN'] },
+    { href: "/admin/subscription/plans", label: "Subs. Plans", icon: CreditCard, roles: ['SUPER_ADMIN'] },
 { href: "/admin/subscription/payments", label: "Subs. Payments", icon: Wallet, roles: ['SUPER_ADMIN'] },
+  { href: "/admin/notifications/send", label: "Send Alert", icon: Bell, roles: ['SUPER_ADMIN'] },
+
+  { href: "/admin/settings", label: "Settings", icon: Settings, roles: ['SUPER_ADMIN'] },
+
 ];
 
 export default function AdminSidebar() {
