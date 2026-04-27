@@ -4,20 +4,30 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
-import api from "@/config/api";
+import { authAPI } from "@/lib/api";
 import {
   User, Mail, Phone, Calendar, MapPin, Fingerprint,
   GraduationCap, HeartPulse, Sprout, Wallet,
   MonitorSmartphone, Users, Store, ArrowLeft, Edit,
-  Loader2, Shield, Award, Briefcase, IndianRupee
+  Loader2, Shield, Camera
 } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
+
+// Helper to build absolute image URL
+const getImageUrl = (path: string) => {
+  if (!path) return null;
+  if (path.startsWith("http")) return path;
+  const base = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+  return `${base}${path}`;
+};
 
 export default function ViewProfilePage() {
   const { user, loading: authLoading } = useAuth();
   const router = useRouter();
   const [profileData, setProfileData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [imgError, setImgError] = useState(false);
   const [activeTab, setActiveTab] = useState("basic");
 
   useEffect(() => {
@@ -30,7 +40,7 @@ export default function ViewProfilePage() {
 
   const fetchProfile = async () => {
     try {
-      const res = await api.get("/users/profile");
+      const res = await authAPI.getProfile();
       setProfileData(res.data.user);
     } catch (err) {
       console.error("Failed to load profile:", err);
@@ -65,23 +75,42 @@ export default function ViewProfilePage() {
 
   if (!profileData) return null;
 
+  const imageUrl = profileData.profileImage ? getImageUrl(profileData.profileImage) : null;
+
   return (
     <div className="min-h-screen bg-[#f0f2f5] flex flex-col">
       <div className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 w-full">
+
         {/* Header */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-5 mb-5">
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-5 mb-5">
           <div className="flex flex-wrap items-center justify-between gap-4">
             <div className="flex items-center gap-4">
+              {/* Profile Photo – enhanced */}
               <div className="relative">
-                <div className="w-16 h-16 rounded-full bg-gray-100 overflow-hidden border-2 border-[#1a237e]/20 shadow-sm">
-                  {profileData.profileImage ? (
-                    <img src={profileData.profileImage} alt="Profile" className="w-full h-full object-cover" />
+                <div className="w-20 h-20 rounded-full bg-gray-100 overflow-hidden border-4 border-white shadow-lg">
+                  {imageUrl && !imgError ? (
+                    <Image
+                      src={imageUrl}
+                      alt="Profile"
+                      width={80}
+                      height={80}
+                      className="object-cover w-full h-full"
+                      onError={() => setImgError(true)}
+                      unoptimized
+                    />
                   ) : (
-                    <div className="w-full h-full bg-gradient-to-br from-[#1a237e] to-[#283593] flex items-center justify-center text-white text-xl font-semibold">
+                    <div className="w-full h-full bg-gradient-to-br from-[#1a237e] to-[#283593] flex items-center justify-center text-white text-2xl font-bold">
                       {profileData.fullName?.[0]?.toUpperCase() || "U"}
                     </div>
                   )}
                 </div>
+                <Link
+                  href="/profile"
+                  className="absolute -bottom-1 -right-1 bg-white border border-gray-200 hover:bg-gray-50 p-1.5 rounded-full shadow transition"
+                  title="Edit profile picture"
+                >
+                  <Camera size={14} className="text-gray-600" />
+                </Link>
               </div>
               <div>
                 <div className="flex items-center gap-2">
@@ -118,7 +147,7 @@ export default function ViewProfilePage() {
         </div>
 
         {/* Tabs */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 mb-5 overflow-x-auto">
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 mb-5 overflow-x-auto">
           <div className="flex px-2 py-1 gap-1 min-w-max">
             {tabs.map(tab => (
               <button
@@ -138,7 +167,7 @@ export default function ViewProfilePage() {
         </div>
 
         {/* Content */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-5 md:p-6">
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-5 md:p-6">
           {/* Personal Tab */}
           {activeTab === "basic" && (
             <div className="space-y-5">

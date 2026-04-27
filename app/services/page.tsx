@@ -7,11 +7,13 @@ import { useAuth } from '@/contexts/AuthContext';
 import {
   ArrowRight, GraduationCap, Wallet, HeartPulse,
   Newspaper, Sprout, MonitorSmartphone, User, LogOut,
-  ChevronRight, Shield, Globe, Award, TrendingUp,
-  BadgeCheck, Clock, X, Loader2, ExternalLink
+  ChevronRight, Shield, TrendingUp,
+  BadgeCheck, Clock, X, Loader2, ExternalLink, Menu,
+  LayoutGrid, Zap
 } from 'lucide-react';
 import NotificationBell from '@/components/NotificationBell';
-import { subscriptionAPI } from '@/lib/api';   // 🆕 subscription API
+import GlobalSearch from '@/components/GlobalSearch';
+import { subscriptionAPI } from '@/lib/api';
 
 const services = [
   {
@@ -81,42 +83,30 @@ export default function Services() {
   const { user, logout, loading } = useAuth();
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
   const [isClient, setIsClient] = useState(false);
-
-  // Subscription modal state
   const [showSubModal, setShowSubModal] = useState(false);
   const [subData, setSubData] = useState<any>(null);
   const [subLoading, setSubLoading] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  useEffect(() => {
-    setIsClient(true);
-  }, []);
+  useEffect(() => { setIsClient(true); }, []);
 
   useEffect(() => {
     if (!isClient) return;
     if (loading) return;
     const token = localStorage.getItem("token");
-    if (!token || !user) {
-      router.replace("/login");
-    }
+    if (!token || !user) router.replace("/login");
   }, [isClient, loading, user, router]);
 
-  const handleLogout = async () => {
-    await logout();
-    router.push("/login");
-  };
+  const handleLogout = async () => { await logout(); router.push("/login"); };
 
-  // Fetch subscription data when modal opens
   const openSubscriptionModal = async () => {
     setShowSubModal(true);
     setSubLoading(true);
     try {
       const res = await subscriptionAPI.mySubscription();
       setSubData(res.data);
-    } catch (error) {
-      setSubData(null);
-    } finally {
-      setSubLoading(false);
-    }
+    } catch (error) { setSubData(null); }
+    finally { setSubLoading(false); }
   };
 
   if (!isClient || loading) {
@@ -136,72 +126,77 @@ export default function Services() {
 
   return (
     <div className="min-h-screen bg-[#f0f2f5] flex flex-col">
-      <div className="sticky top-0 z-50 bg-white border-b border-gray-200 shadow-sm">
+      {/* Modern Header */}
+      <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-200/60 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-wrap justify-between items-center gap-4 px-3 py-4">
-            <div>
-              <h1 className="text-lg md:text-xl font-bold text-[#1a237e] font-serif leading-tight">Samraddh Bharat</h1>
-              <p className="text-xs text-gray-400 hidden sm:block">डिजिटल इंडिया · Unified Service Portal</p>
+          <div className="flex items-center justify-between h-16">
+            {/* Left: Brand + Search */}
+            <div className="flex items-center gap-6 flex-1">
+              {/* Brand */}
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 bg-gradient-to-br from-[#1a237e] to-[#3949ab] rounded-lg flex items-center justify-center">
+                  <LayoutGrid className="w-5 h-5 text-white" />
+                </div>
+                <span className="text-xl font-extrabold text-[#1a237e] tracking-tight hidden sm:inline">Samraddh</span>
+              </div>
+              {/* Global Search */}
+              <div className="hidden sm:block flex-1 max-w-md">
+                <GlobalSearch />
+              </div>
             </div>
-            <div className="flex items-center gap-2 sm:gap-3">
+
+            {/* Right: Actions */}
+            <div className="flex items-center gap-1.5 sm:gap-2">
+              {/* Mobile search icon */}
+              <button onClick={() => router.push('/search')} className="sm:hidden p-2 text-gray-600 hover:bg-gray-100 rounded-lg">
+                <Zap size={20} />
+              </button>
+
               <NotificationBell />
 
-              {/* 🆕 Subscription Button */}
-              <button
-                onClick={openSubscriptionModal}
-                className="flex items-center gap-2 bg-gradient-to-r from-indigo-400 to-indigo-600 text-white px-4 py-2 rounded-full text-sm font-bold hover:shadow-lg transition transform hover:-translate-y-0.5"
-              >
-                <BadgeCheck size={16} /> My Plan
-              </button>
-
-              {/* MLM Earnings Button */}
-              <button
-                onClick={() => router.push('/services/mlm')}
-                className="flex items-center gap-2 bg-gradient-to-r from-amber-400 to-amber-600 text-white px-4 py-2 rounded-full text-sm font-bold hover:shadow-lg transition transform hover:-translate-y-0.5"
-              >
-                <TrendingUp size={16} /> My Earnings
-              </button>
-
-              <div className="hidden sm:flex items-center gap-2 bg-gray-50 rounded-full px-4 py-2 border border-gray-200">
-                <Shield size={14} className="text-green-600" />
-                <span className="text-sm font-medium text-gray-700">{user.fullName || user.email}</span>
-                {user.role && (
-                  <span className="text-xs bg-[#1a237e] text-white px-2 py-0.5 rounded-full">
-                    {user.role.replace('_', ' ')}
-                  </span>
-                )}
+              {/* Desktop pills */}
+              <div className="hidden md:flex items-center gap-2">
+                <button onClick={openSubscriptionModal} className="flex items-center gap-1.5 bg-indigo-50 text-indigo-700 px-3 py-1.5 rounded-full text-xs font-semibold hover:bg-indigo-100 transition border border-indigo-200">
+                  <BadgeCheck size={14} /> My Plan
+                </button>
+                <button onClick={() => router.push('/services/mlm')} className="flex items-center gap-1.5 bg-amber-50 text-amber-700 px-3 py-1.5 rounded-full text-xs font-semibold hover:bg-amber-100 transition border border-amber-200">
+                  <TrendingUp size={14} /> Earnings
+                </button>
+                <div className="flex items-center gap-2 bg-gray-50 rounded-full pl-2 pr-1 py-1 border border-gray-200">
+                  <span className="text-xs font-medium text-gray-700 max-w-[100px] truncate">{user.fullName || user.email}</span>
+                  <span className="text-[10px] bg-[#1a237e] text-white px-2 py-0.5 rounded-full font-medium">{user.role?.replace('_', ' ') || 'User'}</span>
+                </div>
+                <button onClick={() => router.push('/profile/view')} className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition" title="My Profile"><User size={18} /></button>
+                <button onClick={handleLogout} className="p-2 text-gray-600 hover:bg-red-50 hover:text-red-600 rounded-lg transition" title="Logout"><LogOut size={18} /></button>
               </div>
-              <button
-                onClick={() => router.push('/profile/view')}
-                className="flex items-center gap-2 bg-[#1a237e]/10 hover:bg-[#1a237e]/20 text-[#1a237e] px-4 py-2 rounded-lg transition text-sm font-medium border border-[#1a237e]/30"
-              >
-                <User size={14} /> My Profile
-              </button>
-              <button
-                onClick={handleLogout}
-                className="flex items-center gap-1.5 bg-red-50 hover:bg-red-100 text-red-600 px-4 py-2 rounded-lg transition text-sm font-medium border border-red-200"
-              >
-                <LogOut size={14} /> <span className="hidden sm:inline">Logout</span>
-              </button>
+
+              <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)} className="md:hidden p-2 text-gray-600 hover:bg-gray-100 rounded-lg"><Menu size={20} /></button>
             </div>
           </div>
-        </div>
-      </div>
 
-      {/* Main Container */}
+          {mobileMenuOpen && (
+            <div className="md:hidden border-t border-gray-100 py-3 space-y-1">
+              <button onClick={openSubscriptionModal} className="flex items-center gap-3 w-full px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 rounded-lg"><BadgeCheck size={18} className="text-indigo-600" /> My Plan</button>
+              <button onClick={() => router.push('/services/mlm')} className="flex items-center gap-3 w-full px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 rounded-lg"><TrendingUp size={18} className="text-amber-600" /> My Earnings</button>
+              <div className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700"><User size={18} className="text-[#1a237e]" /><span>{user.fullName || user.email}</span><span className="text-[10px] bg-[#1a237e] text-white px-2 py-0.5 rounded-full ml-auto">{user.role?.replace('_', ' ') || 'User'}</span></div>
+              <button onClick={() => { router.push('/profile/view'); setMobileMenuOpen(false); }} className="flex items-center gap-3 w-full px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 rounded-lg"><User size={18} /> My Profile</button>
+              <button onClick={() => { handleLogout(); setMobileMenuOpen(false); }} className="flex items-center gap-3 w-full px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 rounded-lg"><LogOut size={18} /> Logout</button>
+            </div>
+          )}
+        </div>
+      </header>
+
+      {/* Services Grid */}
       <div className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 w-full">
         <div className="mb-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
             {services.map((service, idx) => {
               const Icon = service.icon;
               const isHovered = hoveredIndex === idx;
-
               return (
                 <div
                   key={idx}
-                  className={`rounded-xl shadow-md border transition-all duration-300 cursor-pointer overflow-hidden hover:shadow-xl hover:-translate-y-1 ${
-                    isHovered ? 'border-transparent' : 'border-gray-100'
-                  }`}
+                  className={`rounded-xl shadow-md border transition-all duration-300 cursor-pointer overflow-hidden hover:shadow-xl hover:-translate-y-1 ${isHovered ? 'border-transparent' : 'border-gray-100'}`}
                   style={{ background: service.light }}
                   onMouseEnter={() => setHoveredIndex(idx)}
                   onMouseLeave={() => setHoveredIndex(null)}
@@ -240,63 +235,33 @@ export default function Services() {
         </div>
       </div>
 
-      {/* ========== Subscription Modal ========== */}
+      {/* Subscription Modal */}
       {showSubModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-bold text-gray-800 flex items-center gap-2">
-                <BadgeCheck className="text-indigo-600 w-6 h-6" /> My Subscription
-              </h2>
-              <button onClick={() => setShowSubModal(false)}>
-                <X size={20} className="text-gray-500 hover:text-gray-800" />
-              </button>
+              <h2 className="text-xl font-bold text-gray-800 flex items-center gap-2"><BadgeCheck className="text-indigo-600 w-6 h-6" /> My Subscription</h2>
+              <button onClick={() => setShowSubModal(false)}><X size={20} className="text-gray-500 hover:text-gray-800" /></button>
             </div>
-
             {subLoading ? (
-              <div className="flex justify-center py-8">
-                <Loader2 className="animate-spin h-8 w-8 text-indigo-600" />
-              </div>
+              <div className="flex justify-center py-8"><Loader2 className="animate-spin h-8 w-8 text-indigo-600" /></div>
             ) : !activeSub || activeSub.plan === 'NONE' ? (
               <div className="text-center py-6">
                 <BadgeCheck className="w-12 h-12 text-gray-300 mx-auto mb-3" />
                 <p className="text-gray-600 mb-4">You don't have an active subscription.</p>
-                <button
-                  onClick={() => { setShowSubModal(false); router.push('/services/subscription'); }}
-                  className="bg-indigo-600 text-white px-6 py-2 rounded-full font-bold hover:bg-indigo-700 transition"
-                >
-                  View Plans
-                </button>
+                <button onClick={() => { setShowSubModal(false); router.push('/services/subscription'); }} className="bg-indigo-600 text-white px-6 py-2 rounded-full font-bold hover:bg-indigo-700 transition">View Plans</button>
               </div>
             ) : (
               <div className="space-y-4">
                 <div className="bg-indigo-50 rounded-xl p-4">
                   <p className="text-sm text-indigo-800 font-medium">Active Plan</p>
                   <p className="text-2xl font-extrabold text-indigo-900">{activeSub.plan}</p>
-                  <div className="flex items-center gap-2 mt-2 text-sm text-indigo-700">
-                    <Clock size={16} />
-                    <span>Expires {new Date(activeSub.expiresAt).toLocaleDateString()}</span>
-                  </div>
-                  {activeSub.autoRenew ? (
-                    <p className="text-xs text-green-600 mt-1">Auto‑renew is ON</p>
-                  ) : (
-                    <p className="text-xs text-gray-500 mt-1">Auto‑renew is off</p>
-                  )}
+                  <div className="flex items-center gap-2 mt-2 text-sm text-indigo-700"><Clock size={16} /><span>Expires {new Date(activeSub.expiresAt).toLocaleDateString()}</span></div>
+                  {activeSub.autoRenew ? <p className="text-xs text-green-600 mt-1">Auto‑renew is ON</p> : <p className="text-xs text-gray-500 mt-1">Auto‑renew is off</p>}
                 </div>
-
                 <div className="flex gap-2">
-                  <button
-                    onClick={() => { setShowSubModal(false); router.push('/services/subscription/my'); }}
-                    className="flex-1 bg-indigo-600 text-white py-2 rounded-lg font-bold hover:bg-indigo-700 transition"
-                  >
-                    Manage
-                  </button>
-                  <button
-                    onClick={() => { setShowSubModal(false); router.push('/services/subscription'); }}
-                    className="flex-1 border border-indigo-600 text-indigo-600 py-2 rounded-lg font-bold hover:bg-indigo-50 transition flex items-center justify-center gap-1"
-                  >
-                    Upgrade <ExternalLink size={14} />
-                  </button>
+                  <button onClick={() => { setShowSubModal(false); router.push('/services/subscription/my'); }} className="flex-1 bg-indigo-600 text-white py-2 rounded-lg font-bold hover:bg-indigo-700 transition">Manage</button>
+                  <button onClick={() => { setShowSubModal(false); router.push('/services/subscription'); }} className="flex-1 border border-indigo-600 text-indigo-600 py-2 rounded-lg font-bold hover:bg-indigo-50 transition flex items-center justify-center gap-1">Upgrade <ExternalLink size={14} /></button>
                 </div>
               </div>
             )}

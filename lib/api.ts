@@ -23,6 +23,7 @@ api.interceptors.request.use((config) => {
 // HEALTHCARE API
 // ======================
 export const healthcareAPI = {
+  // ---------- DOCTOR AVAILABILITY ----------
   setDoctorAvailability: (data: {
     workingDays?: string[];
     timeSlots?: any[];
@@ -36,6 +37,7 @@ export const healthcareAPI = {
   getAvailableSlots: (doctorId: string, date: string) =>
     api.get("/healthcare/slots", { params: { doctorId, date } }),
 
+  // ---------- APPOINTMENTS ----------
   bookAppointment: (data: {
     doctorId: string;
     appointmentDate: string;
@@ -70,6 +72,7 @@ export const healthcareAPI = {
 
   getAppointmentById: (id: string) => api.get(`/healthcare/appointments/${id}`),
 
+  // ---------- PRESCRIPTIONS ----------
   createPrescription: (data: {
     patientId: string;
     appointmentId?: string;
@@ -96,6 +99,7 @@ export const healthcareAPI = {
 
   getPrescriptionById: (id: string) => api.get(`/healthcare/prescriptions/${id}`),
 
+  // ---------- HEALTH RECORDS ----------
   addHealthRecord: (formData: FormData) =>
     api.post("/healthcare/records", formData, {
       headers: { "Content-Type": "multipart/form-data" },
@@ -113,6 +117,7 @@ export const healthcareAPI = {
 
   deleteHealthRecord: (id: string) => api.delete(`/healthcare/records/${id}`),
 
+  // ---------- DOCTOR SEARCH ----------
   searchDoctors: (params: {
     specialization?: string;
     state?: string;
@@ -122,6 +127,10 @@ export const healthcareAPI = {
   }) => api.get("/healthcare/doctors/search", { params }),
 
   getDoctorById: (id: string) => api.get(`/users/${id}`),
+
+  // ---------- DOCTOR DASHBOARD & PATIENTS ----------
+  getDoctorDashboard: () => api.get("/healthcare/doctor/dashboard"),
+  getMyPatients: () => api.get("/healthcare/doctor/patients"),
 };
 
 // ======================
@@ -398,6 +407,11 @@ export const subscriptionAPI = {
   updatePlan: (id: string, data: any) => api.put(`/subscription/plans/${id}`, data),
   deletePlan: (id: string) => api.delete(`/subscription/plans/${id}`),
   getPayments: (params?: any) => api.get('/subscription/payments', { params }),
+};
+
+
+export const searchAPI = {
+  globalSearch: (q: string) => api.get('/search', { params: { q } }),
 };
 // ======================
 // AUTH API
