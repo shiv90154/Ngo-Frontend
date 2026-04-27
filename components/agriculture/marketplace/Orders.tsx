@@ -28,8 +28,8 @@ type Product = {
 };
 
 type Address = {
-  street?: string;
   block?: string;
+  country?: string;
   city?: string;
   pincode?: string;
 };
@@ -200,7 +200,7 @@ export default function Orders() {
           const product = order.product || { name: "Product unavailable", images: [] };
           const productImage =
             (product.images && product.images[0]) ||
-            (product.imageUrl && product.imageUrl[0]) ||
+            (product.imageUrl) ||
             null;
 
           return (
@@ -278,8 +278,8 @@ export default function Orders() {
                       <div>
                         <p className="font-medium text-slate-700">Delivery Address</p>
                         <p className="text-slate-600">
-                          {order.deliveryAddress?.street
-                            ? `${order.deliveryAddress.street}, ${order.deliveryAddress.city || ""} - ${order.deliveryAddress.pincode || ""}`
+                          {order.deliveryAddress?.block
+                            ? `${order.deliveryAddress.city }, ${order.deliveryAddress.pincode || ""} - ${order.deliveryAddress.country || ""}`
                             : "Address not provided"}
                         </p>
                       </div>
