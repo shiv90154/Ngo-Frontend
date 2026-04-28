@@ -2,6 +2,7 @@
 "use client";
 
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { createPortal } from 'react-dom';
 import {
   ArrowLeft,
   ArrowRight,
@@ -642,57 +643,75 @@ export default function WikipediaSearch() {
           </button>
 
           {/* Desktop Library Popover */}
-          {showLibrary && (
-            <div className="absolute right-0 top-full mt-2 w-72 bg-white rounded-2xl shadow-xl border p-4 z-50 hidden sm:block animate-in fade-in slide-in-from-top-2">
-              <div className="mb-4">
-                <div className="flex items-center justify-between mb-2">
-                  <h3 className="text-xs font-bold uppercase tracking-wide text-slate-500">History</h3>
-                  {historyStack.length > 0 && (
-                    <button onClick={clearHistory} className="text-slate-400 hover:text-red-500"><Trash2 size={14} /></button>
-                  )}
-                </div>
-                {historyStack.length === 0 ? (
-                  <p className="text-xs text-slate-400">No articles opened yet.</p>
-                ) : (
-                  <ul className="max-h-32 space-y-1 overflow-y-auto pr-1">
-                    {historyStack.map((item, idx) => (
-                      <li key={`${item.article.title}-${item.lang}-${idx}`}>
-                        <button
-                          onClick={() => openHistoryItem(idx)}
-                          className={`w-full truncate rounded-lg px-3 py-1.5 text-left text-xs transition ${
-                            idx === historyIndex
-                              ? "bg-[#1a237e] text-white"
-                              : "text-slate-700 hover:bg-slate-50"
-                          }`}
-                          title={`${item.article.title} (${item.lang})`}
-                        >
-                          {item.article.title}
-                        </button>
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </div>
-              <div>
-                <h3 className="mb-2 text-xs font-bold uppercase tracking-wide text-slate-500">Favorites</h3>
-                {favorites.length === 0 ? (
-                  <p className="text-xs text-slate-400">Saved articles appear here.</p>
-                ) : (
-                  <div className="flex flex-wrap gap-1">
-                    {favorites.map((item) => (
-                      <button
-                        key={item}
-                        onClick={() => fetchAndDisplay(item)}
-                        className="rounded-full bg-amber-50 px-2 py-0.5 text-xs font-bold text-amber-700 hover:bg-amber-100 transition"
-                      >
-                        {item}
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
+ {/* Desktop Library Popover - Using Portal */}
+{showLibrary && (
+  <div className="fixed right-4 sm:right-8 top-20 w-80 sm:w-96 bg-white rounded-2xl shadow-2xl border border-gray-200 p-5 z-[9999] hidden sm:block animate-in fade-in slide-in-from-top-2 max-h-[80vh] overflow-y-auto">
+    <div className="mb-5">
+      <div className="flex items-center justify-between mb-3">
+        <h3 className="text-sm font-bold uppercase tracking-wide text-slate-500 flex items-center gap-2">
+          <Clock size={16} /> History
+        </h3>
+        {historyStack.length > 0 && (
+          <button 
+            onClick={clearHistory} 
+            className="text-slate-400 hover:text-red-500 transition-colors"
+            title="Clear history"
+          >
+            <Trash2 size={16} />
+          </button>
+        )}
+      </div>
+      {historyStack.length === 0 ? (
+        <p className="text-sm text-slate-400 py-4 text-center">No articles opened yet.</p>
+      ) : (
+        <ul className="space-y-2 max-h-48 overflow-y-auto pr-1">
+          {historyStack.map((item, idx) => (
+            <li key={`${item.article.title}-${item.lang}-${idx}`}>
+              <button
+                onClick={() => openHistoryItem(idx)}
+                className={`w-full truncate rounded-lg px-3 py-2.5 text-left text-sm transition-all ${
+                  idx === historyIndex
+                    ? "bg-[#1a237e] text-white shadow-md"
+                    : "text-slate-700 hover:bg-slate-100"
+                }`}
+                title={`${item.article.title} (${item.lang})`}
+              >
+                <span className="block font-medium">{item.article.title}</span>
+                <span className={`text-xs ${idx === historyIndex ? "text-blue-100" : "text-slate-400"}`}>
+                  {item.lang.toUpperCase()}
+                </span>
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+    
+    <div className="border-t border-gray-100 pt-4">
+      <h3 className="mb-3 text-sm font-bold uppercase tracking-wide text-slate-500 flex items-center gap-2">
+        <Bookmark size={16} /> Favorites
+      </h3>
+      {favorites.length === 0 ? (
+        <p className="text-sm text-slate-400 py-4 text-center">⭐ Saved articles appear here.</p>
+      ) : (
+        <div className="flex flex-wrap gap-2 max-h-48 overflow-y-auto">
+          {favorites.map((item) => (
+            <button
+              key={item}
+              onClick={() => {
+                fetchAndDisplay(item);
+                setShowLibrary(false);
+              }}
+              className="rounded-full bg-amber-50 px-3 py-1.5 text-sm font-semibold text-amber-700 hover:bg-amber-100 transition-colors"
+            >
+              {item.length > 25 ? item.slice(0, 22) + "..." : item}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  </div>
+)}
         </div>
       </div>
 

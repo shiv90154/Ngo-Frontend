@@ -123,9 +123,6 @@ export default function Orders() {
       const { data } = await axios.get(`${API_BASE}/agriculture/my-orders`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-
-      console.log("Orders API response:", data);
-
       // Backend returns { success: true, data: [...] }
       if (data.success && Array.isArray(data.data)) {
         setOrders(data.data);
@@ -295,7 +292,7 @@ export default function Orders() {
 
                   <button
                     className="text-sm text-emerald-600 hover:text-emerald-700 font-medium"
-                    onClick={() => router.push(`/agriculture/marketplace/order/${order._id}`)}
+                    onClick={() => router.push(`/agriculture/marketplace/orders/${order._id}`)}
                   >
                     View full details →
                   </button>

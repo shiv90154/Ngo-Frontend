@@ -12,7 +12,6 @@ const inter = Inter({ subsets: ["latin"] });
 export const metadata: Metadata = {
   title: "Samraddh Bharat Foundation",
   description: "Unified Digital Ecosystem for Education, Healthcare, Agriculture & More",
-  icons: { icon: "/favicon.ico" },
 };
 
 export default function RootLayout({

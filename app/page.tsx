@@ -324,18 +324,18 @@ export default function Home() {
                   </h3>
                   
                   {/* YouTube Video Embed */}
-                  <div className="aspect-video rounded-xl overflow-hidden shadow-lg border-2 border-white bg-gray-900">
-                    <iframe 
-                      width="100%" 
-                      height="100%" 
-                      src="https://youtube.com/shorts/AR3IuNG5Uj4?si=Llaeg82yhbVvUoaU"
-                      title="Samraddh Bharat Official Tutorial"
-                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
-                      allowFullScreen
-                      className="w-full h-full"
-                      loading="lazy"
-                    />
-                  </div>
+                 <div className="aspect-video rounded-xl overflow-hidden shadow-lg border-2 border-white bg-gray-900">
+  <iframe 
+    width="100%" 
+    height="100%" 
+    src="https://www.youtube.com/embed/AR3IuNG5Uj4"
+    title="Samraddh Bharat Official Tutorial"
+    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+    allowFullScreen
+    className="w-full h-full"
+    loading="lazy"
+  />
+</div>
 
                   <div className="mt-6 grid grid-cols-3 gap-3">
                     {["Aadhaar", "DigiLocker", "UMANG"].map((item, i) => (

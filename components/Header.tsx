@@ -40,14 +40,14 @@ const Header = () => {
             {/* Logo */}
             <Link href="/" className="flex items-center gap-3">
               <div className="relative w-20 h-30 md:w-12 md:h-12 flex-shrink-0">
-                <Image
-                  src="/logo-Photoroom.png"
-    
-                  alt="Samraddh Bharat Logo"
-                  fill
-                  className="object-contain"
-                  priority
-                />
+              <Image
+  src="/logo-Photoroom.png"
+  alt="Samraddh Bharat Logo"
+  fill
+  className="object-contain"
+  priority
+  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+/>
               </div>
               <div className="ml-1">
                 <h1 className="text-lg md:text-xl font-bold text-[#1a237e] font-serif leading-tight">

@@ -59,9 +59,9 @@ export default function AgricultureHome(): JSX.Element {
       <header className="sticky top-0 z-10 flex justify-between items-center px-6 py-3 bg-white/80 backdrop-blur-sm border-b border-blue-100">
         <div className="flex items-center gap-2">
           <Sprout className="h-6 w-6 text-blue-600" />
-          <span className="font-semibold text-gray-800">AgriHub</span>
+          <span className="font-semibold text-gray-800">Samraddh</span>
           <span className="text-xs text-gray-400 ml-2">
-            Welcome, {user?.name?.split(" ")[0] || "Farmer"}
+            Welcome, {user?.fullName?.split(" ")[0] || "Farmer"}
           </span>
         </div>
 
