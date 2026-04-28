@@ -56,7 +56,7 @@ export default function HealthcareSidebar() {
   const userRole = mounted && user?.role ? user.role.replace(/_/g, " ") : "Patient";
 
   return (
-    <aside className="hidden lg:block w-64 bg-white border-r border-gray-200 min-h-[calc(100vh-97px)] sticky top-[97px] p-4">
+      <aside className="hidden lg:block w-64 bg-white border-r border-gray-200 h-[calc(100vh-64px)] sticky top-16 overflow-y-auto p-4">
       {/* User Summary */}
       <div className="flex items-center gap-3 p-3 mb-4 bg-gradient-to-r from-[#1a237e]/5 to-transparent rounded-xl">
         <div className="w-12 h-12 bg-gradient-to-br from-[#1a237e] to-[#283593] rounded-full flex items-center justify-center text-white font-medium text-lg">
@@ -90,35 +90,20 @@ export default function HealthcareSidebar() {
         })}
       </nav>
 
-      {/* Health Tip Card */}
-      <div className="mt-6 p-4 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl border border-blue-100">
-        <div className="flex items-center gap-2 mb-2">
-          <Stethoscope className="w-4 h-4 text-[#1a237e]" />
-          <h4 className="text-xs font-semibold text-gray-700 uppercase tracking-wider">
-            Health Tip
-          </h4>
-        </div>
-        <p className="text-sm text-gray-700 leading-relaxed">
-          Stay hydrated! Drink at least 8 glasses of water daily for optimal health.
-        </p>
-      </div>
 
       {/* Quick Actions */}
       <div className="mt-4 p-4 bg-white rounded-xl border border-gray-200">
-        <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">
-          Quick Actions
-        </h4>
-        <div className="space-y-2">
+        <div >
           <Link
             href="/healthcare/doctors"
-            className="flex items-center justify-between text-sm text-gray-700 hover:text-[#1a237e]"
+            className="flex p-2 items-center justify-between text-sm text-gray-700 hover:text-[#1a237e]"
           >
             <span>Book Appointment</span>
             <Calendar className="w-4 h-4" />
           </Link>
           <Link
             href="/healthcare/records"
-            className="flex items-center justify-between text-sm text-gray-700 hover:text-[#1a237e]"
+            className="flex p-2 items-center justify-between text-sm text-gray-700 hover:text-[#1a237e]"
           >
             <span>Upload Record</span>
             <FileText className="w-4 h-4" />
@@ -128,7 +113,6 @@ export default function HealthcareSidebar() {
 
       {/* Footer Links */}
       <div className="absolute bottom-4 left-4 right-4">
-        <hr className="border-gray-200 mb-3" />
         <Link
           href="/help"
           className="flex items-center gap-3 px-4 py-2 text-sm text-gray-500 hover:text-[#1a237e] rounded-lg transition"
