@@ -3,7 +3,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   LayoutDashboard, Users, GitBranch, BarChart3, Settings,
-  FileText, Bell, Shield, Database, TrendingUp,CreditCard,Wallet
+  FileText, Bell, Shield, Database, TrendingUp,CreditCard,Wallet,BadgeDollarSign
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useState, useEffect } from "react";
@@ -11,6 +11,7 @@ import { useState, useEffect } from "react";
 const links = [
   { href: "/admin", label: "Dashboard", icon: LayoutDashboard, roles: ['*'] },
   { href: "/admin/users", label: "Users", icon: Users, roles: ['*'] },
+  { href: "/admin/ads", label: "Ads", icon: BadgeDollarSign, roles: ['SUPER_ADMIN'] },
   { href: "/admin/hierarchy", label: "Hierarchy", icon: GitBranch, roles: ['SUPER_ADMIN','ADDITIONAL_DIRECTOR'] },
   { href: "/admin/mlm", label: "MLM Commissions", icon: TrendingUp, roles: ['SUPER_ADMIN','ADDITIONAL_DIRECTOR'] },  // 🆕 MLM link
   { href: "/admin/modules", label: "Modules", icon: Database, roles: ['*'] },

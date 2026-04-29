@@ -1,10 +1,10 @@
-
 "use client";
 
 import { useEffect, useState, useRef, useCallback } from "react";
 import { useAuth } from "@/contexts/AuthContext";
-import { mediaAPI } from "@/lib/api";
+import { mediaAPI, adsAPI } from "@/lib/api";
 import PostCard from "@/components/news/PostCard";
+import AdCard from "@/components/news/AdCard";
 import StoryRow from "@/components/news/StoryRow";
 import { Loader2, Newspaper, Sparkles, Search } from "lucide-react";
 import Link from "next/link";
@@ -23,10 +23,16 @@ interface Post {
   author: {
     _id: string;
     fullName: string;
-    profileImage?: string;   // ✅ uses the correct backend field
+    profileImage?: string;
   };
   createdAt: string;
   updatedAt: string;
+  // Ad properties
+  isAd?: boolean;
+  adId?: string;
+  businessName?: string;
+  ctaText?: string;
+  targetUrl?: string;
 }
 
 // ---------- Skeleton Card ----------
@@ -70,7 +76,6 @@ export default function FeedPage() {
     [loading, hasMore]
   );
 
-  // Cleanup observer on unmount
   useEffect(() => {
     return () => {
       if (observer.current) observer.current.disconnect();
@@ -91,23 +96,29 @@ export default function FeedPage() {
     if (page > 1) fetchFeed(page);
   }, [page]);
 
-  const fetchFeed = async (pageNum: number) => {
-    setLoading(true);
-    try {
-      const res = await mediaAPI.getFeed({ page: pageNum, limit: 5 });
-      const newPosts: Post[] = res.data.posts;
-      if (pageNum === 1) {
-        setPosts(newPosts);
-      } else {
-        setPosts((prev) => [...prev, ...newPosts]);
-      }
-      setHasMore(res.data.currentPage < res.data.totalPages);
-    } catch (error) {
-      console.error("Failed to fetch feed:", error);
-    } finally {
-      setLoading(false);
+ const fetchFeed = async (pageNum: number) => {
+  setLoading(true);
+  try {
+    const res = await mediaAPI.getFeed({ page: pageNum, limit: 5 });
+    
+    // 🔍 DEBUG: Log the actual response
+    let newPosts: Post[] = res.data.posts;
+    
+    // 🔍 Check if any posts have isAd flag
+    const adCount = newPosts.filter(p => p.isAd === true).length;
+    
+    if (pageNum === 1) {
+      setPosts(newPosts);
+    } else {
+      setPosts((prev) => [...prev, ...newPosts]);
     }
-  };
+    setHasMore(res.data.currentPage < res.data.totalPages);
+  } catch (error) {
+    console.error("Failed to fetch feed:", error);
+  } finally {
+    setLoading(false);
+  }
+};
 
   const handlePostUpdate = (postId: string, updatedData: Partial<Post>) => {
     setPosts((prev) =>
@@ -119,6 +130,10 @@ export default function FeedPage() {
     setPosts((prev) => prev.filter((p) => p._id !== postId));
   };
 
+  const handleAdHide = (adId: string) => {
+    setPosts((prev) => prev.filter((p) => !(p.isAd && p.adId === adId)));
+  };
+
   const handleBecomeCreator = async () => {
     try {
       await mediaAPI.becomeCreator();
@@ -128,7 +143,6 @@ export default function FeedPage() {
     }
   };
 
-  // 1. Non-Creator Welcome View
   if (!isCreator && !loading && posts.length === 0) {
     return (
       <motion.div
@@ -162,10 +176,8 @@ export default function FeedPage() {
 
   return (
     <div className="max-w-2xl mx-auto space-y-6">
-      {/* Stories Row */}
       <StoryRow />
 
-      {/* First‑load skeleton */}
       {loading && posts.length === 0 && (
         <div className="space-y-4">
           {[...Array(3)].map((_, i) => (
@@ -174,7 +186,6 @@ export default function FeedPage() {
         </div>
       )}
 
-      {/* Empty Feed State */}
       {!loading && posts.length === 0 && (
         <motion.div
           initial={{ opacity: 0, scale: 0.96 }}
@@ -202,31 +213,36 @@ export default function FeedPage() {
         </motion.div>
       )}
 
-      {/* Post Feed */}
       {posts.length > 0 && (
         <div role="feed" aria-label="News feed" className="space-y-5">
           <h2 className="sr-only">Latest posts</h2>
           <AnimatePresence mode="popLayout">
-            {posts.map((post, index) => (
+            {posts.map((item, index) => (
               <motion.div
-                key={post._id}
+                key={item._id}
                 initial={{ opacity: 0, y: 12 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.03, duration: 0.3 }}
                 ref={index === posts.length - 1 ? lastPostRef : null}
               >
-                <PostCard
-                  post={post}
-                  onUpdate={handlePostUpdate}
-                  onDelete={handlePostDelete}
-                />
+                {item.isAd ? (
+                  <AdCard
+                    ad={item}
+                    onHide={() => handleAdHide(item.adId!)}
+                  />
+                ) : (
+                  <PostCard
+                    post={item}
+                    onUpdate={handlePostUpdate}
+                    onDelete={handlePostDelete}
+                  />
+                )}
               </motion.div>
             ))}
           </AnimatePresence>
         </div>
       )}
 
-      {/* Loading More Indicator */}
       {loading && posts.length > 0 && (
         <div className="space-y-4 pt-2" aria-label="Loading more posts">
           {[...Array(2)].map((_, i) => (
@@ -235,7 +251,6 @@ export default function FeedPage() {
         </div>
       )}
 
-      {/* End of Feed */}
       {!hasMore && posts.length > 0 && !loading && (
         <motion.div
           initial={{ opacity: 0 }}
@@ -244,7 +259,7 @@ export default function FeedPage() {
         >
           <div className="h-px bg-slate-200/60 w-full mb-6" />
           <p className="text-sm font-medium text-slate-400">
-            You’ve reached the end of the feed ✨
+            You've reached the end of the feed ✨
           </p>
         </motion.div>
       )}
