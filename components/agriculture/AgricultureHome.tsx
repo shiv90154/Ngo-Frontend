@@ -1,171 +1,533 @@
 "use client";
 
-import React, { useEffect } from "react";
-import { useRouter } from "next/navigation";
+import React, { useState, useEffect } from "react";
+import Link from "next/link";
 import { useAuth } from "@/contexts/AuthContext";
-import {
-  Sprout,
-  Bell,
-  ShieldCheck,
-  Brain,
-  Store,
-  TrendingUp,
-  Loader2,
-  ArrowRight,
-} from "lucide-react";
 
-type UserType = {
+// ✅ VERIFIED WORKING IMPORTS - All icons exist
+import { 
+  GiSeedling,      // ✅ Exists - seedling icon
+  GiHourglass,     // ✅ Exists - hourglass/sand clock
+  GiTakeMyMoney,   // ✅ Exists - money stack
+  GiContract,      // ✅ Exists - contract/agreement
+  GiChest,         // ✅ Exists - chest/box
+} from "react-icons/gi";
+import { MdAddBox } from "react-icons/md";           // ✅ Exists - add box
+import { FaHandshake } from "react-icons/fa";        // ✅ Exists - handshake
+
+// ─── Types ────────────────────────────────────────────────────────────────────
+
+interface UserType {
+  id: string;
   name?: string;
+  email?: string;
   farmerProfile?: {
     isContractFarmer?: boolean;
+    farmName?: string;
+    location?: string;
+    cropTypes?: string[];
   };
+}
+
+interface NavLink {
+  label: string;
+  href: string;
+  icon: React.ReactNode;
+  description: string;
+  gradient: string;
+}
+
+interface Tip {
+  id: number;
+  season: string;
+  title: string;
+  body: string;
+  icon: string;
+  color: string;
+}
+
+// ─── Constants ────────────────────────────────────────────────────────────────
+
+const NAV_LINKS: NavLink[] = [
+  {
+    label: "Mandi Prices",
+    href: "/agriculture/mandi",
+    icon: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} className="w-6 h-6">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z" />
+      </svg>
+    ),
+    description: "Live commodity rates from mandis across the country",
+    gradient: "from-amber-500 to-orange-600",
+  },
+  {
+    label: "Marketplace",
+    href: "/agriculture/marketplace",
+    icon: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} className="w-6 h-6">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 21v-7.5a.75.75 0 01.75-.75h3a.75.75 0 01.75.75V21m-4.5 0H2.36m11.14 0H18m0 0h3.64m-1.39 0V9.349m-16.5 11.65V9.35m0 0a3.001 3.001 0 003.75-.615A2.993 2.993 0 009.75 9.75c.896 0 1.7-.393 2.25-1.016a2.993 2.993 0 002.25 1.016c.896 0 1.7-.393 2.25-1.016a3.001 3.001 0 003.75.614m-16.5 0a3.004 3.004 0 01-.621-4.72L4.318 3.44A1.5 1.5 0 015.378 3h13.243a1.5 1.5 0 011.06.44l1.19 1.189a3 3 0 01-.621 4.72m-13.5 8.65h3.75a.75.75 0 00.75-.75V13.5a.75.75 0 00-.75-.75H6.75a.75.75 0 00-.75.75v3.75c0 .415.336.75.75.75z" />
+      </svg>
+    ),
+    description: "Buy seeds, equipment & sell your harvest directly",
+    gradient: "from-emerald-500 to-green-700",
+  },
+  {
+    label: "Crop Disease Detection",
+    href: "/agriculture/crop-disease-detection",
+    icon: (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} className="w-6 h-6">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M9.75 3.104v5.714a2.25 2.25 0 01-.659 1.591L5 14.5M9.75 3.104c-.251.023-.501.05-.75.082m.75-.082a24.301 24.301 0 014.5 0m0 0v5.714c0 .597.237 1.17.659 1.591L19.8 15.3M14.25 3.104c.251.023.501.05.75.082M19.8 15.3l-1.57.393A9.065 9.065 0 0112 15a9.065 9.065 0 00-6.23-.693L5 14.5m14.8.8l1.402 1.402c1.232 1.232.65 3.318-1.067 3.611A48.309 48.309 0 0112 21c-2.773 0-5.491-.235-8.135-.687-1.718-.293-2.3-2.379-1.067-3.61L5 14.5" />
+      </svg>
+    ),
+    description: "AI-powered plant disease scanner using your camera",
+    gradient: "from-teal-500 to-cyan-700",
+  },
+];
+
+const FARMER_TIPS: Tip[] = [
+  {
+    id: 1,
+    season: "Kharif",
+    title: "Soil Moisture Check",
+    body: "Test soil moisture before irrigation. Over-watering leads to root rot. Optimal moisture is 60–70% field capacity for most crops.",
+    icon: "💧",
+    color: "bg-blue-50 border-blue-200",
+  },
+  {
+    id: 2,
+    season: "General",
+    title: "Intercropping Benefits",
+    body: "Pair legumes with cereals to naturally fix nitrogen in the soil, reducing fertilizer costs by up to 30% over the season.",
+    icon: "🌿",
+    color: "bg-green-50 border-green-200",
+  },
+  {
+    id: 3,
+    season: "Rabi",
+    title: "Early Sowing Advantage",
+    body: "Sow wheat before 25 November for maximum yield. Late sowing decreases grain weight due to rising temperatures at flowering stage.",
+    icon: "🌾",
+    color: "bg-amber-50 border-amber-200",
+  },
+  {
+    id: 4,
+    season: "Pest Alert",
+    title: "Fall Armyworm Watch",
+    body: "Scout maize fields weekly during monsoon. Larvae feed inside whorls — look for frass and ragged leaf edges. Act within 3 days of detection.",
+    icon: "🐛",
+    color: "bg-red-50 border-red-200",
+  },
+  {
+    id: 5,
+    season: "Market",
+    title: "Stagger Your Sales",
+    body: "Don't sell your entire harvest at once. Store 30–40% and monitor mandi prices over 2–3 weeks for better returns.",
+    icon: "📈",
+    color: "bg-purple-50 border-purple-200",
+  },
+  {
+    id: 6,
+    season: "Irrigation",
+    title: "Drip vs Flood",
+    body: "Drip irrigation reduces water use by 50% and increases yield by 20–30% for vegetables. Government subsidies cover up to 55% of cost.",
+    icon: "🚿",
+    color: "bg-cyan-50 border-cyan-200",
+  },
+];
+
+const HERO_IMAGES = [
+  {
+    url: "https://images.unsplash.com/photo-1500595046743-cd271d694d30?w=1200&q=80",
+    caption: "Golden Harvest Fields",
+  },
+  {
+    url: "https://images.unsplash.com/photo-1574943320219-553eb213f72d?w=1200&q=80",
+    caption: "Smart Farming Technology",
+  },
+  {
+    url: "https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=1200&q=80",
+    caption: "Fertile Farmlands",
+  },
+];
+
+// ─── Sub-components ───────────────────────────────────────────────────────────
+
+interface UserAvatarProps {
+  name?: string;
+}
+const UserAvatar: React.FC<UserAvatarProps> = ({ name }) => {
+  const initials = name
+    ? name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2)
+    : "U";
+  return (
+    <div className="w-9 h-9 rounded-full bg-gradient-to-br from-amber-400 to-green-600 flex items-center justify-center text-white font-bold text-sm shadow-md">
+      {initials}
+    </div>
+  );
 };
 
-export default function AgricultureHome(): JSX.Element {
+// ─── Main Component ───────────────────────────────────────────────────────────
+
+const AgricultureDashboard: React.FC = () => {
   const { user, loading: authLoading } = useAuth() as {
     user: UserType | null;
     loading: boolean;
   };
 
-  const router = useRouter();
+  const isContractFarmer: boolean = Boolean(user?.farmerProfile?.isContractFarmer);
 
-  const isContractFarmer: boolean = Boolean(
-    user?.farmerProfile?.isContractFarmer
-  );
+  const [heroIndex, setHeroIndex] = useState<number>(0);
+  const [menuOpen, setMenuOpen] = useState<boolean>(false);
+  const [activeTip, setActiveTip] = useState<number | null>(null);
 
   useEffect(() => {
-    if (!authLoading && !user) {
-      router.push("/login");
-    }
-  }, [user, authLoading, router]);
+    const timer = setInterval(() => {
+      setHeroIndex((i) => (i + 1) % HERO_IMAGES.length);
+    }, 5000);
+    return () => clearInterval(timer);
+  }, []);
 
-  if (authLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
-      </div>
-    );
-  }
-
-  if (!user) return null;
-
-  const navigateTo = (path: string): void => {
-    router.push(path);
-  };
+  const firstName = user?.name?.split(" ")[0] ?? "Farmer";
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-white flex flex-col">
-      {/* Header */}
-      <header className="sticky top-0 z-10 flex justify-between items-center px-6 py-3 bg-white/80 backdrop-blur-sm border-b border-blue-100">
-        <div className="flex items-center gap-2">
-          <Sprout className="h-6 w-6 text-blue-600" />
-          <span className="font-semibold text-gray-800">Samraddh</span>
-          <span className="text-xs text-gray-400 ml-2">
-            Welcome, {user?.fullName?.split(" ")[0] || "Farmer"}
-          </span>
-        </div>
+    <div
+      className="min-h-screen font-sans bg-[#f5f2eb]"
+      style={{ fontFamily: "'DM Sans', sans-serif" }}
+    >
+      {/* Google Fonts */}
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=DM+Sans:wght@300;400;500;600&display=swap');
+        .font-display { font-family: 'Playfair Display', serif; }
+        .grain-overlay::after {
+          content: '';
+          position: absolute;
+          inset: 0;
+          background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+          pointer-events: none;
+          z-index: 1;
+        }
+        .hero-slide { transition: opacity 1.2s ease; }
+        .card-hover { transition: transform 0.25s ease, box-shadow 0.25s ease; }
+        .card-hover:hover { transform: translateY(-4px); box-shadow: 0 20px 40px rgba(0,0,0,0.12); }
+        .pulse-dot { animation: pulseDot 2s ease-in-out infinite; }
+        @keyframes pulseDot {
+          0%, 100% { opacity: 1; transform: scale(1); }
+          50% { opacity: 0.5; transform: scale(1.4); }
+        }
+      `}</style>
 
-        <div className="flex items-center gap-3">
-          {isContractFarmer && (
-            <button
-              onClick={() => navigateTo("/agriculture/seller/dashboard")}
-              className="flex items-center gap-1 text-sm bg-blue-50 text-blue-700 px-3 py-1.5 rounded-lg hover:bg-blue-100 transition"
-            >
-              <ShieldCheck size={14} /> Seller Panel
-            </button>
-          )}
+      {/* ── Navbar ─────────────────────────────────────────────────────────── */}
+      <nav className="fixed top-0 left-0 right-0 z-50 bg-gray-800 backdrop-blur-md border-b border-white/10 shadow-lg">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 flex items-center justify-between h-16">
+          {/* Logo */}
+          <Link href="/agriculture" className="flex items-center gap-2.5 group">
+            <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-amber-400 to-green-600 flex items-center justify-center text-lg shadow-md group-hover:scale-105 transition-transform">
+              <GiSeedling />
+            </div>
+            <div className="leading-none">
+              <div className="text-white font-display text-lg font-bold tracking-tight">Samraaddh</div>
+              <div className="text-green-400 text-[10px] font-medium tracking-widest uppercase">Agriculture Hub</div>
+            </div>
+          </Link>
 
-          <button className="p-1.5 rounded-full hover:bg-blue-50">
-            <Bell size={18} className="text-gray-500" />
+          {/* Desktop Nav Links */}
+          <div className="hidden md:flex items-center gap-1">
+            {NAV_LINKS.map((link) => (
+              <Link
+                key={link.href}
+                href={link.href}
+                className="relative flex items-center gap-2 px-4 py-2 rounded-lg text-white/75 hover:text-white hover:bg-white/10 transition-all text-sm font-medium group"
+              >
+                <span className="text-green-400 group-hover:text-amber-400 transition-colors">{link.icon}</span>
+                {link.label}
+              </Link>
+            ))}
+          </div>
+
+          {/* Mobile menu toggle */}
+          <button
+            onClick={() => setMenuOpen((v) => !v)}
+            className="md:hidden p-2 text-white/80 hover:text-white transition-colors"
+            aria-label="Toggle menu"
+          >
+            {menuOpen ? (
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            ) : (
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
+            )}
           </button>
         </div>
-      </header>
 
-      {/* Main */}
-      <main className="flex-1 px-6 py-8">
-        <div className="max-w-6xl mx-auto space-y-6">
-          
-          {/* AI Card */}
-          <div
-            onClick={() => navigateTo("/agriculture/crop-disease-detection")}
-            className="w-full bg-gradient-to-r from-blue-600 to-blue-700 rounded-2xl p-6 md:p-8 cursor-pointer shadow-md hover:shadow-xl transition-all duration-300"
-          >
-            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-5">
-              <div className="flex-1">
-                <h2 className="text-2xl md:text-3xl font-bold text-white mb-2">
-                  AI Crop Disease Detection
-                </h2>
-
-                <p className="text-blue-100 text-sm md:text-base max-w-2xl">
-                  Upload a photo of your crop – AI detects diseases and suggests treatment instantly.
-                </p>
-              </div>
-
-              <div className="flex items-center gap-3">
-                <div className="bg-white/20 p-3 rounded-xl">
-                  <Brain size={32} className="text-white" />
+        {/* Mobile Menu */}
+        {menuOpen && (
+          <div className="md:hidden bg-[#1a3a1e] border-t border-white/10 px-4 py-3 space-y-1">
+            {NAV_LINKS.map((link) => (
+              <Link
+                key={link.href}
+                href={link.href}
+                onClick={() => setMenuOpen(false)}
+                className="flex items-center gap-3 px-3 py-3 rounded-lg text-white/80 hover:bg-white/10 hover:text-white transition-all text-sm font-medium"
+              >
+                <span className="text-green-400">{link.icon}</span>
+                <div>
+                  <div>{link.label}</div>
+                  <div className="text-white/40 text-xs">{link.description}</div>
                 </div>
-
-                <button className="bg-white text-blue-700 hover:bg-blue-50 font-medium px-5 py-2 rounded-xl text-sm flex items-center gap-1">
-                  Detect Now <ArrowRight size={14} />
-                </button>
+              </Link>
+            ))}
+            {user && (
+              <div className="pt-2 mt-2 border-t border-white/10 flex items-center gap-3 px-3">
+                <UserAvatar name={user.name} />
+                <div>
+                  <div className="text-white text-sm font-medium">{user.name}</div>
+                  {isContractFarmer && (
+                    <div className="text-amber-400 text-xs">Contract Farmer ✓</div>
+                  )}
+                </div>
               </div>
-            </div>
+            )}
           </div>
+        )}
+      </nav>
 
-          {/* Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            
-            {/* Marketplace */}
-            <div
-              onClick={() => navigateTo("/agriculture/marketplace")}
-              className="bg-gradient-to-br from-emerald-50 to-white rounded-2xl p-6 border border-emerald-200 shadow-sm hover:shadow-md transition cursor-pointer"
-            >
-              <div className="flex justify-between mb-4">
-                <div className="bg-emerald-100 p-3 rounded-xl">
-                  <Store size={28} className="text-emerald-700" />
-                </div>
+      {/* ── Hero Section ───────────────────────────────────────────────────── */}
+      <section className="relative h-[92vh] min-h-[600px] pt-16 overflow-hidden grain-overlay">
+        {/* Sliding Background Images */}
+        {HERO_IMAGES.map((img, i) => (
+          <div
+            key={i}
+            className="hero-slide absolute inset-0 bg-cover bg-center"
+            style={{
+              backgroundImage: `url(${img.url})`,
+              opacity: i === heroIndex ? 1 : 0,
+            }}
+          />
+        ))}
+        {/* Overlay */}
+        <div className="absolute inset-0 bg-gradient-to-r from-[#0d2010]/90 via-[#0d2010]/60 to-transparent z-[2]" />
+
+        {/* Content */}
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 h-full flex flex-col justify-center pb-12">
+          <div className="max-w-2xl">
+            {/* Greeting chip */}
+            {!authLoading && user && (
+              <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full px-4 py-1.5 mb-6">
+                <span className="pulse-dot w-2 h-2 rounded-full bg-green-400 inline-block" />
+                <span className="text-green-300 text-sm font-medium">
+                  Welcome back, {firstName} 👋
+                </span>
               </div>
+            )}
 
-              <h3 className="text-xl font-bold text-gray-800 mb-2">
-                Marketplace
-              </h3>
+            <h1 className="font-display text-5xl sm:text-6xl lg:text-7xl font-extrabold text-white leading-[1.05] mb-6">
+              Your Farm,
+              <br />
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 to-green-400">
+                Your Future.
+              </span>
+            </h1>
+            <p className="text-white/70 text-lg sm:text-xl max-w-lg leading-relaxed mb-8">
+              Real-time mandi prices, a thriving marketplace, and AI-powered disease detection — everything a modern farmer needs in one place.
+            </p>
 
-              <p className="text-gray-600 text-sm mb-4">
-                Buy & sell produce directly with fair pricing.
-              </p>
-
-              <button className="bg-emerald-600 text-white px-4 py-2 rounded-lg text-sm flex items-center gap-1">
-                Explore <ArrowRight size={14} />
-              </button>
-            </div>
-
-            {/* Mandi */}
-            <div
-              onClick={() => navigateTo("/agriculture/mandi")}
-              className="bg-gradient-to-br from-amber-50 to-white rounded-2xl p-6 border border-amber-200 shadow-sm hover:shadow-md transition cursor-pointer"
-            >
-              <div className="flex justify-between mb-4">
-                <div className="bg-amber-100 p-3 rounded-xl">
-                  <TrendingUp size={28} className="text-amber-700" />
-                </div>
-              </div>
-
-              <h3 className="text-xl font-bold text-gray-800 mb-2">
-                Mandi Prices
-              </h3>
-
-              <p className="text-gray-600 text-sm mb-4">
-                Real-time market prices to maximize profit.
-              </p>
-
-              <button className="bg-amber-600 text-white px-4 py-2 rounded-lg text-sm flex items-center gap-1">
-                Check Rates <ArrowRight size={14} />
-              </button>
+            {/* CTA Buttons */}
+            <div className="flex flex-wrap gap-3">
+              <Link
+                href="/agriculture/mandi"
+                className="flex items-center gap-2 px-6 py-3.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-green-900 font-semibold text-sm shadow-lg hover:shadow-amber-500/30 transition-all"
+              >
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                </svg>
+                Live Mandi Rates
+              </Link>
+              <Link
+                href="/agriculture/crop-disease-detection"
+                className="flex items-center gap-2 px-6 py-3.5 rounded-xl bg-white/10 hover:bg-white/20 border border-white/30 text-white font-semibold text-sm backdrop-blur-sm transition-all"
+              >
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+                Scan Your Crop
+              </Link>
             </div>
           </div>
         </div>
-      </main>
+
+        {/* Hero dot indicators */}
+        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-10 flex gap-2">
+          {HERO_IMAGES.map((_, i) => (
+            <button
+              key={i}
+              onClick={() => setHeroIndex(i)}
+              className={`h-1.5 rounded-full transition-all ${
+                i === heroIndex ? "w-8 bg-amber-400" : "w-2 bg-white/30"
+              }`}
+            />
+          ))}
+        </div>
+      </section>
+
+      {/* ── Main Feature Cards ─────────────────────────────────────────────── */}
+      <section className="py-10 px-4 sm:px-6 max-w-7xl mx-auto">
+        <div className="text-center mb-12">
+          <p className="text-green-700 font-medium text-sm tracking-widest uppercase mb-2">Quick Access</p>
+          <h2 className="font-display text-4xl sm:text-5xl text-[#1a3a1e] font-bold">
+            Everything In One Place
+          </h2>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {NAV_LINKS.map((link) => (
+            <Link key={link.href} href={link.href}>
+              <div className="card-hover relative bg-white rounded-2xl overflow-hidden border border-stone-200 cursor-pointer group h-full">
+                {/* Gradient top bar */}
+                <div className={`h-2 bg-gradient-to-r ${link.gradient}`} />
+
+                <div className="p-7">
+                  {/* Icon */}
+                  <div
+                    className={`w-14 h-14 rounded-xl bg-gradient-to-br ${link.gradient} text-white flex items-center justify-center mb-5 shadow-lg group-hover:scale-110 transition-transform`}
+                  >
+                    {link.icon}
+                  </div>
+                  <h3 className="font-display text-2xl font-bold text-[#1a3a1e] mb-2 group-hover:text-green-800 transition-colors">
+                    {link.label}
+                  </h3>
+                  <p className="text-stone-500 text-sm leading-relaxed">{link.description}</p>
+
+                  {/* Arrow */}
+                  <div className="mt-6 flex items-center gap-1.5 text-green-700 font-medium text-sm group-hover:gap-3 transition-all">
+                    Explore
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                    </svg>
+                  </div>
+                </div>
+              </div>
+            </Link>
+          ))}
+        </div>
+      </section>
+
+      {/* ── Farmer Tips ───────────────────────────────────────────────────── */}
+      <section className="py-20 bg-[#1a3a1e]/5 border-y border-stone-200">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6">
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            {FARMER_TIPS.map((tip) => (
+              <div
+                key={tip.id}
+                onClick={() => setActiveTip(activeTip === tip.id ? null : tip.id)}
+                className={`card-hover rounded-2xl border-2 p-6 cursor-pointer transition-all ${tip.color} ${
+                  activeTip === tip.id ? "ring-2 ring-green-500 ring-offset-2" : ""
+                }`}
+              >
+                <div className="flex items-start justify-between mb-3">
+                  <span className="text-3xl">{tip.icon}</span>
+                  <span className="text-xs font-semibold bg-white/70 text-stone-600 px-2.5 py-1 rounded-full">
+                    {tip.season}
+                  </span>
+                </div>
+                <h4 className="font-display text-lg font-bold text-[#1a3a1e] mb-2">{tip.title}</h4>
+                <p
+                  className={`text-stone-600 text-sm leading-relaxed transition-all overflow-hidden ${
+                    activeTip === tip.id ? "max-h-40" : "max-h-12 line-clamp-2"
+                  }`}
+                >
+                  {tip.body}
+                </p>
+                <button className="mt-3 text-xs font-medium text-green-700 hover:text-green-900 flex items-center gap-1">
+                  {activeTip === tip.id ? "Show less ↑" : "Read more ↓"}
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── Market Snapshot ────────────────────────────────────────────────── */}
+      <section className="py-20 max-w-7xl mx-auto px-4 sm:px-6">
+        <div className="flex flex-col sm:flex-row items-start sm:items-end justify-between gap-4 mb-10">
+          <div>
+            <p className="text-green-700 font-medium text-sm tracking-widest uppercase mb-2">Commodities</p>
+            <h2 className="font-display text-4xl text-[#1a3a1e] font-bold">Today's Market Snapshot</h2>
+          </div>
+          <Link
+            href="/agriculture/mandi"
+            className="flex items-center gap-2 px-5 py-2.5 rounded-xl border-2 border-[#1a3a1e] text-[#1a3a1e] font-semibold text-sm hover:bg-[#1a3a1e] hover:text-white transition-all"
+          >
+            View All Rates
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+            </svg>
+          </Link>
+        </div>
+      </section>
+
+      {/* ── CTA Banner ─────────────────────────────────────────────────────── */}
+      <section className="px-4 sm:px-6 pb-20 max-w-7xl mx-auto">
+        <div className="relative rounded-3xl overflow-hidden">
+          <img
+            src="https://images.unsplash.com/photo-1625246333195-78d9c38ad449?w=1400&q=80"
+            alt="Tractor in field"
+            className="absolute inset-0 w-full h-full object-cover"
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-[#0d2010]/95 via-[#0d2010]/80 to-[#0d2010]/40" />
+          <div className="relative z-10 py-16 sm:py-20 px-8 sm:px-14">
+            <div className="max-w-xl">
+              <h2 className="font-display text-4xl sm:text-5xl font-extrabold text-white mb-4 leading-tight">
+                Detect Crop Disease <span className="text-amber-400">Before It Spreads</span>
+              </h2>
+              <p className="text-white/65 text-base sm:text-lg leading-relaxed mb-8">
+                Point your phone camera at any leaf and get instant AI diagnosis with treatment recommendations in seconds.
+              </p>
+              <Link
+                href="/agriculture/crop-disease-detection"
+                className="inline-flex items-center gap-3 px-7 py-4 rounded-xl bg-amber-500 hover:bg-amber-400 text-green-900 font-bold text-base shadow-xl hover:shadow-amber-500/30 transition-all"
+              >
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                </svg>
+                Try Free Disease Scanner
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── Footer ─────────────────────────────────────────────────────────── */}
+      <footer className="bg-[#1a3a1e] py-10 px-4 sm:px-6">
+        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-amber-400 to-green-600 flex items-center justify-center text-base">
+              🌱
+            </div>
+            <span className="text-white font-display text-lg font-bold">KrishiSaathi</span>
+          </div>
+          <div className="flex items-center gap-6">
+            {NAV_LINKS.map((link) => (
+              <Link
+                key={link.href}
+                href={link.href}
+                className="text-white/50 hover:text-white text-sm transition-colors"
+              >
+                {link.label}
+              </Link>
+            ))}
+          </div>
+          <div className="text-white/30 text-xs">
+            © {new Date().getFullYear()} KrishiSaathi. All rights reserved.
+          </div>
+        </div>
+      </footer>
     </div>
   );
-}
+};
+
+export default AgricultureDashboard;

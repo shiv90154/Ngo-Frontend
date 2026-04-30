@@ -35,7 +35,6 @@ const Header = () => {
 
   const navItems = [
     { name: "Home", href: "/" },
-    { name: "Services", href: "/services" },
     { name: "Schemes", href: "/schemes" },
     { name: "About", href: "/about" },
     { name: "Contact", href: "/contact" },
@@ -43,64 +42,41 @@ const Header = () => {
 
   // Fixed width container to prevent layout shift
   const AuthSection = () => (
-    <div className="w-[140px] flex justify-end">
+    <div className="flex justify-end">
       {!mounted ? (
         // Placeholder with exact same dimensions
-        <div className="hidden md:flex items-center gap-3">
-          <div className="w-[74px] h-[38px] rounded-lg"></div>
-          <div className="w-[77px] h-[38px] rounded-lg"></div>
+        <div className="hidden md:flex items-center gap-2 md:gap-3">
+          <div className="w-[70px] md:w-[74px] h-[34px] md:h-[38px] rounded-lg"></div>
+          <div className="w-[73px] md:w-[77px] h-[34px] md:h-[38px] rounded-lg"></div>
         </div>
       ) : user ? (
-        // Logged in state - same width container
-        <div className="hidden md:flex items-center gap-4">
-          <div className="relative" ref={dropdownRef}>
-            <button
-              onClick={() => setUserDropdownOpen(!userDropdownOpen)}
-              className="flex items-center gap-2 text-gray-700 hover:text-[#1a237e] font-medium transition-colors"
-            >
-              <div className="w-8 h-8 rounded-full bg-[#1a237e]/10 flex items-center justify-center">
-                <User size={18} className="text-[#1a237e]" />
-              </div>
-              <span className="text-sm font-semibold max-w-[80px] truncate">
-                {user?.fullName?.split(" ")[0] || "User"}
-              </span>
-              <ChevronDown size={16} className={`transition-transform ${userDropdownOpen ? "rotate-180" : ""}`} />
-            </button>
-
-            {userDropdownOpen && (
-              <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-50">
-                <Link
-                  href="/profile"
-                  className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
-                  onClick={() => setUserDropdownOpen(false)}
-                >
-                  <User size={16} /> My Profile
-                </Link>
-                <button
-                  onClick={() => {
-                    handleLogout();
-                    setUserDropdownOpen(false);
-                  }}
-                  className="flex items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors w-full text-left"
-                >
-                  <LogOut size={16} /> Logout
-                </button>
-              </div>
-            )}
-          </div>
+        // Logged in state - Dashboard and Logout buttons
+        <div className="hidden md:flex items-center gap-2 md:gap-3">
+          <Link
+            href="/services"
+            className="bg-[#1a237e] text-white hover:bg-[#0d1757] px-3 md:px-5 py-1.5 md:py-2 rounded-lg text-xs md:text-sm font-medium transition shadow-sm whitespace-nowrap"
+          >
+            Dashboard
+          </Link>
+          <button
+            onClick={handleLogout}
+            className="text-[#1a237e] hover:bg-[#1a237e]/10 px-3 md:px-4 py-1.5 md:py-2 rounded-lg whitespace-nowrap text-xs md:text-sm font-medium border border-[#1a237e]/30 transition"
+          >
+            Logout
+          </button>
         </div>
       ) : (
         // Logged out state - exactly same dimensions as placeholder
-        <div className="hidden md:flex items-center gap-3">
+        <div className="hidden md:flex items-center gap-2 md:gap-3">
           <Link
             href="/login"
-            className="text-[#1a237e] hover:bg-[#1a237e]/10 px-4 py-2 rounded-lg whitespace-nowrap text-sm font-medium border border-[#1a237e]/30 transition"
+            className="text-[#1a237e] hover:bg-[#1a237e]/10 px-3 md:px-4 py-1.5 md:py-2 rounded-lg whitespace-nowrap text-xs md:text-sm font-medium border border-[#1a237e]/30 transition"
           >
             Sign In
           </Link>
           <Link
             href="/register"
-            className="bg-[#1a237e] text-white hover:bg-[#0d1757] px-5 py-2 rounded-lg text-sm font-medium transition shadow-sm"
+            className="bg-[#1a237e] text-white hover:bg-[#0d1757] px-3 md:px-5 py-1.5 md:py-2 rounded-lg text-xs md:text-sm font-medium transition shadow-sm whitespace-nowrap"
           >
             Register
           </Link>
@@ -109,28 +85,28 @@ const Header = () => {
     </div>
   );
 
-  // Mobile auth section - also fixed width
+  // Mobile auth section
   const MobileAuthSection = () => (
     <div className="pt-3 border-t border-gray-200">
       {user ? (
-        <>
+        <div className="flex flex-col gap-2">
           <Link
-            href="/profile"
-            className="flex items-center gap-2 text-gray-700 text-base py-2.5 px-3 rounded-lg hover:bg-gray-50"
+            href="/services"
+            className="text-center bg-[#1a237e] text-white py-2.5 px-4 rounded-lg text-sm font-medium shadow-sm transition hover:bg-[#0d1757]"
             onClick={() => setMobileMenuOpen(false)}
           >
-            <User size={18} /> My Profile
+            Dashboard
           </Link>
           <button
             onClick={() => {
               handleLogout();
               setMobileMenuOpen(false);
             }}
-            className="flex items-center gap-2 text-red-600 text-base py-2.5 px-3 rounded-lg hover:bg-red-50 w-full text-left"
+            className="text-center border border-[#1a237e] text-[#1a237e] py-2.5 px-4 rounded-lg text-sm font-medium transition hover:bg-[#1a237e]/10"
           >
-            <LogOut size={18} /> Logout
+            Logout
           </button>
-        </>
+        </div>
       ) : (
         <div className="flex flex-col gap-2">
           <Link
@@ -155,53 +131,53 @@ const Header = () => {
   return (
     <>
       <header className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-40">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-14 md:h-16">
-            {/* Logo Section - fixed width */}
-            <Link href="/" className="flex items-center gap-2 md:gap-3 min-w-[160px] md:min-w-[200px]">
-              <div className="relative w-10 h-10 md:w-12 md:h-12 flex-shrink-0">
+        <div className="w-full px-3 sm:px-4 md:px-6 lg:px-8">
+          <div className="flex justify-between items-center gap-2 sm:gap-3 min-h-14 md:h-16 py-2 md:py-0">
+            {/* Logo Section - responsive width */}
+            <Link href="/" className="flex items-center gap-1.5 sm:gap-2 md:gap-3 flex-shrink-0">
+              <div className="relative w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 flex-shrink-0">
                 <Image
                   src="/logo-Photoroom.png"
                   alt="Samraddh Bharat Logo"
                   fill
                   className="object-contain"
                   priority
-                  sizes="40px"
+                  sizes="(max-width: 640px) 32px, (max-width: 768px) 40px, 48px"
                 />
               </div>
-              <div className="ml-0 md:ml-1">
-                <h1 className="text-base md:text-xl font-bold text-[#1a237e] font-serif leading-tight">
-                  SAMRADDH BHARAT
+              <div className="ml-0">
+                <h1 className="text-xs sm:text-sm md:text-base lg:text-xl font-bold text-[#1a237e] font-serif leading-tight">
+                  SAMRADDH <span className="hidden xxs:inline">BHARAT</span>
                 </h1>
-                <p className="hidden sm:block text-[8px] md:text-[10px] text-gray-500 leading-tight">
+                <p className=" xs:block text-[6px] sm:text-[8px] md:text-[10px] text-gray-500 leading-tight">
                   डिजिटल इंडिया - एकीकृत सेवा पोर्टल
                 </p>
               </div>
             </Link>
 
             {/* Desktop Navigation - Centered, flexible */}
-            <nav className="hidden lg:flex items-center space-x-6 flex-1 justify-center">
-              {navItems.map((item) => (
-                <Link
-                  key={item.name}
-                  href={item.href}
-                  className="text-gray-700 hover:text-[#1a237e] font-semibold text-sm transition whitespace-nowrap"
-                >
-                  {item.name}
-                </Link>
-              ))}
-            </nav>
+            <nav className="hidden lg:flex items-center gap-2 xl:gap-4 flex-1 justify-center">
+  {navItems.map((item) => (
+    <Link
+      key={item.name}
+      href={item.href}
+      className="text-gray-700 hover:text-[#1a237e] font-semibold text-sm transition whitespace-nowrap px-3 py-2 -my-2"
+    >
+      {item.name}
+    </Link>
+  ))}
+</nav>
 
-            {/* Auth Section - fixed width to prevent CLS */}
+            {/* Auth Section - responsive */}
             <AuthSection />
 
             {/* Mobile menu button */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="lg:hidden p-2 rounded-md text-gray-600 hover:text-[#1a237e] hover:bg-gray-100 transition-colors"
+              className="lg:hidden p-1.5 sm:p-2 rounded-md text-gray-600 hover:text-[#1a237e] hover:bg-gray-100 transition-colors flex-shrink-0"
               aria-label="Toggle menu"
             >
-              {mobileMenuOpen ? <X size={22} /> : <Menu size={22} />}
+              {mobileMenuOpen ? <X size={20} className="sm:w-[22px] sm:h-[22px]" /> : <Menu size={20} className="sm:w-[22px] sm:h-[22px]" />}
             </button>
           </div>
         </div>
@@ -227,17 +203,23 @@ const Header = () => {
       </header>
 
       <style jsx global>{`
-        /* Prevent any layout shift */
-        header {
-          min-height: 56px;
-          transform: translateZ(0);
-          backface-visibility: hidden;
+        /* Custom breakpoints for extra small screens */
+        @media (min-width: 480px) {
+          .xxs\\:inline {
+            display: inline;
+          }
         }
         
-        @media (min-width: 768px) {
-          header {
-            min-height: 64px;
+        @media (min-width: 520px) {
+          .xs\\:block {
+            display: block;
           }
+        }
+        
+        /* Prevent any layout shift */
+        header {
+          transform: translateZ(0);
+          backface-visibility: hidden;
         }
         
         /* Ensure consistent rendering */
