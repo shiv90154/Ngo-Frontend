@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
-import api from '@/config/api';
+import api from '@/lib/api';
 import { Plus, Loader2, Clock, CheckCircle, XCircle, Users } from 'lucide-react';
 
 export default function ServiceRequestsPage() {
@@ -70,10 +70,10 @@ export default function ServiceRequestsPage() {
           <div className="bg-white rounded-xl p-6 w-full max-w-md">
             <h2 className="text-xl font-bold mb-4">New Service Request</h2>
             <form onSubmit={handleSubmit} className="space-y-4">
-              <select className="w-full border rounded-lg px-3 py-2" value={form.client} onChange={(e) => setForm({...form, client: e.target.value})} required><option value="">Select Client</option>{clients.map(c => <option key={c._id} value={c._id}>{c.name}</option>)}</select>
-              <input type="text" placeholder="Title" className="w-full border rounded-lg px-3 py-2" value={form.title} onChange={(e) => setForm({...form, title: e.target.value})} required />
-              <textarea placeholder="Description" rows={3} className="w-full border rounded-lg px-3 py-2" value={form.description} onChange={(e) => setForm({...form, description: e.target.value})} required />
-              <select className="w-full border rounded-lg px-3 py-2" value={form.priority} onChange={(e) => setForm({...form, priority: e.target.value})}><option value="low">Low</option><option value="medium">Medium</option><option value="high">High</option><option value="urgent">Urgent</option></select>
+              <select className="w-full border rounded-lg px-3 py-2" value={form.client} onChange={(e) => setForm({ ...form, client: e.target.value })} required><option value="">Select Client</option>{clients.map(c => <option key={c._id} value={c._id}>{c.name}</option>)}</select>
+              <input type="text" placeholder="Title" className="w-full border rounded-lg px-3 py-2" value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} required />
+              <textarea placeholder="Description" rows={3} className="w-full border rounded-lg px-3 py-2" value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} required />
+              <select className="w-full border rounded-lg px-3 py-2" value={form.priority} onChange={(e) => setForm({ ...form, priority: e.target.value })}><option value="low">Low</option><option value="medium">Medium</option><option value="high">High</option><option value="urgent">Urgent</option></select>
               <div className="flex gap-3 justify-end"><button type="button" onClick={() => setShowModal(false)} className="px-4 py-2 border rounded-lg">Cancel</button><button type="submit" className="px-4 py-2 bg-[#FF9933] text-white rounded-lg">Create Request</button></div>
             </form>
           </div>

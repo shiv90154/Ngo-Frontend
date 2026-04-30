@@ -137,6 +137,7 @@ export const healthcareAPI = {
 // MEDIA (NEWS) API
 // ======================
 export const mediaAPI = {
+  // Feed & Posts
   getFeed: (params?: { page?: number; limit?: number }) =>
     api.get("/media/feed", { params }),
 
@@ -150,15 +151,18 @@ export const mediaAPI = {
   getUserPosts: (userId: string, params?: { page?: number; limit?: number }) =>
     api.get(`/media/users/${userId}/posts`, { params }),
 
+  // Likes
   likePost: (id: string) => api.post(`/media/posts/${id}/like`),
   unlikePost: (id: string) => api.delete(`/media/posts/${id}/like`),
 
+  // Comments
   getComments: (postId: string, params?: { page?: number; limit?: number }) =>
     api.get(`/media/posts/${postId}/comments`, { params }),
   addComment: (postId: string, text: string) =>
     api.post(`/media/posts/${postId}/comments`, { text }),
   deleteComment: (commentId: string) => api.delete(`/media/comments/${commentId}`),
 
+  // Follow System
   followUser: (userId: string) => api.post(`/media/follow/${userId}`),
   unfollowUser: (userId: string) => api.delete(`/media/follow/${userId}`),
   getFollowers: (userId?: string, params?: { page?: number; limit?: number }) =>
@@ -167,10 +171,46 @@ export const mediaAPI = {
     api.get(userId ? `/media/following/${userId}` : "/media/following", { params }),
   checkFollowStatus: (userId: string) => api.get(`/media/follow-status/${userId}`),
 
+  // Search & Creator
   searchCreators: (q: string, params?: { page?: number; limit?: number }) =>
     api.get("/media/search/creators", { params: { q, ...params } }),
-
   becomeCreator: () => api.post("/media/become-creator"),
+
+  // ❌ REMOVE THESE - Duplicate ad tracking (use adsAPI instead)
+  // trackAdClick: (campaignId: string) => api.post("/media/ads/track-click", { campaignId }),
+  // trackAdImpression: (campaignId: string) => api.post("/media/ads/track-impression", { campaignId }),
+};
+
+// ======================
+// ADS API (UNIFIED - USE THIS FOR ALL AD TRACKING)
+// ======================
+export const adsAPI = {
+  // Get single ad for feed (used by feed page)
+  getFeedAd: () => api.get("/ads/feed-ad"),
+  
+  // ✅ USE THESE FOR TRACKING (unified)
+  trackClick: (campaignId: string) => api.post("/ads/track-click", { campaignId }),
+  trackImpression: (campaignId: string) => api.post("/ads/track-impression", { campaignId }),
+  
+  // Admin routes (protected by role)
+  getCampaigns: (params?: { status?: string; page?: number; limit?: number }) => 
+    api.get("/ads/campaigns", { params }),
+  getCampaign: (id: string) => api.get(`/ads/campaigns/${id}`),
+  createCampaign: (formData: FormData) =>
+    api.post("/ads/campaigns", formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    }),
+  updateCampaign: (id: string, formData: FormData) =>
+    api.put(`/ads/campaigns/${id}`, formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    }),
+  updateCampaignStatus: (id: string, status: string) =>
+    api.patch(`/ads/campaigns/${id}/status`, { status }),
+  deleteCampaign: (id: string) => api.delete(`/ads/campaigns/${id}`),
+  
+  // Analytics
+  getAnalytics: () => api.get("/ads/analytics"),
+  getCampaignAnalytics: (campaignId: string) => api.get(`/ads/analytics/campaign/${campaignId}`),
 };
 
 // ======================
@@ -396,7 +436,6 @@ export const educationAPI = {
   endLiveClass: (liveClassId: string, recordingUrl?: string) => api.put(`/liveclass/${liveClassId}/end`, { recordingUrl }),
 };
 
-
 export const subscriptionAPI = {
   getPlans: () => api.get('/subscription/plans'),
   purchase: (planId: string) => api.post('/subscription/purchase', { planId }),
@@ -409,10 +448,10 @@ export const subscriptionAPI = {
   getPayments: (params?: any) => api.get('/subscription/payments', { params }),
 };
 
-
 export const searchAPI = {
   globalSearch: (q: string) => api.get('/search', { params: { q } }),
 };
+
 // ======================
 // AUTH API
 // ======================

@@ -376,9 +376,6 @@ export default function Home() {
                 Sign In
               </Link>
             </div>
-            <p className="text-blue-200 text-sm mt-8">
-              📞 National Helpline: 1800-XXX-XXXX | 🔒 256-bit SSL Secured
-            </p>
           </div>
         </section>
       </main>

@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
 import SellerShell from "@/components/agriculture/seller/SellerShell";
-import api from "@/config/api";
+import api from "@/lib/api";
 import {
   Loader2,
   Package,

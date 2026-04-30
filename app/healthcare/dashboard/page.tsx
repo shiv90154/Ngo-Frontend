@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
-import api from "@/config/api"; // ✅ direct API instance
+import api from "@/lib/api"; // ✅ direct API instance
 import { Loader2, Calendar, Users, Activity, ClipboardList } from "lucide-react";
 
 export default function DoctorDashboard() {

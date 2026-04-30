@@ -135,21 +135,7 @@ export default function NewsSidebar() {
           <p className="text-xs text-slate-500 truncate mt-0.5">
             @{user?.socialProfile?.username || user?.email?.split("@")[0]}
           </p>
-          <div className="flex items-center gap-2 mt-2 text-[11px] font-medium text-slate-500">
-            <span>
-              <b className="text-slate-800">
-                {user?.mediaCreatorProfile?.totalFollowers || 0}
-              </b>{" "}
-              followers
-            </span>
-            <span className="w-1 h-1 bg-slate-300 rounded-full" />
-            <span>
-              <b className="text-slate-800">
-                {user?.mediaCreatorProfile?.totalFollowing || 0}
-              </b>{" "}
-              following
-            </span>
-          </div>
+        
         </div>
       </Link>
 
@@ -243,12 +229,6 @@ export default function NewsSidebar() {
 
       {/* Footer */}
       <div className="pt-4 border-t border-slate-200/60 text-[11px] text-slate-400 font-medium">
-        <div className="flex flex-wrap gap-x-3 gap-y-1.5 mb-2">
-          <Link href="/about" className="hover:text-slate-600 transition-colors">About</Link>
-          <Link href="/help" className="hover:text-slate-600 transition-colors">Help</Link>
-          <Link href="/privacy" className="hover:text-slate-600 transition-colors">Privacy</Link>
-          <Link href="/terms" className="hover:text-slate-600 transition-colors">Terms</Link>
-        </div>
         <p>© {new Date().getFullYear()} Samraddh Bharat</p>
       </div>
     </aside>

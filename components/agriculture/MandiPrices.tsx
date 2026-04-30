@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
-import api from "@/config/api";
+import api from "@/lib/api";
 import {
   Loader2,
   MapPin,
