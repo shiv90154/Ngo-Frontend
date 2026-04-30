@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { FaEnvelope, FaLock, FaEye, FaEyeSlash, FaArrowLeft, FaCheckCircle } from "react-icons/fa";
-import api from "@/config/api"; // use your configured API client
+import api from "@/lib/api";
 
 const STEPS = [
     { label: "Verify email" },
@@ -198,13 +198,12 @@ export default function ForgotPassword() {
                                 className={`flex items-center gap-3 text-sm transition-opacity ${current ? "opacity-100" : done ? "opacity-80" : "opacity-40"}`}
                             >
                                 <div
-                                    className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-semibold flex-shrink-0 ${
-                                        done
+                                    className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-semibold flex-shrink-0 ${done
                                             ? "bg-green-400 text-white"
                                             : current
-                                            ? "bg-white text-blue-900"
-                                            : "bg-white/20 text-white"
-                                    }`}
+                                                ? "bg-white text-blue-900"
+                                                : "bg-white/20 text-white"
+                                        }`}
                                 >
                                     {done ? "✓" : num}
                                 </div>
@@ -240,9 +239,8 @@ export default function ForgotPassword() {
                 {STEPS.map((_, i) => (
                     <div
                         key={i}
-                        className={`h-1 flex-1 rounded-full transition-all ${
-                            step > i + 1 ? "bg-green-500" : step === i + 1 ? "bg-blue-600" : "bg-gray-200"
-                        }`}
+                        className={`h-1 flex-1 rounded-full transition-all ${step > i + 1 ? "bg-green-500" : step === i + 1 ? "bg-blue-600" : "bg-gray-200"
+                            }`}
                     />
                 ))}
             </div>
@@ -307,9 +305,8 @@ export default function ForgotPassword() {
                                                     setEmail(e.target.value);
                                                     setEmailError("");
                                                 }}
-                                                className={`w-full px-4 py-2.5 rounded-lg border focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition ${
-                                                    emailError ? "border-red-400" : "border-gray-300"
-                                                }`}
+                                                className={`w-full px-4 py-2.5 rounded-lg border focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition ${emailError ? "border-red-400" : "border-gray-300"
+                                                    }`}
                                             />
                                             <FaEnvelope className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" />
                                         </div>
@@ -376,9 +373,8 @@ export default function ForgotPassword() {
                                                     value={digit}
                                                     onChange={(e) => handleOtpChange(i, e.target.value)}
                                                     onKeyDown={(e) => handleOtpKeyDown(i, e)}
-                                                    className={`w-full aspect-square text-center text-lg font-bold rounded-lg border focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition ${
-                                                        otpError ? "border-red-400" : "border-gray-300"
-                                                    }`}
+                                                    className={`w-full aspect-square text-center text-lg font-bold rounded-lg border focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition ${otpError ? "border-red-400" : "border-gray-300"
+                                                        }`}
                                                 />
                                             ))}
                                         </div>
@@ -461,9 +457,8 @@ export default function ForgotPassword() {
                                                     setPassword(e.target.value);
                                                     setPasswordErrors((p) => ({ ...p, password: "" }));
                                                 }}
-                                                className={`w-full px-4 py-2.5 rounded-lg border focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition ${
-                                                    passwordErrors.password ? "border-red-400" : "border-gray-300"
-                                                }`}
+                                                className={`w-full px-4 py-2.5 rounded-lg border focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition ${passwordErrors.password ? "border-red-400" : "border-gray-300"
+                                                    }`}
                                             />
                                             <button
                                                 type="button"
@@ -491,9 +486,8 @@ export default function ForgotPassword() {
                                                     setConfirmPassword(e.target.value);
                                                     setPasswordErrors((p) => ({ ...p, confirmPassword: "" }));
                                                 }}
-                                                className={`w-full px-4 py-2.5 rounded-lg border focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition ${
-                                                    passwordErrors.confirmPassword ? "border-red-400" : "border-gray-300"
-                                                }`}
+                                                className={`w-full px-4 py-2.5 rounded-lg border focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition ${passwordErrors.confirmPassword ? "border-red-400" : "border-gray-300"
+                                                    }`}
                                             />
                                             <button
                                                 type="button"

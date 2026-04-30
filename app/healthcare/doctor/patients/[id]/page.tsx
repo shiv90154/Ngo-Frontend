@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { healthcareAPI } from "@/lib/api";
-import api from "@/config/api"; // direct Axios instance
+import api from "@/lib/api"; // direct Axios instance
 import { Calendar, FileText, Activity, Loader2 } from "lucide-react";
 import PrescriptionModal from "@/components/healthcare/PrescriptionModal";
 

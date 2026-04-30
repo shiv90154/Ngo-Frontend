@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import api from "@/config/api"; // direct Axios instance
+import api from "@/lib/api"; // direct Axios instance
 import { Search, Loader2 } from "lucide-react";
 import Link from "next/link";
 
