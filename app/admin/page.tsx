@@ -1,119 +1,194 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { adminAPI } from "@/lib/api";
-import { Search, Edit, Ban, CheckCircle } from "lucide-react";
-import UserModal from "@/components/admin/UserModal";
-import { toast } from "react-toastify";
 import { useAuth } from "@/contexts/AuthContext";
 import { useRouter } from "next/navigation";
+import { adminAPI } from "@/lib/api";
+import {
+  Users, UserCheck, BookOpen, Stethoscope, GraduationCap,
+  TrendingUp, Wallet, Newspaper, Loader2, Shield
+} from "lucide-react";
+import Link from "next/link";
 
-const roles = [
-  "SUPER_ADMIN","ADDITIONAL_DIRECTOR","STATE_OFFICER","DISTRICT_MANAGER",
-  "DISTRICT_PRESIDENT","FIELD_OFFICER","BLOCK_OFFICER","VILLAGE_OFFICER",
-  "DOCTOR","TEACHER","AGENT","USER"
-];
+// Define what each role can see/do
+const ROLE_CONFIG: Record<string, { title: string; managementLinks: { label: string; href: string }[] }> = {
+  SUPER_ADMIN: {
+    title: "Super Admin Dashboard",
+    managementLinks: [
+      { label: "User Management", href: "/admin/users" },
+      { label: "Hierarchy", href: "/admin/hierarchy" },
+      { label: "MLM Commissions", href: "/admin/mlm" },
+      { label: "Subscription Plans", href: "/admin/subscription/plans" },
+      { label: "Settings", href: "/admin/settings" },
+    ],
+  },
+  ADDITIONAL_DIRECTOR: {
+    title: "Director Dashboard",
+    managementLinks: [
+      { label: "User Management", href: "/admin/users" },
+      { label: "Hierarchy", href: "/admin/hierarchy" },
+      { label: "MLM Commissions", href: "/admin/mlm" },
+    ],
+  },
+  STATE_OFFICER: {
+    title: "State Officer Dashboard",
+    managementLinks: [
+      { label: "User Management", href: "/admin/users" },
+      { label: "Analytics", href: "/admin/analytics" },
+    ],
+  },
+  DISTRICT_MANAGER: {
+    title: "District Manager Dashboard",
+    managementLinks: [
+      { label: "User Management", href: "/admin/users" },
+      { label: "Analytics", href: "/admin/analytics" },
+    ],
+  },
+  DISTRICT_PRESIDENT: {
+    title: "District President Dashboard",
+    managementLinks: [
+      { label: "User Management", href: "/admin/users" },
+      { label: "Analytics", href: "/admin/analytics" },
+    ],
+  },
+  FIELD_OFFICER: {
+    title: "Field Officer Dashboard",
+    managementLinks: [
+      { label: "My Assignments", href: "/admin/users" },
+    ],
+  },
+  BLOCK_OFFICER: {
+    title: "Block Officer Dashboard",
+    managementLinks: [
+      { label: "Block Users", href: "/admin/users" },
+    ],
+  },
+  VILLAGE_OFFICER: {
+    title: "Village Officer Dashboard",
+    managementLinks: [
+      { label: "Village Users", href: "/admin/users" },
+    ],
+  },
+  DEFAULT: {
+    title: "Admin Dashboard",
+    managementLinks: [
+      { label: "User Management", href: "/admin/users" },
+    ],
+  },
+};
 
-export default function UsersPage() {
-  const { isAdmin } = useAuth();
+export default function AdminDashboard() {
+  const { user, isAdmin } = useAuth();
   const router = useRouter();
-  const [users, setUsers] = useState([]);
+  const [stats, setStats] = useState<any>(null);
+  const [recentUsers, setRecentUsers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [search, setSearch] = useState("");
-  const [roleFilter, setRoleFilter] = useState("");
-  const [page, setPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
-  const [selectedUser, setSelectedUser] = useState<any>(null);
-  const [modalOpen, setModalOpen] = useState(false);
 
-  useEffect(() => { if (!isAdmin) router.replace("/services"); }, [isAdmin]);
+  useEffect(() => {
+    if (!isAdmin) { router.replace("/services"); return; }
+    fetchDashboard();
+  }, [isAdmin]);
 
-  const fetchUsers = async () => {
-    setLoading(true);
+  const fetchDashboard = async () => {
     try {
-      const res = await adminAPI.getUsers({ page, limit: 10, search, role: roleFilter || undefined });
-      setUsers(res.data.users);
-      setTotalPages(res.data.totalPages);
-    } catch (error) { toast.error("Failed to load users"); }
-    finally { setLoading(false); }
+      const res = await adminAPI.getStats();
+      setStats(res.data.stats);
+      setRecentUsers(res.data.recentUsers || []);
+    } catch (error) {
+      console.error("Dashboard fetch error:", error);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  useEffect(() => { fetchUsers(); }, [page, search, roleFilter]);
+  if (loading) {
+    return (
+      <div className="flex h-64 items-center justify-center">
+        <Loader2 className="animate-spin text-[#1a237e]" size={32} />
+      </div>
+    );
+  }
 
-  const handleToggleActive = async (id: string) => {
-    try {
-      const res = await adminAPI.toggleUserActive(id);
-      setUsers(users.map((u: any) => u._id === id ? { ...u, isActive: res.data.isActive } : u));
-      toast.success("Status updated");
-    } catch (error) { toast.error("Action failed"); }
-  };
+  const roleConfig = ROLE_CONFIG[user?.role || ""] || ROLE_CONFIG.DEFAULT;
 
   return (
-    <div className="space-y-4">
-      <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold">User Management</h1>
-      </div>
-      <div className="flex gap-3">
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-2.5 text-gray-400" size={16} />
-          <input
-            type="text" placeholder="Search..." value={search}
-            onChange={e => setSearch(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 border rounded-lg"
-          />
+    <div className="space-y-6">
+      {/* Welcome Banner */}
+      <div className="bg-gradient-to-r from-[#1a237e] to-[#283593] rounded-xl p-6 text-white">
+        <div className="flex items-center gap-3">
+          <Shield className="w-10 h-10" />
+          <div>
+            <h1 className="text-2xl font-bold">{roleConfig.title}</h1>
+            <p className="text-blue-100 text-sm mt-1">
+              Welcome, {user?.fullName} · Role: {user?.role?.replace(/_/g, " ")}
+            </p>
+          </div>
         </div>
-        <select value={roleFilter} onChange={e => setRoleFilter(e.target.value)} className="border rounded-lg px-3 py-2">
-          <option value="">All Roles</option>
-          {roles.map(r => <option key={r} value={r}>{r}</option>)}
-        </select>
       </div>
-      <div className="bg-white rounded-xl shadow-sm border overflow-x-auto">
-        <table className="w-full text-sm">
-          <thead className="bg-gray-50 border-b">
-            <tr>
-              <th className="px-4 py-3 text-left">Name</th>
-              <th className="px-4 py-3 text-left">Email</th>
-              <th className="px-4 py-3 text-left">Role</th>
-              <th className="px-4 py-3 text-left">Status</th>
-              <th className="px-4 py-3 text-center">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {loading ? (
-              <tr><td colSpan={5} className="text-center py-8">Loading...</td></tr>
-            ) : users.length === 0 ? (
-              <tr><td colSpan={5} className="text-center py-8">No users found</td></tr>
-            ) : (
-              users.map((u: any) => (
-                <tr key={u._id} className="border-b hover:bg-gray-50">
-                  <td className="px-4 py-3 font-medium">{u.fullName}</td>
-                  <td className="px-4 py-3">{u.email}</td>
-                  <td className="px-4 py-3"><span className="text-xs bg-gray-100 px-2 py-1 rounded-full">{u.role}</span></td>
-                  <td className="px-4 py-3">
-                    <span className={`text-xs px-2 py-1 rounded-full ${u.isActive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
-                      {u.isActive ? 'Active' : 'Inactive'}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3">
-                    <div className="flex items-center justify-center gap-2">
-                      <button onClick={() => { setSelectedUser(u); setModalOpen(true); }} className="p-1 hover:bg-gray-100 rounded"><Edit size={16} /></button>
-                      <button onClick={() => handleToggleActive(u._id)} className="p-1 hover:bg-gray-100 rounded">
-                        {u.isActive ? <Ban size={16} className="text-red-600" /> : <CheckCircle size={16} className="text-green-600" />}
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
+
+      {/* Stats Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <StatCard icon={Users} label="Total Users" value={stats?.totalUsers || 0} color="bg-blue-100 text-blue-700" />
+        <StatCard icon={UserCheck} label="Active Users" value={stats?.activeUsers || 0} color="bg-green-100 text-green-700" />
+        <StatCard icon={Stethoscope} label="Doctors" value={stats?.doctors || 0} color="bg-purple-100 text-purple-700" />
+        <StatCard icon={GraduationCap} label="Teachers" value={stats?.teachers || 0} color="bg-orange-100 text-orange-700" />
+        <StatCard icon={BookOpen} label="Courses" value={stats?.totalCourses || 0} color="bg-indigo-100 text-indigo-700" />
+        <StatCard icon={TrendingUp} label="Active Loans" value={stats?.activeLoans || 0} color="bg-red-100 text-red-700" />
+        <StatCard icon={Wallet} label="Transactions" value={stats?.totalTransactions || 0} color="bg-yellow-100 text-yellow-700" />
+        <StatCard icon={Newspaper} label="Posts" value={stats?.totalPosts || 0} color="bg-pink-100 text-pink-700" />
       </div>
-      <div className="flex justify-center gap-2">
-        <button disabled={page === 1} onClick={() => setPage(p => p-1)} className="px-3 py-1 border rounded disabled:opacity-50">Prev</button>
-        <span className="px-3 py-1">Page {page} of {totalPages}</span>
-        <button disabled={page === totalPages} onClick={() => setPage(p => p+1)} className="px-3 py-1 border rounded disabled:opacity-50">Next</button>
+
+      {/* Quick Actions (role‑based) */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+        {roleConfig.managementLinks.map((link) => (
+          <Link
+            key={link.href}
+            href={link.href}
+            className="bg-white rounded-xl border p-4 shadow-sm hover:shadow-md transition flex flex-col items-center text-center gap-2"
+          >
+            <Shield size={22} className="text-[#1a237e]" />
+            <span className="text-sm font-medium">{link.label}</span>
+          </Link>
+        ))}
       </div>
-      <UserModal isOpen={modalOpen} onClose={() => setModalOpen(false)} user={selectedUser} onSuccess={fetchUsers} />
+
+      {/* Recent Users (only for higher admins) */}
+      {(user?.role === "SUPER_ADMIN" || user?.role === "ADDITIONAL_DIRECTOR" || user?.role === "STATE_OFFICER") && (
+        <div className="bg-white rounded-xl shadow-sm border p-5">
+          <h2 className="text-lg font-semibold mb-4">Recent Registrations</h2>
+          {recentUsers.length === 0 ? (
+            <p className="text-gray-500 text-center py-4">No recent users.</p>
+          ) : (
+            <div className="divide-y">
+              {recentUsers.map((u: any) => (
+                <div key={u._id} className="py-3 flex items-center justify-between">
+                  <div>
+                    <p className="font-medium">{u.fullName}</p>
+                    <p className="text-sm text-gray-500">{u.email}</p>
+                  </div>
+                  <span className="text-xs bg-gray-100 px-2 py-1 rounded-full">{u.role}</span>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function StatCard({ icon: Icon, label, value, color }: any) {
+  return (
+    <div className="bg-white rounded-xl p-5 shadow-sm border">
+      <div className="flex items-center justify-between">
+        <div>
+          <p className="text-sm text-gray-500">{label}</p>
+          <p className="text-3xl font-bold text-gray-800 mt-1">{value}</p>
+        </div>
+        <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${color}`}>
+          <Icon size={22} />
+        </div>
+      </div>
     </div>
   );
 }

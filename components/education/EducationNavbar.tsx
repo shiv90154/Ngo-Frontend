@@ -25,15 +25,12 @@ export default function EducationNavbar() {
 
   useEffect(() => setMounted(true), []);
 
-  // Compute nav items based on role – only after mount
   const navItems = useMemo(() => {
     const base = [
       { name: "Browse", href: "/education/courses", icon: BookOpen },
       { name: "My Learning", href: "/education/my-courses", icon: GraduationCap },
       { name: "Wikipedia", href: "/education/wikipedia", icon: Globe },
     ];
-
-    // Teacher sees extra links
     if (mounted && user?.role === "TEACHER") {
       base.push({
         name: "Instructor",
@@ -41,7 +38,6 @@ export default function EducationNavbar() {
         icon: PenTool,
       });
     }
-
     return base;
   }, [mounted, user]);
 
@@ -50,7 +46,6 @@ export default function EducationNavbar() {
 
   return (
     <>
-      {/* Desktop Header */}
       <header className="hidden lg:block sticky top-0 z-40 bg-white border-b border-gray-200 shadow-sm">
         <div className="px-6 h-16 flex items-center justify-between">
           <Link href="/education" className="flex items-center gap-3">
@@ -103,7 +98,6 @@ export default function EducationNavbar() {
         </div>
       </header>
 
-      {/* Mobile bottom nav */}
       <nav className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-50">
         <div className="flex justify-around py-2">
           {navItems.map((item) => (
