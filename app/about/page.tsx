@@ -107,27 +107,6 @@ export default function AboutPage() {
             </div>
           </div>
         </section>
-
-        {/* Leadership / Team (optional placeholder) */}
-        <section className="py-12 bg-gray-50">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <h2 className="text-2xl md:text-3xl font-bold text-[#1a237e] font-serif mb-2">
-              Leadership & Governance
-            </h2>
-            <p className="text-gray-600 mb-8 max-w-2xl mx-auto">
-              Guided by a committee of senior officials and domain experts from various ministries.
-            </p>
-            <div className="grid sm:grid-cols-3 gap-6">
-              {[1, 2, 3].map((i) => (
-                <div key={i} className="bg-white rounded-xl shadow-sm p-5 border border-gray-200">
-                  <div className="w-20 h-20 bg-gray-200 rounded-full mx-auto mb-3"></div>
-                  <h4 className="font-bold text-gray-800">Shri. [Official Name]</h4>
-                  <p className="text-sm text-gray-500">Chairperson / Secretary</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
       </main>
       <Footer />
     </>

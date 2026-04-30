@@ -133,7 +133,7 @@ export default function Services() {
             {/* Left: Brand + Search */}
             <div className="flex items-center gap-6 flex-1">
               {/* Brand */}
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2" onClick={()=>router.push('/')} style={{ cursor: 'pointer' }}>
                 <div className="w-8 h-8 bg-gradient-to-br from-[#1a237e] to-[#3949ab] rounded-lg flex items-center justify-center">
                   <LayoutGrid className="w-5 h-5 text-white" />
                 </div>

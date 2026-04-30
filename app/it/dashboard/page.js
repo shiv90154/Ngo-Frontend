@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
-import api from '@/config/api';
+import api from '@/lib/api';
 import { Users, Briefcase, FileText, DollarSign, Clock, CheckCircle, Loader2 } from 'lucide-react';
 
 export default function ITDashboard() {

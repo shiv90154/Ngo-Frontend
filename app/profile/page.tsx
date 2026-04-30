@@ -4,7 +4,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
-import api from "@/config/api";
+import api from "@/lib/api";
 import {
   User, Mail, Phone, Calendar, MapPin, Fingerprint, CreditCard,
   GraduationCap, HeartPulse, Sprout, Wallet, Banknote,

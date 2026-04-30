@@ -304,7 +304,7 @@ export const MarketplaceLayout: React.FC<MarketplaceLayoutProps> = ({
           <button
             type="button"
             onClick={() => setSelectedTab("cart")}
-            className="group relative flex items-center gap-2 rounded-xl bg-gradient-to-br from-stone-900 to-stone-800 px-4 py-2.5 text-sm font-semibold text-white shadow-lg shadow-stone-900/20 transition hover:shadow-xl hover:shadow-stone-900/30"
+            className="group relative flex items-center gap-2 rounded-xl bg-gradient-to-br from-green-900 to-green-800 px-4 py-2.5 text-sm font-semibold text-white shadow-lg shadow-stone-900/20 transition hover:shadow-xl hover:shadow-stone-900/30"
           >
             <ShoppingCart size={15} />
             <span className="hidden sm:inline">Cart</span>

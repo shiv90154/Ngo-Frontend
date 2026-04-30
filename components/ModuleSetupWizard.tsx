@@ -174,7 +174,7 @@ export default function ModuleSetupWizard({ module }: ModuleSetupWizardProps) {
           animate={{ scale: 1, y: 0, opacity: 1 }}
           exit={{ scale: 0.95, y: 20, opacity: 0 }}
           transition={{ duration: 0.2 }}
-          className="bg-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden relative"
+          className="bg-white rounded-2xl shadow-2xl max-h-[90vh] overflow-y-auto max-w-md w-full relative"
         >
           {/* Top trim – tricolor */}
           <div className="h-1 flex">
