@@ -313,7 +313,7 @@ export const itAPI = {
 export const adminAPI = {
   // Dashboard stats
   getStats: () => api.get("/admin/stats"),
-
+createUser: (data: any) => api.post('/admin/users', data),
   // User management
   getUsers: (params?: { page?: number; limit?: number; role?: string; search?: string }) =>
     api.get("/admin/users", { params }),

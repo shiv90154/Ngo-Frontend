@@ -14,7 +14,6 @@ export default function EducationSidebar() {
   useEffect(() => setMounted(true), []);
 
   const links = useMemo(() => {
-    // Student links (default for all non‑teachers)
     const studentLinks = [
       { name: "Browse Courses", href: "/education/courses", icon: BookOpen },
       { name: "My Learning", href: "/education/my-courses", icon: Clock },
@@ -23,7 +22,6 @@ export default function EducationSidebar() {
       { name: "Certificates", href: "/education/certificates", icon: Award },
     ];
 
-    // Teacher links – only shown when mounted and user is a teacher
     if (mounted && user?.role === "TEACHER") {
       return [
         { name: "Dashboard", href: "/education/instructor/dashboard", icon: BookOpen },
