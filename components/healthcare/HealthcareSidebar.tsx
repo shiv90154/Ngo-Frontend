@@ -30,26 +30,30 @@ export default function HealthcareSidebar() {
 
   const patientLinks = [
     { name: "Dashboard", href: "/healthcare", icon: LayoutDashboard },
-    { name: "Find Doctors", href: "/healthcare/doctors", icon: Search },
-    { name: "My Appointments", href: "/healthcare/appointments", icon: Calendar },
-    { name: "Health Records", href: "/healthcare/records", icon: FileText },
-    { name: "Prescriptions", href: "/healthcare/prescriptions", icon: Pill },
+    { name: "Find Doctors", href: "/healthcare/patient/doctors", icon: Search },
+    { name: "My Appointments", href: "/healthcare/patient/appointments", icon: Calendar },
+    { name: "Health Records", href: "/healthcare/patient/records", icon: FileText },
+    { name: "Prescriptions", href: "/healthcare/patient/prescriptions", icon: Pill },
   ];
 
   const doctorLinks = [
     { name: "Dashboard", href: "/healthcare/doctor/dashboard", icon: LayoutDashboard },
     { name: "My Patients", href: "/healthcare/doctor/patients", icon: Users },
     { name: "Appointments", href: "/healthcare/doctor/appointments", icon: Calendar },
-    { name: "Availability", href: "/healthcare/doctor/schedule", icon: Clock },
+    { name: "Schedule", href: "/healthcare/doctor/schedule", icon: Clock },
     { name: "Prescriptions", href: "/healthcare/doctor/prescriptions", icon: Pill },
   ];
 
   const links = isDoctor ? doctorLinks : patientLinks;
 
   const isActive = (href: string) => {
-    if (href === "/healthcare" && pathname === "/healthcare") return true;
-    return pathname === href || pathname.startsWith(href + "/");
-  };
+  if (href === "/healthcare") {
+    // Only highlight the dashboard when exactly on /healthcare or /healthcare/
+    return pathname === "/healthcare" || pathname === "/healthcare/";
+  }
+  // For other routes, check exact match or child routes
+  return pathname === href || pathname.startsWith(href + "/");
+};
 
   const userInitial = mounted && user?.fullName ? user.fullName.charAt(0) : "";
   const userFullName = mounted && user?.fullName ? user.fullName : "";
@@ -90,28 +94,7 @@ export default function HealthcareSidebar() {
         })}
       </nav>
 
-
-      {/* Quick Actions */}
-      <div className="mt-4 p-4 bg-white rounded-xl border border-gray-200">
-        <div >
-          <Link
-            href="/healthcare/doctors"
-            className="flex p-2 items-center justify-between text-sm text-gray-700 hover:text-[#1a237e]"
-          >
-            <span>Book Appointment</span>
-            <Calendar className="w-4 h-4" />
-          </Link>
-          <Link
-            href="/healthcare/records"
-            className="flex p-2 items-center justify-between text-sm text-gray-700 hover:text-[#1a237e]"
-          >
-            <span>Upload Record</span>
-            <FileText className="w-4 h-4" />
-          </Link>
-        </div>
-      </div>
-
-      {/* Footer Links */}
+        {/* Footer Links */}
       <div className="absolute bottom-4 left-4 right-4">
         <Link
           href="/help"

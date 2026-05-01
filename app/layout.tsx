@@ -5,7 +5,8 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import SplashScreen from "@/components/SplashScreen";
-import OnboardingTutorial from "@/components/OnboardingTutorial";   // 🆕
+import OnboardingTutorial from "@/components/OnboardingTutorial";   
+import GoogleTranslate from "@/components/TranslatePage";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -21,6 +22,7 @@ export default function RootLayout({
     <html lang="en">
       <body className={inter.className}>
         <AuthProvider>
+          <GoogleTranslate />
           <SplashScreen />
           <OnboardingTutorial />   {/* 🆕 guided tour for new users */}
           {children}

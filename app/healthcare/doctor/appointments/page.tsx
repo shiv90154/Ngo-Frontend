@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { healthcareAPI } from "@/lib/api";
-import { Loader2, Calendar, Clock, Search, Filter, CheckCircle, XCircle, Video, Phone, MessageCircle } from "lucide-react";
+import { Loader2, Calendar, Clock, Search, Filter,Ban, CheckCircle, XCircle, CLock,Check,Video, Phone, MessageCircle } from "lucide-react";
 import { toast } from "react-toastify";
 import Link from "next/link";
 
@@ -91,7 +91,7 @@ export default function DoctorAppointmentsPage() {
                 <th className="px-4 py-3 text-left">Patient</th>
                 <th className="px-4 py-3 text-left">Date & Time</th>
                 <th className="px-4 py-3 text-left">Type</th>
-                <th className="px-4 py-3 text-left">Status</th>
+                <th className="px-4 py-3 text-center">Status</th>
                 <th className="px-4 py-3 text-center">Actions</th>
               </tr>
             </thead>
@@ -112,45 +112,70 @@ export default function DoctorAppointmentsPage() {
                       {apt.consultationType}
                     </span>
                   </td>
-                  <td className="px-4 py-3">
+                  <td className="px-4 py-3 text-center">
                     <span className={`text-xs font-medium px-2 py-1 rounded-full ${
-                      apt.status === "confirmed" ? "bg-green-100 text-green-700" :
+                      apt.status === "confirmed" ? "bg-blue-100 text-blue-700" :
                       apt.status === "pending" ? "bg-yellow-100 text-yellow-700" :
                       apt.status === "cancelled" ? "bg-red-100 text-red-700" :
-                      "bg-blue-100 text-blue-700"
-                    }`}>{apt.status}</span>
+                      "bg-green-100 text-green-700"
+                    }`}>{apt.status.charAt(0).toUpperCase() + apt.status.slice(1).toLowerCase()}</span>
                   </td>
-                  <td className="px-4 py-3">
-                    <div className="flex items-center justify-center gap-2">
-                      {apt.status === "pending" && (
-                        <>
-                          <button
-                            onClick={() => handleStatusChange(apt._id, "confirmed")}
-                            className="p-1.5 bg-green-100 text-green-700 rounded hover:bg-green-200"
-                            title="Confirm"
-                          >
-                            <CheckCircle size={16} />
-                          </button>
-                          <button
-                            onClick={() => handleStatusChange(apt._id, "cancelled")}
-                            className="p-1.5 bg-red-100 text-red-700 rounded hover:bg-red-200"
-                            title="Cancel"
-                          >
-                            <XCircle size={16} />
-                          </button>
-                        </>
+
+<td className="px-4 py-3">
+  <div className="flex items-center justify-center gap-2">
+
+    {/* Pending */}
+    {apt.status === "pending" && (
+      <>
+        <button
+          onClick={() => handleStatusChange(apt._id, "confirmed")}
+          className="p-1.5 bg-blue-100 text-blue-700 rounded hover:bg-blue-200"
+          title="Confirm"
+        >
+          <CheckCircle size={16} />
+        </button>
+
+        <button
+          onClick={() => handleStatusChange(apt._id, "cancelled")}
+          className="p-1.5 bg-red-100 text-red-700 rounded hover:bg-red-200"
+          title="Cancel"
+        >
+          <XCircle size={16} />
+        </button>
+      </>
+    )}
+
+    {/* Confirmed */}
+    {apt.status === "confirmed" && (
+      <button
+        onClick={() => handleStatusChange(apt._id, "completed")}
+        className="p-1.5 bg-blue-100 text-blue-700 rounded hover:bg-blue-200"
+        title="Mark as Completed"
+      >
+        <Clock size={16} /> {/* different icon */}
+      </button>
+    )}
+
+    {/* Completed */}
+    {apt.status === "completed" && (
+      <span
+        className="p-1.5 bg-green-100 text-green-700 rounded flex items-center justify-center"
+        title="Completed"
+      >
+        <Check size={16} /> {/* simple check instead of circle */}
+      </span>
                       )}
-                      {apt.status === "confirmed" && (
-                        <button
-                          onClick={() => handleStatusChange(apt._id, "completed")}
-                          className="p-1.5 bg-blue-100 text-blue-700 rounded hover:bg-blue-200"
-                          title="Mark Completed"
-                        >
-                          <CheckCircle size={16} />
-                        </button>
-                      )}
-                    </div>
-                  </td>
+                       {apt.status === "cancelled" && (
+      <span
+        className="p-1.5 bg-red-100 text-red-700 rounded flex items-center justify-center"
+        title="Cancelled"
+      >
+        <Ban size={16} />
+      </span>
+    )}
+
+  </div>
+</td>
                 </tr>
               ))}
             </tbody>

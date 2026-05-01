@@ -6,6 +6,8 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
 import { Menu, X, User, LogOut, ChevronDown } from "lucide-react";
+// import { FaHome, FaClipboardList, FaInfoCircle, FaEnvelope } from "react-icons/fa";
+import { Home, FileText, Info, Mail } from "lucide-react";
 
 const Header = () => {
   const router = useRouter();
@@ -33,12 +35,12 @@ const Header = () => {
     await logout();
   };
 
-  const navItems = [
-    { name: "Home", href: "/" },
-    { name: "Schemes", href: "/schemes" },
-    { name: "About", href: "/about" },
-    { name: "Contact", href: "/contact" },
-  ];
+const navItems = [
+  { name: "Home", href: "/", icon: Home },
+  { name: "Schemes", href: "/schemes", icon: FileText },
+  { name: "About", href: "/about", icon: Info },
+  { name: "Contact", href: "/contact", icon: Mail },
+];
 
   // Fixed width container to prevent layout shift
   const AuthSection = () => (
@@ -156,16 +158,30 @@ const Header = () => {
             </Link>
 
             {/* Desktop Navigation - Centered, flexible */}
-            <nav className="hidden lg:flex items-center gap-2 xl:gap-4 flex-1 justify-center">
-  {navItems.map((item) => (
-    <Link
-      key={item.name}
-      href={item.href}
-      className="text-gray-700 hover:text-[#1a237e] font-semibold text-sm transition whitespace-nowrap px-3 py-2 -my-2"
-    >
-      {item.name}
-    </Link>
-  ))}
+         <nav className="hidden lg:flex items-center gap-1 xl:gap-2 flex-1 justify-center">
+  {navItems.map((item) => {
+    const Icon = item.icon;
+
+    return (
+      <Link
+        key={item.name}
+        href={item.href}
+        className="group relative flex items-center gap-1.5 px-3 py-2 text-[15px] font-extrabold tracking-tight text-gray-700 transition-all duration-300 hover:text-[#1a237e]"
+      >
+        <Icon
+          size={15}
+          strokeWidth={2.4}
+          className="shrink-0 text-gray-500 transition-all duration-300 group-hover:text-[#1a237e] group-hover:-translate-y-0.5"
+        />
+
+        <span className="relative">
+          {item.name}
+
+          <span className="absolute -bottom-1 left-0 h-[2px] w-0 rounded-full bg-[#1a237e] transition-all duration-300 group-hover:w-full" />
+        </span>
+      </Link>
+    );
+  })}
 </nav>
 
             {/* Auth Section - responsive */}

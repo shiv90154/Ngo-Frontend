@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useState, useContext, useEffect } from "react";
-import api from "@/lib/api"; // 🆕 use the centralized API client
+import api from "@/lib/api"; 
 
 // ======================
 // Role definitions

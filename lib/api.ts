@@ -130,7 +130,12 @@ export const healthcareAPI = {
 
   // ---------- DOCTOR DASHBOARD & PATIENTS ----------
   getDoctorDashboard: () => api.get("/healthcare/doctor/dashboard"),
-  getMyPatients: () => api.get("/healthcare/doctor/patients"),
+  
+  getDoctorPatients: (params?: {
+  search?: string;
+  page?: number;
+  limit?: number;
+}) => api.get("/healthcare/doctor/patients", { params }),
 };
 
 // ======================

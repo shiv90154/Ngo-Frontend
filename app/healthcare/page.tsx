@@ -29,14 +29,14 @@ export default function HealthcareDashboard() {
       try {
         const [aptRes, presRes, recRes] = await Promise.all([
           healthcareAPI.getPatientAppointments({ status: "confirmed", limit: 5 }),
-          healthcareAPI.getPatientPrescriptions(),      // ✅ no argument
-          healthcareAPI.getPatientHealthRecords(),      // ✅ no argument
+          healthcareAPI.getPatientPrescriptions(),     
+          healthcareAPI.getPatientHealthRecords(),     
         ]);
         setRecentAppointments(aptRes.data.appointments || []);
         setStats({
           appointments: aptRes.data.total || 0,
-          prescriptions: presRes.data?.length || 0,     // ✅ use array length
-          records: recRes.data?.length || 0,            // ✅ use array length
+          prescriptions: presRes.data?.length || 0,     
+          records: recRes.data?.length || 0,            
         });
       } catch (error) {
         console.error("Failed to load dashboard:", error);
