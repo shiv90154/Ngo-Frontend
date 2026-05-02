@@ -2,7 +2,7 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import Image from 'next/image';               // ✅ added
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import {
@@ -16,18 +16,17 @@ import NotificationBell from '@/components/NotificationBell';
 import GlobalSearch from '@/components/GlobalSearch';
 import { subscriptionAPI } from '@/lib/api';
 
-// ✅ Each service now has a logoUrl
 const services = [
   {
     title: "Education",
     desc: "Courses, live classes & certificates.",
     route: "education",
     features: ["Live Classes", "Tests", "Certs"],
-    icon: GraduationCap,               // kept for fallback or hover effect
+    icon: GraduationCap,
     accent: "#7c3aed",
     tag: "Learning",
     light: "#ede9fe",
-    logoUrl: "/education.jpeg"         // ✅ add logo path
+    logoUrl: "/education.jpeg"
   },
   {
     title: "Finance",
@@ -134,7 +133,7 @@ export default function Services() {
 
   return (
     <div className="min-h-screen bg-[#f0f2f5] flex flex-col">
-      {/* Modern Header - with logo already added */}
+      {/* Header unchanged */}
       <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-200/60 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
@@ -157,7 +156,6 @@ export default function Services() {
                 <GlobalSearch />
               </div>
             </div>
-            {/* Rest of header unchanged */}
             <div className="flex items-center gap-1.5 sm:gap-2">
               <button onClick={() => router.push('/search')} className="sm:hidden p-2 text-gray-600 hover:bg-gray-100 rounded-lg"><Zap size={20} /></button>
               <NotificationBell />
@@ -186,13 +184,12 @@ export default function Services() {
         </div>
       </header>
 
-      {/* Services Grid - with image logos replacing icons */}
+      {/* Services Grid – yahan change kiya hai */}
       <div className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 w-full">
         <div className="mb-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
             {services.map((service, idx) => {
               const isHovered = hoveredIndex === idx;
-              const Icon = service.icon; // kept for unused but not rendered
               return (
                 <div
                   key={idx}
@@ -208,8 +205,8 @@ export default function Services() {
                   <div className="h-1 w-full" style={{ background: service.accent }} />
                   <div className="p-5">
                     <div className="flex items-start justify-between mb-3">
-                      {/* ✅ Replace icon div with an Image logo */}
-                      <div className="relative w-12 h-12 rounded-xl overflow-hidden bg-white shadow-sm border border-gray-200">
+                      {/* ✅ Logo size badhaya – w-14 h-14 (56px) + shadow-md */}
+                      <div className="relative w-14 h-14 rounded-xl overflow-hidden bg-white shadow-md border border-gray-200">
                         <Image
                           src={service.logoUrl}
                           alt={service.title}
@@ -245,7 +242,7 @@ export default function Services() {
         </div>
       </div>
 
-      {/* Subscription Modal (unchanged) */}
+      {/* Subscription Modal unchanged */}
       {showSubModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6">
