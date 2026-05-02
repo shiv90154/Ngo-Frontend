@@ -215,16 +215,12 @@ const AgricultureDashboard: React.FC = () => {
           50% { opacity: 0.5; transform: scale(1.4); }
         }
       `}</style>
-
-    {/* ── Navbar ─────────────────────────────────────────────────────────── */}
-<nav className="fixed top-0 left-0 right-0 z-50 bg-[#f8faf6]/95 backdrop-blur-xl border-b border-emerald-900/10 shadow-sm">
+{/* Navbar */}
+<nav className="sticky top-0 left-0 right-0 z-50 bg-[#f8faf6]/95 backdrop-blur-xl border-b border-emerald-900/10 shadow-sm">
   <div className="max-w-7xl mx-auto px-4 sm:px-6 flex items-center justify-between h-16">
     
     {/* Logo */}
-    <Link
-      href="/services"
-      className="flex items-center gap-3 group"
-    >
+    <Link href="/services" className="flex items-center gap-3 group">
       <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-600 via-green-500 to-lime-500 flex items-center justify-center text-xl text-white shadow-md shadow-emerald-900/20 group-hover:scale-105 transition-transform duration-200">
         <GiSeedling />
       </div>
@@ -239,75 +235,17 @@ const AgricultureDashboard: React.FC = () => {
       </div>
     </Link>
 
-    {/* Desktop Nav Links */}
-    <div className="hidden md:flex items-center gap-1 bg-white/70 border border-emerald-900/10 rounded-full px-2 py-1 shadow-sm">
-      {NAV_LINKS.map((link) => (
-        <Link
-          key={link.href}
-          href={link.href}
-          className="relative flex items-center gap-2 px-4 py-2 rounded-full text-slate-600 hover:text-emerald-800 hover:bg-emerald-50 transition-all text-sm font-medium group"
-        >
-          <span className="text-emerald-600 group-hover:text-lime-600 transition-colors">
-            {link.icon}
-          </span>
-          {link.label}
-        </Link>
-      ))}
-    </div>
-
-    {/* Mobile menu toggle */}
-    <button
-      onClick={() => setMenuOpen((v) => !v)}
-      className="md:hidden p-2 rounded-lg text-emerald-800 hover:bg-emerald-100 transition-colors"
-      aria-label="Toggle menu"
-    >
-      {menuOpen ? (
-        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-        </svg>
-      ) : (
-        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-        </svg>
-      )}
-    </button>
+    {/* Right Button */}
+    {isContractFarmer && (
+      <Link
+        href="/agriculture/seller"
+        className="inline-flex items-center gap-2 rounded-full bg-emerald-700 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-emerald-800 transition"
+      >
+        <GiContract className="text-lg" />
+        Seller Panel
+      </Link>
+    )}
   </div>
-
-  {/* Mobile Menu */}
-  {menuOpen && (
-    <div className="md:hidden bg-[#f8faf6] border-t border-emerald-900/10 px-4 py-4 space-y-2 shadow-lg">
-      {NAV_LINKS.map((link) => (
-        <Link
-          key={link.href}
-          href={link.href}
-          onClick={() => setMenuOpen(false)}
-          className="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-700 hover:bg-emerald-50 hover:text-emerald-800 transition-all text-sm font-medium"
-        >
-          <span className="text-emerald-600 text-lg">{link.icon}</span>
-
-          <div>
-            <div>{link.label}</div>
-            <div className="text-slate-400 text-xs">{link.description}</div>
-          </div>
-        </Link>
-      ))}
-
-      {user && (
-        <div className="pt-3 mt-3 border-t border-emerald-900/10 flex items-center gap-3 px-4">
-          <UserAvatar name={user.name} />
-
-          <div>
-            <div className="text-slate-800 text-sm font-semibold">{user.name}</div>
-            {isContractFarmer && (
-              <div className="text-amber-600 text-xs font-medium">
-                Contract Farmer ✓
-              </div>
-            )}
-          </div>
-        </div>
-      )}
-    </div>
-  )}
 </nav>
 
       {/* ── Main Feature Cards ─────────────────────────────────────────────── */}
