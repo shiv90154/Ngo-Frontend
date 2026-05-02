@@ -180,6 +180,8 @@ export const mediaAPI = {
   searchCreators: (q: string, params?: { page?: number; limit?: number }) =>
     api.get("/media/search/creators", { params: { q, ...params } }),
   becomeCreator: () => api.post("/media/become-creator"),
+  getCreatorProfile: (userId: string) =>
+  api.get(`/media/users/${userId}/profile`),
 
   // ❌ REMOVE THESE - Duplicate ad tracking (use adsAPI instead)
   // trackAdClick: (campaignId: string) => api.post("/media/ads/track-click", { campaignId }),
