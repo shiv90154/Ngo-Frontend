@@ -13,6 +13,14 @@ import {
   Shield, Globe, Award, ChevronDown, Edit3, ArrowLeft
 } from "lucide-react";
 
+// ---------- Media URL helper ----------
+const MEDIA_BASE_URL = process.env.NEXT_PUBLIC_MEDIA_URL || "http://localhost:5000";
+const getMediaUrl = (url: string) => {
+  if (!url) return "";
+  return url.startsWith("http") ? url : `${MEDIA_BASE_URL}${url}`;
+};
+// ------------------------------------
+
 export default function ProfilePage() {
   const { user, setUser, loading: authLoading } = useAuth();
   const router = useRouter();
@@ -96,7 +104,10 @@ export default function ProfilePage() {
         sellerProfile: userData.sellerProfile || { isSeller: false, storeName: "", gstNumber: "" },
         bankAccount: userData.bankAccount || { accountNumber: "", ifsc: "", bankName: "", accountHolderName: "" },
       });
-      if (userData.profileImage) setProfileImagePreview(userData.profileImage);
+      // ✅ Use getMediaUrl to resolve full image URL
+      if (userData.profileImage) {
+        setProfileImagePreview(getMediaUrl(userData.profileImage));
+      }
     } catch (err) {
       console.error("Load profile error:", err);
       if (err.response?.status === 401) router.push("/login");

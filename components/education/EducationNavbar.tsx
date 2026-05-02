@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import {
   GraduationCap,
@@ -48,7 +49,17 @@ export default function EducationNavbar() {
     <>
       <header className="hidden lg:block sticky top-0 z-40 bg-white border-b border-gray-200 shadow-sm">
         <div className="px-6 h-16 flex items-center justify-between">
-          <Link href="/education" className="flex items-center gap-3">
+          <Link href="/education" className="flex items-center gap-4">
+            {/* Logo - size increased to w-16 h-16 (64px) and added subtle styling */}
+            <div className="relative w-16 h-16 rounded-lg overflow-hidden bg-white shadow-sm border border-gray-100">
+              <Image
+                src="/education.jpeg"
+                alt="Samraddh Logo"
+                fill
+                className="object-cover"
+                priority
+              />
+            </div>
             <div>
               <h1 className="text-lg font-bold text-[#1a237e]">Samraddh</h1>
               <p className="text-[10px] text-gray-500 -mt-0.5">Education</p>
