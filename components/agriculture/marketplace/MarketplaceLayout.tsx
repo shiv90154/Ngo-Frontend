@@ -323,22 +323,6 @@ export const MarketplaceLayout: React.FC<MarketplaceLayoutProps> = ({
         <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
           {selectedTab === "products" && (
             <section className="mb-6 overflow-hidden rounded-3xl border border-stone-200/70 bg-white/70 p-5 shadow-sm shadow-stone-900/5 backdrop-blur-xl sm:p-6">
-              <div className="mb-5 flex items-center justify-between">
-                <div>
-                  <h2 className="text-sm font-bold tracking-tight text-stone-900">
-                    Browse catalogue
-                  </h2>
-                  <p className="text-[11px] text-stone-500">
-                    Search, filter & explore curated produce
-                  </p>
-                </div>
-                <div className="hidden items-center gap-1.5 rounded-full bg-emerald-50 px-3 py-1 ring-1 ring-emerald-100 sm:flex">
-                  <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-500" />
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-700">
-                    Live inventory
-                  </span>
-                </div>
-              </div>
 
               <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
                 <div className="group relative">
@@ -373,27 +357,6 @@ export const MarketplaceLayout: React.FC<MarketplaceLayoutProps> = ({
                     ))}
                   </select>
                 </div>
-              </div>
-
-              <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-3">
-                <StatCard
-                  label="Products"
-                  value={productsCount}
-                  chip="All"
-                  icon={<Package size={14} className="text-stone-400" />}
-                />
-                <StatCard
-                  label="Results"
-                  value={filteredCount}
-                  chip="Live"
-                  icon={<TrendingUp size={14} className="text-stone-400" />}
-                />
-                <StatCard
-                  label="Categories"
-                  value={categoriesCount}
-                  chip="Active"
-                  icon={<Filter size={14} className="text-stone-400" />}
-                />
               </div>
             </section>
           )}

@@ -20,6 +20,8 @@ import {
   Sparkles,
 } from "lucide-react";
 import Link from "next/link";
+import GoogleTranslate from "@/components/TranslatePage";
+
 
 export default function Home() {
   const services = [
@@ -30,7 +32,7 @@ export default function Home() {
       desc: "Scholarships, DIKSHA, SWAYAM, NPTEL Courses", 
       href: "/education",
       stats: "50+ Schemes",
-      badge: "50+ Schemes"               // ✅ added for hero & card badge
+      badge: "50+ Schemes"               
     },
     { 
       title: "Finance", 

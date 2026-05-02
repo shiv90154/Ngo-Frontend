@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import axios from "axios";
 import { useAuth } from "@/contexts/AuthContext";
 import SellerShell from "./SellerShell";
+import { getMediaUrl } from "@/utils/mediaUrl"; // Import your media utility
 import {
     Loader2,
     Search,
@@ -43,12 +44,13 @@ export default function SellerProductsView(): JSX.Element {
     const router = useRouter();
     const { user, loading: authLoading } = useAuth();
 
-    const [loading, setLoading] = useState < boolean > (true);
-    const [products, setProducts] = useState < Product[] > ([]);
-    const [search, setSearch] = useState < string > ("");
-    const [category, setCategory] = useState < string > ("all");
-    const [approvalStatus, setApprovalStatus] = useState < string > ("all");
-    const [categories, setCategories] = useState < string[] > ([]);
+    const [loading, setLoading] = useState<boolean>(true);
+    const [products, setProducts] = useState<Product[]>([]);
+    const [search, setSearch] = useState<string>("");
+    const [category, setCategory] = useState<string>("all");
+    const [approvalStatus, setApprovalStatus] = useState<string>("all");
+    const [categories, setCategories] = useState<string[]>([]);
+    const [imageErrors, setImageErrors] = useState<Record<string, boolean>>({});
 
     useEffect(() => {
         if (authLoading) return;
@@ -69,7 +71,7 @@ export default function SellerProductsView(): JSX.Element {
 
         const fetchProducts = async (): Promise<void> => {
             try {
-                const { data } = await axios.get < ProductsApiResponse > (
+                const { data } = await axios.get<ProductsApiResponse>(
                     `${API_BASE}/agriculture/seller/products`,
                     {
                         headers: { Authorization: `Bearer ${token}` },
@@ -78,7 +80,7 @@ export default function SellerProductsView(): JSX.Element {
 
                 if (data.success) {
                     const items = data.data.items || [];
-
+                    console.log('Products loaded:', items);
                     setProducts(items);
                     setCategories([
                         ...new Set(items.map((item) => item.category).filter(Boolean)),
@@ -94,7 +96,7 @@ export default function SellerProductsView(): JSX.Element {
         fetchProducts();
     }, [authLoading, router, user]);
 
-    const filteredProducts = useMemo < Product[] > (() => {
+    const filteredProducts = useMemo<Product[]>(() => {
         const s = search.toLowerCase();
 
         return products.filter((item) => {
@@ -125,6 +127,11 @@ export default function SellerProductsView(): JSX.Element {
         } catch (err) {
             console.error("Delete failed:", err);
         }
+    };
+
+    const handleImageError = (productId: string) => {
+        console.error(`Failed to load image for product: ${productId}`);
+        setImageErrors((prev) => ({ ...prev, [productId]: true }));
     };
 
     if (authLoading || loading) {
@@ -169,7 +176,7 @@ export default function SellerProductsView(): JSX.Element {
                             <option value="all">All Categories</option>
                             {categories.map((item) => (
                                 <option key={item} value={item}>
-                                    {item}
+                                    {item.charAt(0).toUpperCase() + item.slice(1)}
                                 </option>
                             ))}
                         </select>
@@ -218,18 +225,26 @@ export default function SellerProductsView(): JSX.Element {
                         {filteredProducts.map((item) => (
                             <div
                                 key={item.id}
-                                className="overflow-hidden rounded-2xl border border-slate-200 bg-gradient-to-b from-white to-slate-50 shadow-sm"
+                                className="overflow-hidden rounded-2xl border border-slate-200 bg-gradient-to-b from-white to-slate-50 shadow-sm transition hover:shadow-md"
                             >
                                 <div className="flex flex-col gap-4 p-4 sm:flex-row">
-                                    <div className="flex h-28 w-full shrink-0 items-center justify-center rounded-xl bg-gradient-to-b from-green-50 to-slate-100 sm:w-32">
-                                        {item.imageUrl ? (
+                                    <div className="relative flex h-28 w-full shrink-0 items-center justify-center overflow-hidden rounded-xl bg-gradient-to-b from-green-50 to-slate-100 sm:w-32">
+                                        {item.imageUrl && !imageErrors[item.id] ? (
                                             <img
-                                                src={item.imageUrl}
+                                                src={getMediaUrl(item.imageUrl)}
                                                 alt={item.name}
-                                                className="h-full w-full rounded-xl object-cover"
+                                                className="h-full w-full object-cover"
+                                                onError={() => handleImageError(item.id)}
                                             />
                                         ) : (
-                                            <Package size={34} className="text-slate-400" />
+                                            <div className="flex flex-col items-center justify-center">
+                                                <Package size={34} className="text-slate-400" />
+                                                {imageErrors[item.id] && (
+                                                    <span className="mt-1 text-[10px] text-red-400">
+                                                        Failed to load
+                                                    </span>
+                                                )}
+                                            </div>
                                         )}
                                     </div>
 
@@ -240,17 +255,18 @@ export default function SellerProductsView(): JSX.Element {
                                                     {item.name}
                                                 </h3>
                                                 <p className="mt-1 text-sm text-slate-500">
-                                                    {item.category} • ₹{item.price}/{item.unit}
+                                                    {item.category.charAt(0).toUpperCase() + item.category.slice(1)} • ₹{item.price}/{item.unit}
                                                 </p>
                                             </div>
 
                                             <span
-                                                className={`rounded-full px-3 py-1 text-[11px] font-bold uppercase tracking-wide ${item.approvalStatus === "approved"
+                                                className={`rounded-full px-3 py-1 text-[11px] font-bold uppercase tracking-wide ${
+                                                    item.approvalStatus === "approved"
                                                         ? "bg-green-50 text-green-700"
                                                         : item.approvalStatus === "pending"
-                                                            ? "bg-amber-50 text-amber-700"
-                                                            : "bg-red-50 text-red-700"
-                                                    }`}
+                                                        ? "bg-amber-50 text-amber-700"
+                                                        : "bg-red-50 text-red-700"
+                                                }`}
                                             >
                                                 {item.approvalStatus}
                                             </span>

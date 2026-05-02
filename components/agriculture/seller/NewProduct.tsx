@@ -13,6 +13,8 @@ import {
     FileText,
     IndianRupee,
     Boxes,
+    Upload,
+    X,
 } from "lucide-react";
 import SellerShell from "@/components/agriculture/seller/SellerShell";
 
@@ -27,13 +29,14 @@ type ProductForm = {
     quantity: string;
     unit: string;
     location: string;
-    imageUrl: string;
+    imageFile: File | null;
     isOrganic: boolean;
 };
 
 type ApiResponse = {
     success: boolean;
     message?: string;
+    productId?: string;
 };
 
 const categoryOptions: { value: string; label: string }[] = [
@@ -64,7 +67,7 @@ const initialForm: ProductForm = {
     quantity: "",
     unit: "kg",
     location: "",
-    imageUrl: "",
+    imageFile: null,
     isOrganic: false,
 };
 
@@ -72,10 +75,11 @@ export default function NewProduct(): JSX.Element {
     const router = useRouter();
     const { user, loading: authLoading } = useAuth();
 
-    const [pageLoading, setPageLoading] = useState < boolean > (true);
-    const [submitting, setSubmitting] = useState < boolean > (false);
-    const [form, setForm] = useState < ProductForm > (initialForm);
-    const [error, setError] = useState < string > ("");
+    const [pageLoading, setPageLoading] = useState<boolean>(true);
+    const [submitting, setSubmitting] = useState<boolean>(false);
+    const [form, setForm] = useState<ProductForm>(initialForm);
+    const [error, setError] = useState<string>("");
+    const [imagePreview, setImagePreview] = useState<string>("");
 
     useEffect(() => {
         if (authLoading) return;
@@ -110,6 +114,48 @@ export default function NewProduct(): JSX.Element {
         }));
     };
 
+    const handleImageChange = (e: ChangeEvent<HTMLInputElement>): void => {
+        const file = e.target.files?.[0];
+        
+        if (file) {
+            // Validate file type
+            const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+            if (!validTypes.includes(file.type)) {
+                setError("Please upload a valid image file (JPEG, PNG, or WEBP)");
+                return;
+            }
+
+            // Validate file size (max 5MB)
+            const maxSize = 5 * 1024 * 1024;
+            if (file.size > maxSize) {
+                setError("Image size should be less than 5MB");
+                return;
+            }
+
+            setForm((prev) => ({
+                ...prev,
+                imageFile: file,
+            }));
+
+            // Create preview URL
+            const previewUrl = URL.createObjectURL(file);
+            setImagePreview(previewUrl);
+            setError("");
+        }
+    };
+
+    const removeImage = (): void => {
+        setForm((prev) => ({
+            ...prev,
+            imageFile: null,
+        }));
+        
+        if (imagePreview) {
+            URL.revokeObjectURL(imagePreview);
+            setImagePreview("");
+        }
+    };
+
     const validateForm = (): string => {
         if (!form.name.trim()) return "Product name is required.";
         if (!form.category) return "Category is required.";
@@ -118,6 +164,7 @@ export default function NewProduct(): JSX.Element {
         if (form.quantity === "" || Number(form.quantity) < 0)
             return "Enter a valid quantity.";
         if (!form.unit) return "Unit is required.";
+        if (!form.imageFile) return "Product image is required.";
 
         return "";
     };
@@ -140,29 +187,37 @@ export default function NewProduct(): JSX.Element {
         try {
             const token = localStorage.getItem("token");
 
-            const payload = {
-                name: form.name.trim(),
-                description: form.description.trim(),
-                category: form.category,
-                price: Number(form.price),
-                quantity: Number(form.quantity),
-                unit: form.unit,
-                location: form.location.trim(),
-                imageUrl: form.imageUrl.trim(),
-                isOrganic: Boolean(form.isOrganic),
-            };
+            // Create FormData for file upload
+            const formData = new FormData();
+            formData.append("name", form.name.trim());
+            formData.append("description", form.description.trim());
+            formData.append("category", form.category);
+            formData.append("price", Number(form.price).toString());
+            formData.append("quantity", Number(form.quantity).toString());
+            formData.append("unit", form.unit);
+            formData.append("location", form.location.trim());
+            formData.append("isOrganic", String(Boolean(form.isOrganic)));
+            
+            if (form.imageFile) {
+                formData.append("productImage", form.imageFile);
+            }
 
-            const { data } = await axios.post < ApiResponse > (
+            const { data } = await axios.post<ApiResponse>(
                 `${API_BASE}/agriculture/seller/products`,
-                payload,
+                formData,
                 {
                     headers: {
                         Authorization: `Bearer ${token}`,
+                        "Content-Type": "multipart/form-data",
                     },
                 }
             );
 
             if (data.success) {
+                // Clean up preview URL
+                if (imagePreview) {
+                    URL.revokeObjectURL(imagePreview);
+                }
                 router.push("/agriculture/seller/products");
             } else {
                 setError(data.message || "Failed to create product.");
@@ -177,6 +232,15 @@ export default function NewProduct(): JSX.Element {
             setSubmitting(false);
         }
     };
+
+    // Clean up preview URL on component unmount
+    useEffect(() => {
+        return () => {
+            if (imagePreview) {
+                URL.revokeObjectURL(imagePreview);
+            }
+        };
+    }, [imagePreview]);
 
     if (authLoading || pageLoading) {
         return (
@@ -343,22 +407,27 @@ export default function NewProduct(): JSX.Element {
 
                             <div>
                                 <label className="mb-1.5 block text-sm font-semibold text-slate-700">
-                                    Image URL
+                                    Product Image
                                 </label>
                                 <div className="relative">
-                                    <ImageIcon
-                                        size={16}
-                                        className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500"
-                                    />
                                     <input
-                                        type="text"
-                                        name="imageUrl"
-                                        value={form.imageUrl}
-                                        onChange={handleChange}
-                                        placeholder="Paste image URL"
-                                        className="h-11 w-full rounded-xl border border-slate-200 bg-white pl-11 pr-4 text-sm outline-none transition focus:border-[#2f6b45] focus:ring-4 focus:ring-[#2f6b45]/10"
+                                        type="file"
+                                        accept="image/jpeg,image/jpg,image/png,image/webp"
+                                        onChange={handleImageChange}
+                                        className="hidden"
+                                        id="productImage"
                                     />
+                                    <label
+                                        htmlFor="productImage"
+                                        className="flex h-11 w-full cursor-pointer items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 text-sm text-slate-600 transition hover:bg-slate-50"
+                                    >
+                                        <Upload size={16} className="text-[#2f6b45]" />
+                                        {form.imageFile ? form.imageFile.name : "Choose an image"}
+                                    </label>
                                 </div>
+                                <p className="mt-1 text-xs text-slate-500">
+                                    Supported formats: JPEG, PNG, WEBP (Max 5MB)
+                                </p>
                             </div>
 
                             <div className="md:col-span-2">
@@ -377,21 +446,27 @@ export default function NewProduct(): JSX.Element {
                         </div>
                     </div>
 
-                    {form.imageUrl && (
+                    {imagePreview && (
                         <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-                            <h2 className="mb-4 text-lg font-bold text-slate-900">
-                                Preview
-                            </h2>
+                            <div className="mb-4 flex items-center justify-between">
+                                <h2 className="text-lg font-bold text-slate-900">
+                                    Image Preview
+                                </h2>
+                                <button
+                                    type="button"
+                                    onClick={removeImage}
+                                    className="rounded-lg p-1 text-red-500 transition hover:bg-red-50"
+                                >
+                                    <X size={20} />
+                                </button>
+                            </div>
 
                             <div className="overflow-hidden rounded-2xl border border-slate-200 bg-gradient-to-b from-green-50 to-slate-100">
                                 <div className="flex h-64 items-center justify-center">
                                     <img
-                                        src={form.imageUrl}
+                                        src={imagePreview}
                                         alt="Product preview"
-                                        className="h-full w-full object-cover"
-                                        onError={(e) => {
-                                            e.currentTarget.style.display = "none";
-                                        }}
+                                        className="h-full w-full object-contain"
                                     />
                                 </div>
                             </div>

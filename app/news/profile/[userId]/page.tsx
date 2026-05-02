@@ -1,3 +1,4 @@
+// app/news/profile/[userId]/page.tsx
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
@@ -6,7 +7,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { mediaAPI } from "@/lib/api";
 import PostCard from "@/components/news/PostCard";
 import ProfileHeader from "@/components/news/ProfileHeader";
-import { Loader2, ImageIcon, FileText, Camera } from "lucide-react";
+import { ImageIcon, FileText, Camera } from "lucide-react";
 import { toast } from "react-toastify";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
@@ -16,9 +17,14 @@ interface UserProfile {
   _id: string;
   fullName?: string;
   email?: string;
+  phone?: string;
   profileImage?: string;
-  socialProfile?: { username?: string };
+  socialProfile?: {
+    username?: string;
+  };
   mediaCreatorProfile?: {
+    isCreator?: boolean;
+    creatorStatus?: string;
     bio?: string;
     totalPosts?: number;
     totalFollowers?: number;
@@ -26,18 +32,21 @@ interface UserProfile {
   };
   state?: string;
   district?: string;
+  block?: string;
+  village?: string;
   createdAt?: string;
 }
 
 interface Post {
   _id: string;
   author: UserProfile;
-  media?: { url: string }[];
+  media?: { url: string; type?: string }[];
 }
 
 export default function ProfilePage() {
   const params = useParams();
   const { user: currentUser } = useAuth();
+
   const userId = params.userId as string;
 
   const [profileUser, setProfileUser] = useState<UserProfile | null>(null);
@@ -48,31 +57,33 @@ export default function ProfilePage() {
   const isOwnProfile = currentUser?._id === userId;
 
   const fetchAllData = useCallback(async () => {
+    if (!userId) return;
+
     setLoading(true);
+
     try {
-      const [postsRes] = await Promise.allSettled([
+      const [profileRes, postsRes] = await Promise.allSettled([
+        mediaAPI.getCreatorProfile(userId),
         mediaAPI.getUserPosts(userId, { limit: 50 }),
       ]);
 
-      if (postsRes.status === "fulfilled") {
-        const fetchedPosts = postsRes.value.data.posts ?? [];
-        setPosts(fetchedPosts);
+      if (profileRes.status === "fulfilled") {
+        setProfileUser(profileRes.value.data.user);
+      } else {
+        console.error("Profile fetch failed:", profileRes.reason);
 
-        if (fetchedPosts.length > 0) {
-          setProfileUser(fetchedPosts[0].author as UserProfile);
-        } else if (isOwnProfile && currentUser) {
+        if (isOwnProfile && currentUser) {
           setProfileUser(currentUser as unknown as UserProfile);
         } else {
-          setProfileUser({
-            _id: userId,
-            fullName: "Media Creator",
-            mediaCreatorProfile: {
-              totalPosts: 0,
-              totalFollowers: 0,
-              totalFollowing: 0,
-            },
-          });
+          setProfileUser(null);
         }
+      }
+
+      if (postsRes.status === "fulfilled") {
+        setPosts(postsRes.value.data.posts || []);
+      } else {
+        console.error("Posts fetch failed:", postsRes.reason);
+        setPosts([]);
       }
     } catch (error) {
       console.error("Profile Fetch Error:", error);
@@ -83,24 +94,33 @@ export default function ProfilePage() {
   }, [userId, isOwnProfile, currentUser]);
 
   useEffect(() => {
-    if (userId) fetchAllData();
-  }, [fetchAllData, userId]);
+    fetchAllData();
+  }, [fetchAllData]);
 
-  const handlePostUpdate = useCallback((postId: string, updatedData: Partial<Post>) => {
-    setPosts((prev) =>
-      prev.map((p) => (p._id === postId ? { ...p, ...updatedData } : p))
-    );
-  }, []);
+  const handlePostUpdate = useCallback(
+    (postId: string, updatedData: Partial<Post>) => {
+      setPosts((prev) =>
+        prev.map((post) =>
+          post._id === postId ? { ...post, ...updatedData } : post
+        )
+      );
+    },
+    []
+  );
 
   const handlePostDelete = useCallback((postId: string) => {
-    setPosts((prev) => prev.filter((p) => p._id !== postId));
+    setPosts((prev) => prev.filter((post) => post._id !== postId));
+
     setProfileUser((prev) =>
       prev
         ? {
             ...prev,
             mediaCreatorProfile: {
               ...prev.mediaCreatorProfile,
-              totalPosts: Math.max(0, (prev.mediaCreatorProfile?.totalPosts ?? 0) - 1),
+              totalPosts: Math.max(
+                0,
+                (prev.mediaCreatorProfile?.totalPosts ?? 0) - 1
+              ),
               totalFollowers: prev.mediaCreatorProfile?.totalFollowers ?? 0,
               totalFollowing: prev.mediaCreatorProfile?.totalFollowing ?? 0,
             },
@@ -109,9 +129,8 @@ export default function ProfilePage() {
     );
   }, []);
 
-  const mediaPosts = posts.filter((p) => p.media?.length > 0);
+  const mediaPosts = posts.filter((post) => post.media && post.media.length > 0);
 
-  // Loading skeleton
   if (loading) {
     return (
       <div className="max-w-3xl mx-auto py-10 px-4 space-y-8">
@@ -132,14 +151,11 @@ export default function ProfilePage() {
             </div>
           </div>
         </div>
-        <div className="flex bg-white p-1.5 rounded-2xl ring-1 ring-slate-900/5 max-w-sm mx-auto">
-          <div className="flex-1 h-9 bg-slate-100 rounded-xl" />
-          <div className="flex-1 h-9 bg-slate-50 rounded-xl" />
-        </div>
+
         <div className="space-y-4">
-          {[...Array(2)].map((_, i) => (
+          {[...Array(2)].map((_, index) => (
             <div
-              key={i}
+              key={index}
               className="h-40 bg-white/60 rounded-2xl ring-1 ring-slate-900/5 animate-pulse"
             />
           ))}
@@ -148,7 +164,20 @@ export default function ProfilePage() {
     );
   }
 
-  if (!profileUser) return null;
+  if (!profileUser) {
+    return (
+      <div className="max-w-3xl mx-auto px-4 py-20 text-center">
+        <div className="bg-white/70 rounded-2xl ring-1 ring-slate-900/5 shadow-sm p-10">
+          <h2 className="text-lg font-bold text-slate-800">
+            Profile not found
+          </h2>
+          <p className="text-sm text-slate-500 mt-2">
+            This user profile is unavailable.
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-3xl mx-auto px-4 pb-20 space-y-8">
@@ -158,13 +187,14 @@ export default function ProfilePage() {
         postsCount={posts.length}
       />
 
-      {/* Tab Switcher */}
       <div className="sticky top-16 z-20 pt-2 backdrop-blur-sm">
         <div className="flex bg-white/70 backdrop-blur-md p-1.5 rounded-2xl ring-1 ring-slate-900/5 shadow-sm max-w-sm mx-auto">
           <motion.button
             onClick={() => setActiveTab("posts")}
             className={`relative flex-1 flex items-center justify-center gap-2 py-2.5 text-xs font-semibold uppercase tracking-wide rounded-xl transition-colors duration-200 ${
-              activeTab === "posts" ? "text-white" : "text-slate-500 hover:text-slate-800"
+              activeTab === "posts"
+                ? "text-white"
+                : "text-slate-500 hover:text-slate-800"
             }`}
             aria-pressed={activeTab === "posts"}
           >
@@ -175,6 +205,7 @@ export default function ProfilePage() {
                 transition={{ type: "spring", stiffness: 400, damping: 25 }}
               />
             )}
+
             <span className="relative z-10 flex items-center gap-1.5">
               <FileText className="w-4 h-4" />
               <span>Feed</span>
@@ -184,7 +215,9 @@ export default function ProfilePage() {
           <motion.button
             onClick={() => setActiveTab("media")}
             className={`relative flex-1 flex items-center justify-center gap-2 py-2.5 text-xs font-semibold uppercase tracking-wide rounded-xl transition-colors duration-200 ${
-              activeTab === "media" ? "text-white" : "text-slate-500 hover:text-slate-800"
+              activeTab === "media"
+                ? "text-white"
+                : "text-slate-500 hover:text-slate-800"
             }`}
             aria-pressed={activeTab === "media"}
           >
@@ -195,6 +228,7 @@ export default function ProfilePage() {
                 transition={{ type: "spring", stiffness: 400, damping: 25 }}
               />
             )}
+
             <span className="relative z-10 flex items-center gap-1.5">
               <ImageIcon className="w-4 h-4" />
               <span>Media</span>
@@ -203,7 +237,6 @@ export default function ProfilePage() {
         </div>
       </div>
 
-      {/* Tab Content */}
       <div className="mt-6">
         <AnimatePresence mode="wait">
           {activeTab === "posts" && (
@@ -216,7 +249,10 @@ export default function ProfilePage() {
               className="space-y-5"
             >
               {posts.length === 0 ? (
-                <EmptyState icon={<FileText className="w-6 h-6" />} text="No stories published yet." />
+                <EmptyState
+                  icon={<FileText className="w-6 h-6" />}
+                  text="No stories published yet."
+                />
               ) : (
                 posts.map((post) => (
                   <PostCard
@@ -239,7 +275,10 @@ export default function ProfilePage() {
               transition={{ duration: 0.2 }}
             >
               {mediaPosts.length === 0 ? (
-                <EmptyState icon={<Camera className="w-6 h-6" />} text="No photos or videos yet." />
+                <EmptyState
+                  icon={<Camera className="w-6 h-6" />}
+                  text="No photos or videos yet."
+                />
               ) : (
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                   {mediaPosts.map((post) => (
@@ -252,12 +291,13 @@ export default function ProfilePage() {
                       aria-label="View post"
                     >
                       <Image
-                        src={getMediaUrl(post.media[0].url)}
+                        src={getMediaUrl(post.media?.[0]?.url || "")}
                         alt=""
                         fill
                         className="object-cover transition-transform duration-500 group-hover:scale-105"
                         unoptimized
                       />
+
                       <div className="absolute inset-0 bg-black/10 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                         <ImageIcon className="text-white w-6 h-6 drop-shadow" />
                       </div>
@@ -273,8 +313,13 @@ export default function ProfilePage() {
   );
 }
 
-/* -------- Reusable Empty State -------- */
-function EmptyState({ icon, text }: { icon: React.ReactNode; text: string }) {
+function EmptyState({
+  icon,
+  text,
+}: {
+  icon: React.ReactNode;
+  text: string;
+}) {
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.96 }}

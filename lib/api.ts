@@ -130,7 +130,12 @@ export const healthcareAPI = {
 
   // ---------- DOCTOR DASHBOARD & PATIENTS ----------
   getDoctorDashboard: () => api.get("/healthcare/doctor/dashboard"),
-  getMyPatients: () => api.get("/healthcare/doctor/patients"),
+  
+  getDoctorPatients: (params?: {
+  search?: string;
+  page?: number;
+  limit?: number;
+}) => api.get("/healthcare/doctor/patients", { params }),
 };
 
 // ======================
@@ -175,6 +180,8 @@ export const mediaAPI = {
   searchCreators: (q: string, params?: { page?: number; limit?: number }) =>
     api.get("/media/search/creators", { params: { q, ...params } }),
   becomeCreator: () => api.post("/media/become-creator"),
+  getCreatorProfile: (userId: string) =>
+  api.get(`/media/users/${userId}/profile`),
 
   // ❌ REMOVE THESE - Duplicate ad tracking (use adsAPI instead)
   // trackAdClick: (campaignId: string) => api.post("/media/ads/track-click", { campaignId }),
