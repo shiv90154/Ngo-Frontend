@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import {
   Heart,
@@ -64,8 +65,17 @@ export default function HealthcareNavbar() {
     <header className="sticky top-0 z-50 bg-white border-b border-gray-200 shadow-sm">
       <div className="px-4 lg:px-6">
         <div className="flex items-center justify-between h-16">
-          {/* Logo */}
-          <Link href={dashboardHref} className="flex items-center gap-3">
+          {/* Logo - size increased to w-16 h-16 (64px) with subtle styling */}
+          <Link href={dashboardHref} className="flex items-center gap-4">
+            <div className="relative w-16 h-16 rounded-lg overflow-hidden bg-white shadow-sm border border-gray-100">
+              <Image
+                src="/doctor.png"  // 👈 Change to your actual healthcare logo path
+                alt="Samraddh Healthcare Logo"
+                fill
+                className="object-cover"
+                priority
+              />
+            </div>
             <div>
               <h1 className="text-lg font-bold text-[#1a237e] font-serif">
                 Samraddh

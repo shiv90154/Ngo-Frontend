@@ -19,6 +19,14 @@ import {
 } from "lucide-react";
 import CourseCard from "@/components/education/CourseCard";
 
+// ---------- Media URL helper ----------
+const MEDIA_BASE_URL = process.env.NEXT_PUBLIC_MEDIA_URL || "http://localhost:5000";
+export const getMediaUrl = (url: string) => {
+  if (!url) return "";
+  return url.startsWith("http") ? url : `${MEDIA_BASE_URL}${url}`;
+};
+// ------------------------------------
+
 export default function EducationDashboard() {
   const { user } = useAuth();
   const [loading, setLoading] = useState(true);

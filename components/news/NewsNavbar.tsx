@@ -130,8 +130,18 @@ export default function NewsNavbar() {
       <header className="hidden lg:block sticky top-0 z-50 bg-white/70 backdrop-blur-xl border-b border-slate-200/50 shadow-sm">
         <div className="max-w-7xl mx-auto px-6">
           <div className="flex items-center justify-between h-16">
-            {/* Logo */}
-            <Link href="/news" className="flex items-center gap-3 group" aria-label="Samraddh News home">
+            {/* Logo + Brand */}
+            <Link href="/news" className="flex items-center gap-4 group" aria-label="Samraddh News home">
+              {/* Logo - size w-16 h-16 (64px) with subtle styling */}
+              <div className="relative w-16 h-16 rounded-lg overflow-hidden bg-white shadow-sm border border-slate-200/80">
+                <Image
+                  src="/news.png"        // 👈 Replace with your actual news logo path
+                  alt="Samraddh News Logo"
+                  fill
+                  className="object-cover"
+                  priority
+                />
+              </div>
               <div className="flex flex-col">
                 <span className="text-xl font-black tracking-tight bg-gradient-to-r from-indigo-800 to-indigo-600 bg-clip-text text-transparent">
                   Samraddh

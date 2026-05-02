@@ -2,6 +2,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import {
   Wallet,
@@ -18,7 +19,8 @@ import {
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
-import LogoutButton from "@/components/LogoutButton"; 
+import LogoutButton from "@/components/LogoutButton";
+
 export default function FinanceNavbar() {
   const pathname = usePathname();
   const { user, logout } = useAuth();
@@ -51,19 +53,32 @@ export default function FinanceNavbar() {
 
   return (
     <>
-      {/* 桌面端顶部栏（仅 Logo 和用户菜单） */}
+      {/* 桌面端顶部栏（Logo + 用户菜单） */}
       <header className="hidden lg:block sticky top-0 z-50 bg-white border-b border-gray-200 shadow-sm">
         <div className="px-6">
           <div className="flex items-center justify-between h-16">
-            <Link href="/finance" className="flex items-center gap-3 group">
-            
+            <Link href="/finance" className="flex items-center gap-4">
+              {/* Logo - size increased to w-16 h-16 (64px) with subtle styling */}
+              <div className="relative w-16 h-16 rounded-lg overflow-hidden bg-white shadow-sm border border-gray-100">
+                <Image
+                  src="/finance.png"  // 👈 Change to your actual finance logo path
+                  alt="Samraddh Finance Logo"
+                  fill
+                  className="object-cover"
+                  priority
+                />
+              </div>
               <div>
-                <h1 className="text-lg font-bold text-[#1a237e] font-serif tracking-tight">Samraddh</h1>
-                <p className="text-[10px] text-gray-500 -mt-0.5 font-medium">Finance Services</p>
+                <h1 className="text-lg font-bold text-[#1a237e] font-serif tracking-tight">
+                  Samraddh
+                </h1>
+                <p className="text-[10px] text-gray-500 -mt-0.5 font-medium">
+                  Finance Services
+                </p>
               </div>
             </Link>
 
-            {/* 用户菜单（桌面端） */}
+          
             <div className="flex items-center gap-2">
               {mounted && (
                 <div className="relative">
@@ -98,7 +113,7 @@ export default function FinanceNavbar() {
                         <Wallet className="w-4 h-4" /> All Services
                       </Link>
                       <hr className="my-1 border-gray-100" />
-                     <LogoutButton /> 
+                      <LogoutButton />
                     </div>
                   )}
                 </div>

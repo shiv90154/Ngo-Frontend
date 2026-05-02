@@ -2,6 +2,7 @@
 "use client";
 
 import { useState, useEffect } from 'react';
+import Image from 'next/image';               // ✅ added
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import {
@@ -15,16 +16,18 @@ import NotificationBell from '@/components/NotificationBell';
 import GlobalSearch from '@/components/GlobalSearch';
 import { subscriptionAPI } from '@/lib/api';
 
+// ✅ Each service now has a logoUrl
 const services = [
   {
     title: "Education",
     desc: "Courses, live classes & certificates.",
     route: "education",
     features: ["Live Classes", "Tests", "Certs"],
-    icon: GraduationCap,
+    icon: GraduationCap,               // kept for fallback or hover effect
     accent: "#7c3aed",
     tag: "Learning",
-    light: "#ede9fe"
+    light: "#ede9fe",
+    logoUrl: "/education.jpeg"         // ✅ add logo path
   },
   {
     title: "Finance",
@@ -34,7 +37,8 @@ const services = [
     icon: Wallet,
     accent: "#0369a1",
     tag: "Banking",
-    light: "#e0f2fe"
+    light: "#e0f2fe",
+    logoUrl: "/finance.png"
   },
   {
     title: "Healthcare",
@@ -44,7 +48,8 @@ const services = [
     icon: HeartPulse,
     accent: "#be123c",
     tag: "Wellness",
-    light: "#ffe4e6"
+    light: "#ffe4e6",
+    logoUrl: "/doctor.png"
   },
   {
     title: "News",
@@ -54,7 +59,8 @@ const services = [
     icon: Newspaper,
     accent: "#b45309",
     tag: "Media",
-    light: "#ffedd5"
+    light: "#ffedd5",
+    logoUrl: "/news.png"
   },
   {
     title: "Agriculture",
@@ -64,7 +70,8 @@ const services = [
     icon: Sprout,
     accent: "#15803d",
     tag: "Farming",
-    light: "#dcfce7"
+    light: "#dcfce7",
+    logoUrl: "/agriculture.png"
   },
   {
     title: "IT Services",
@@ -74,7 +81,8 @@ const services = [
     icon: MonitorSmartphone,
     accent: "#0f766e",
     tag: "Tech",
-    light: "#ccfbf1"
+    light: "#ccfbf1",
+    logoUrl: "/msdr.png"
   },
 ];
 
@@ -126,6 +134,7 @@ export default function Services() {
 
   return (
     <div className="min-h-screen bg-[#f0f2f5] flex flex-col">
+<<<<<<< HEAD
       {/* Modern Header */}
     <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-200/60 shadow-sm">
   <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -137,8 +146,60 @@ export default function Services() {
       >
         <div className="w-8 h-8 bg-gradient-to-br from-[#1a237e] to-[#3949ab] rounded-lg flex items-center justify-center">
           <LayoutGrid className="w-5 h-5 text-white" />
+=======
+      {/* Modern Header - with logo already added */}
+      <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-200/60 shadow-sm">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-16">
+            <div className="flex items-center gap-6 flex-1">
+              <div className="flex items-center gap-2 cursor-pointer" onClick={() => router.push('/')}>
+                <div className="relative w-8 h-8 rounded-lg overflow-hidden bg-white shadow-sm border border-gray-200">
+                  <Image
+                    src="/logo-photoroom.png"
+                    alt="Samraddh Logo"
+                    fill
+                    className="object-cover"
+                    priority
+                  />
+                </div>
+                <span className="text-xl font-extrabold text-[#1a237e] tracking-tight hidden sm:inline">
+                  Samraddh
+                </span>
+              </div>
+              <div className="hidden sm:block flex-1 max-w-md">
+                <GlobalSearch />
+              </div>
+            </div>
+            {/* Rest of header unchanged */}
+            <div className="flex items-center gap-1.5 sm:gap-2">
+              <button onClick={() => router.push('/search')} className="sm:hidden p-2 text-gray-600 hover:bg-gray-100 rounded-lg"><Zap size={20} /></button>
+              <NotificationBell />
+              <div className="hidden md:flex items-center gap-2">
+                <button onClick={openSubscriptionModal} className="flex items-center gap-1.5 bg-indigo-50 text-indigo-700 px-3 py-1.5 rounded-full text-xs font-semibold hover:bg-indigo-100 transition border border-indigo-200"><BadgeCheck size={14} /> My Plan</button>
+                <button onClick={() => router.push('/services/mlm')} className="flex items-center gap-1.5 bg-amber-50 text-amber-700 px-3 py-1.5 rounded-full text-xs font-semibold hover:bg-amber-100 transition border border-amber-200"><TrendingUp size={14} /> Earnings</button>
+                <div className="flex items-center gap-2 bg-gray-50 rounded-full pl-2 pr-1 py-1 border border-gray-200">
+                  <span className="text-xs font-medium text-gray-700 max-w-[100px] truncate">{user.fullName || user.email}</span>
+                  <span className="text-[10px] bg-[#1a237e] text-white px-2 py-0.5 rounded-full font-medium">{user.role?.replace('_', ' ') || 'User'}</span>
+                </div>
+                <button onClick={() => router.push('/profile/view')} className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition"><User size={18} /></button>
+                <button onClick={handleLogout} className="p-2 text-gray-600 hover:bg-red-50 hover:text-red-600 rounded-lg transition"><LogOut size={18} /></button>
+              </div>
+              <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)} className="md:hidden p-2 text-gray-600 hover:bg-gray-100 rounded-lg"><Menu size={20} /></button>
+            </div>
+          </div>
+          {mobileMenuOpen && (
+            <div className="md:hidden border-t border-gray-100 py-3 space-y-1">
+              <button onClick={openSubscriptionModal} className="flex items-center gap-3 w-full px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 rounded-lg"><BadgeCheck size={18} className="text-indigo-600" /> My Plan</button>
+              <button onClick={() => router.push('/services/mlm')} className="flex items-center gap-3 w-full px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 rounded-lg"><TrendingUp size={18} className="text-amber-600" /> My Earnings</button>
+              <div className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700"><User size={18} className="text-[#1a237e]" /><span>{user.fullName || user.email}</span><span className="text-[10px] bg-[#1a237e] text-white px-2 py-0.5 rounded-full ml-auto">{user.role?.replace('_', ' ') || 'User'}</span></div>
+              <button onClick={() => { router.push('/profile/view'); setMobileMenuOpen(false); }} className="flex items-center gap-3 w-full px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 rounded-lg"><User size={18} /> My Profile</button>
+              <button onClick={() => { handleLogout(); setMobileMenuOpen(false); }} className="flex items-center gap-3 w-full px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 rounded-lg"><LogOut size={18} /> Logout</button>
+            </div>
+          )}
+>>>>>>> 426f9cf34feb02b05ccbf801f377265b39da3af3
         </div>
 
+<<<<<<< HEAD
         <span className="text-xl font-extrabold text-[#1a237e] tracking-tight hidden sm:inline">
           Samraddh
         </span>
@@ -279,12 +340,15 @@ export default function Services() {
   </div>
 </header>
       {/* Services Grid */}
+=======
+      {/* Services Grid - with image logos replacing icons */}
+>>>>>>> 426f9cf34feb02b05ccbf801f377265b39da3af3
       <div className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 w-full">
         <div className="mb-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
             {services.map((service, idx) => {
-              const Icon = service.icon;
               const isHovered = hoveredIndex === idx;
+              const Icon = service.icon; // kept for unused but not rendered
               return (
                 <div
                   key={idx}
@@ -300,16 +364,26 @@ export default function Services() {
                   <div className="h-1 w-full" style={{ background: service.accent }} />
                   <div className="p-5">
                     <div className="flex items-start justify-between mb-3">
-                      <div className="w-12 h-12 rounded-xl flex items-center justify-center shadow-sm" style={{ background: `${service.accent}20` }}>
-                        <Icon size={24} style={{ color: service.accent, strokeWidth: 1.8 }} />
+                      {/* ✅ Replace icon div with an Image logo */}
+                      <div className="relative w-12 h-12 rounded-xl overflow-hidden bg-white shadow-sm border border-gray-200">
+                        <Image
+                          src={service.logoUrl}
+                          alt={service.title}
+                          fill
+                          className="object-cover"
+                        />
                       </div>
-                      <span className="text-xs font-semibold px-2.5 py-1 rounded-full" style={{ background: `${service.accent}18`, color: service.accent }}>{service.tag}</span>
+                      <span className="text-xs font-semibold px-2.5 py-1 rounded-full" style={{ background: `${service.accent}18`, color: service.accent }}>
+                        {service.tag}
+                      </span>
                     </div>
                     <h3 className="text-lg font-bold mb-1" style={{ color: service.accent }}>{service.title}</h3>
                     <p className="text-gray-600 text-sm mb-3">{service.desc}</p>
                     <div className="flex flex-wrap gap-1.5 mb-4">
                       {service.features.map((feature, fIdx) => (
-                        <span key={fIdx} className="text-xs px-2 py-0.5 rounded-full font-medium" style={{ background: `${service.accent}15`, color: service.accent }}>{feature}</span>
+                        <span key={fIdx} className="text-xs px-2 py-0.5 rounded-full font-medium" style={{ background: `${service.accent}15`, color: service.accent }}>
+                          {feature}
+                        </span>
                       ))}
                     </div>
                     <div className="flex items-center justify-between pt-3 border-t" style={{ borderColor: `${service.accent}20` }}>
@@ -327,7 +401,7 @@ export default function Services() {
         </div>
       </div>
 
-      {/* Subscription Modal */}
+      {/* Subscription Modal (unchanged) */}
       {showSubModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6">

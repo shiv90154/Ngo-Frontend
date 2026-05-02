@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import {
   LayoutDashboard,
@@ -54,8 +55,17 @@ export default function ITNavbar() {
       <header className="hidden lg:block sticky top-0 z-50 bg-white border-b border-gray-200 shadow-sm">
         <div className="px-6">
           <div className="flex items-center justify-between h-16">
-            <Link href="/it" className="flex items-center gap-3">
-           
+            <Link href="/it" className="flex items-center gap-4">
+              {/* Logo - size increased to w-16 h-16 (64px) */}
+              <div className="relative w-16 h-16 rounded-lg overflow-hidden bg-white shadow-sm border border-gray-100">
+                <Image
+                  src="/msdr.png"        // 👈 Replace with your actual IT logo path
+                  alt="Samraddh IT Logo"
+                  fill
+                  className="object-cover"
+                  priorityca
+                />
+              </div>
               <div>
                 <h1 className="text-lg font-bold text-[#1a237e] font-serif">Samraddh</h1>
                 <p className="text-[10px] text-gray-500 -mt-0.5">IT Services</p>
