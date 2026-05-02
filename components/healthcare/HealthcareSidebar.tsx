@@ -61,16 +61,7 @@ export default function HealthcareSidebar() {
 
   return (
       <aside className="hidden lg:block w-64 bg-white border-r border-gray-200 h-[calc(100vh-64px)] sticky top-16 overflow-y-auto p-4">
-      {/* User Summary */}
-      <div className="flex items-center gap-3 p-3 mb-4 bg-gradient-to-r from-[#1a237e]/5 to-transparent rounded-xl">
-        <div className="w-12 h-12 bg-gradient-to-br from-[#1a237e] to-[#283593] rounded-full flex items-center justify-center text-white font-medium text-lg">
-          {userInitial || "U"}
-        </div>
-        <div className="flex-1 min-w-0">
-          <p className="text-sm font-semibold text-gray-800 truncate">{userFullName || "User"}</p>
-          <p className="text-xs text-gray-500 truncate">{userRole}</p>
-        </div>
-      </div>
+      
 
       {/* Navigation */}
       <nav className="space-y-0.5">
@@ -97,14 +88,14 @@ export default function HealthcareSidebar() {
         {/* Footer Links */}
       <div className="absolute bottom-4 left-4 right-4">
         <Link
-          href="/help"
+          href="/healthcare/help"
           className="flex items-center gap-3 px-4 py-2 text-sm text-gray-500 hover:text-[#1a237e] rounded-lg transition"
         >
           <HelpCircle className="w-4 h-4" />
           Help & Support
         </Link>
         <Link
-          href="/settings"
+          href="/healthcare/settings"
           className="flex items-center gap-3 px-4 py-2 text-sm text-gray-500 hover:text-[#1a237e] rounded-lg transition"
         >
           <Settings className="w-4 h-4" />

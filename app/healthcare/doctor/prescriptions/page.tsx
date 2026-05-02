@@ -25,34 +25,65 @@ export default function DoctorPrescriptionsPage() {
 
       const appointments = apptRes.data.appointments || [];
 
-      const patientIds = [
-        ...new Set(
-          appointments
-            .map((a: any) => a.patientId?._id || a.patientId)
-            .filter(Boolean)
-        ),
-      ];
+      const patientMap = new Map<string, any>();
+
+      appointments.forEach((a: any) => {
+        const patient = a.patientId;
+
+        if (patient?._id) {
+          patientMap.set(String(patient._id), patient);
+        } else if (patient) {
+          patientMap.set(String(patient), { _id: patient });
+        }
+      });
+
+      const patientIds = Array.from(patientMap.keys());
 
       let allPrescriptions: any[] = [];
 
       await Promise.all(
-        patientIds.map(async (patientId: any) => {
+        patientIds.map(async (patientId: string) => {
           try {
             const res = await healthcareAPI.getPatientPrescriptions(patientId, {
               page: 1,
               limit: 100,
             });
 
-            allPrescriptions.push(...(res.data.prescriptions || []));
-          } catch {
-            // skip failed patient prescriptions
+            const patientData = patientMap.get(String(patientId));
+
+            const prescriptionsWithPatient = (
+              res.data.prescriptions || []
+            ).map((pres: any) => {
+              const presPatientId =
+                pres.patientId?._id || pres.patientId || patientId;
+
+              const matchedPatient =
+                patientMap.get(String(presPatientId)) || patientData;
+
+              return {
+                ...pres,
+                patientId:
+                  typeof pres.patientId === "object"
+                    ? {
+                        ...matchedPatient,
+                        ...pres.patientId,
+                      }
+                    : matchedPatient || {
+                        _id: presPatientId,
+                        fullName: "Unknown Patient",
+                      },
+              };
+            });
+
+            allPrescriptions.push(...prescriptionsWithPatient);
+          } catch (error) {
+            console.error("Failed to fetch patient prescriptions:", error);
           }
         })
       );
 
       if (currentRequestId !== requestIdRef.current) return;
 
-      // remove duplicates
       const uniquePrescriptions = Array.from(
         new Map(allPrescriptions.map((p: any) => [p._id, p])).values()
       );
@@ -61,7 +92,8 @@ export default function DoctorPrescriptionsPage() {
 
       const filteredPrescriptions = cleanSearch
         ? uniquePrescriptions.filter((p: any) => {
-            const patientName = p.patientId?.fullName?.toLowerCase() || "";
+            const patientName =
+              p.patientId?.fullName?.toLowerCase() || "";
             const diagnosis = p.diagnosis?.toLowerCase() || "";
             const medicines =
               p.medicines
@@ -194,11 +226,11 @@ export default function DoctorPrescriptionsPage() {
 
                   <td className="px-4 py-3 text-center">
                     <Link
-                      href={`/healthcare/prescriptions/${pres._id}`}
-                      className="text-[#1a237e] hover:underline text-sm font-medium"
-                    >
-                      View
-                    </Link>
+  href={`/healthcare/doctor/prescriptions/${pres.patientId?._id || pres.patientId}`}
+  className="text-[#1a237e] hover:underline text-sm font-medium"
+>
+  View
+</Link>
                   </td>
                 </tr>
               ))}

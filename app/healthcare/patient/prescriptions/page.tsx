@@ -46,7 +46,7 @@
             {prescriptions.map((pres: any) => (
               <div
                 key={pres._id}
-                onClick={() => router.push(`/healthcare/prescriptions/${pres._id}`)}
+                onClick={() => router.push(`/healthcare/patient/prescriptions/${pres._id}`)}
                 className="p-5 hover:bg-gray-50 cursor-pointer transition"
               >
                 <div className="flex items-start justify-between">

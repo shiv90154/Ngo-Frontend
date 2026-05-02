@@ -227,12 +227,7 @@ export default function DoctorDashboard() {
           ) : (
             <div className="space-y-3">
               {filteredAppointments.map((appt) => (
-                <AppointmentCard
-                  key={appt._id}
-                  appt={appt}
-                  actionLoadingId={actionLoadingId}
-                  onStatusUpdate={handleStatusUpdate}
-                />
+                <AppointmentCard key={appt._id} appt={appt} />
               ))}
             </div>
           )}
@@ -273,91 +268,37 @@ export default function DoctorDashboard() {
   );
 }
 
-function AppointmentCard({
-  appt,
-  actionLoadingId,
-  onStatusUpdate,
-}: {
-  appt: Appointment;
-  actionLoadingId: string | null;
-  onStatusUpdate: (
-    appointmentId: string,
-    status: "confirmed" | "cancelled" | "completed" | "no-show"
-  ) => void;
-}) {
+function AppointmentCard({ appt }: { appt: Appointment }) {
   const status = appt.status || "booked";
-  const isUpdating = actionLoadingId === appt._id;
 
   return (
     <div className="rounded-xl border border-gray-200 bg-gray-50 p-4">
-      <div className="flex flex-col xl:flex-row xl:items-center xl:justify-between gap-4">
-        <div className="min-w-0">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-[#1a237e]/10 text-[#1a237e] flex items-center justify-center font-bold">
-              {(appt.patientId?.fullName || "P").charAt(0).toUpperCase()}
-            </div>
-
-            <div>
-              <p className="font-semibold text-gray-900">
-                {appt.patientId?.fullName || "Patient"}
-              </p>
-              <p className="text-sm text-gray-500">
-                {formatDate(appt.appointmentDate)}{" "}
-                {appt.timeSlot?.start && `• ${appt.timeSlot.start}`}
-                {appt.consultationType && ` • ${appt.consultationType}`}
-              </p>
-            </div>
+      <div className="flex flex-col gap-3">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-full bg-[#1a237e]/10 text-[#1a237e] flex items-center justify-center font-bold">
+            {(appt.patientId?.fullName || "P").charAt(0).toUpperCase()}
           </div>
 
-          {appt.symptoms && (
-            <p className="mt-3 text-sm text-gray-600 line-clamp-2">
-              <span className="font-medium">Symptoms:</span> {appt.symptoms}
+          <div>
+            <p className="font-semibold text-gray-900">
+              {appt.patientId?.fullName || "Patient"}
             </p>
-          )}
+            <p className="text-sm text-gray-500">
+              {formatDate(appt.appointmentDate)}{" "}
+              {appt.timeSlot?.start && `• ${appt.timeSlot.start}`}
+              {appt.consultationType && ` • ${appt.consultationType}`}
+            </p>
+          </div>
         </div>
 
-        <div className="flex flex-wrap items-center gap-2">
+        {appt.symptoms && (
+          <p className="text-sm text-gray-600 line-clamp-2">
+            <span className="font-medium">Symptoms:</span> {appt.symptoms}
+          </p>
+        )}
+
+        <div>
           <StatusBadge status={status} />
-
-          <Link
-            href={`/doctor/appointments/${appt._id}`}
-            className="inline-flex items-center gap-1.5 rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs font-medium text-gray-700 hover:bg-gray-100 transition"
-          >
-            <Eye size={14} />
-            View
-          </Link>
-
-          {status !== "confirmed" && status !== "completed" && status !== "cancelled" && (
-            <button
-              disabled={isUpdating}
-              onClick={() => onStatusUpdate(appt._id, "confirmed")}
-              className="inline-flex items-center gap-1.5 rounded-lg bg-green-600 px-3 py-2 text-xs font-medium text-white hover:bg-green-700 disabled:opacity-60 transition"
-            >
-              {isUpdating ? <Loader2 size={14} className="animate-spin" /> : <CheckCircle size={14} />}
-              Confirm
-            </button>
-          )}
-
-          {status !== "completed" && status !== "cancelled" && (
-            <button
-              disabled={isUpdating}
-              onClick={() => onStatusUpdate(appt._id, "completed")}
-              className="inline-flex items-center gap-1.5 rounded-lg bg-[#1a237e] px-3 py-2 text-xs font-medium text-white hover:bg-[#11195c] disabled:opacity-60 transition"
-            >
-              Complete
-            </button>
-          )}
-
-          {status !== "cancelled" && status !== "completed" && (
-            <button
-              disabled={isUpdating}
-              onClick={() => onStatusUpdate(appt._id, "cancelled")}
-              className="inline-flex items-center gap-1.5 rounded-lg bg-red-50 px-3 py-2 text-xs font-medium text-red-700 hover:bg-red-100 disabled:opacity-60 transition"
-            >
-              <XCircle size={14} />
-              Cancel
-            </button>
-          )}
         </div>
       </div>
     </div>

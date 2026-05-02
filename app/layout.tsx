@@ -6,7 +6,7 @@ import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import SplashScreen from "@/components/SplashScreen";
 import OnboardingTutorial from "@/components/OnboardingTutorial";   
-import GoogleTranslate from "@/components/TranslatePage";
+import LanguageSwitcher from "@/components/TranslatePage";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -22,9 +22,9 @@ export default function RootLayout({
     <html lang="en">
       <body className={inter.className}>
         <AuthProvider>
-          <GoogleTranslate />
           <SplashScreen />
-          <OnboardingTutorial />   {/* 🆕 guided tour for new users */}
+          <OnboardingTutorial />
+          <LanguageSwitcher />
           {children}
           <ToastContainer
             position="top-right"
@@ -39,6 +39,8 @@ export default function RootLayout({
             theme="light"
           />
         </AuthProvider>
+
+       
       </body>
     </html>
   );

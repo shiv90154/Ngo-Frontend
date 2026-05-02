@@ -1,79 +1,236 @@
 "use client";
-import "@/app/globals.css"
-import { useEffect } from "react";
-import { Languages } from "lucide-react";
+
+import { useEffect, useState } from "react";
+import { FaLanguage } from "react-icons/fa";
 
 declare global {
   interface Window {
-    googleTranslateElementInit: () => void;
-    google: any;
+    translate?: any;
   }
 }
 
-const languages = [
-  { label: "English", code: "en" },
-  { label: "हिन्दी", code: "hi" },
-  { label: "ਪੰਜਾਬੀ", code: "pa" },
-  {label:"Bengali", code:"bn"},
-  {label:"Bhojpuri", code:"bho"},
-  
-];
+export default function LanguageSwitcher() {
+  const [isOpen, setIsOpen] = useState(false);
+  const [currentLang, setCurrentLang] = useState("English");
+  const [isLoaded, setIsLoaded] = useState(false);
 
-export default function GoogleTranslate() {
-  useEffect(() => {
-    window.googleTranslateElementInit = () => {
-      new window.google.translate.TranslateElement(
-        {
-          pageLanguage: "en",
-          includedLanguages: "en,hi,pa,bn,bho",
-          autoDisplay: false,
-        },
-        "google_translate_element"
-      );
+  const languages = [
+    { code: "english", name: "English", flag: "🇮🇳" },
+    { code: "hindi", name: "हिन्दी", flag: "🇮🇳" },
+    { code: "punjabi", name: "ਪੰਜਾਬੀ", flag: "🇮🇳" },
+    { code: "gujarati", name: "ગુજરાતી", flag: "🇮🇳" },
+    { code: "marathi", name: "मराठी", flag: "🇮🇳" },
+    { code: "bengali", name: "বাংলা", flag: "🇮🇳" },
+    { code: "tamil", name: "தமிழ்", flag: "🇮🇳" },
+    { code: "telugu", name: "తెలుగు", flag: "🇮🇳" },
+    { code: "malayalam", name: "മലയാളം", flag: "🇮🇳" },
+    { code: "kannada", name: "ಕನ್ನಡ", flag: "🇮🇳" },
+    { code: "urdu", name: "اردو", flag: "🇮🇳" },
+  ];
+
+  const fixTranslateIgnore = () => {
+    if (!window.translate) return;
+
+    const oldIgnore = window.translate.ignore || {};
+
+    window.translate.ignore = {
+      ...oldIgnore,
+      className: ["no-translate", "Toastify", "splash-screen"],
+      tag: ["CODE", "PRE", "SVG", "SCRIPT", "STYLE"],
+      id: ["google_translate_element"],
+      isIgnore:
+        typeof oldIgnore.isIgnore === "function"
+          ? oldIgnore.isIgnore
+          : () => false,
     };
+  };
 
-    if (!document.querySelector("#google-translate-script")) {
-      const script = document.createElement("script");
-      script.id = "google-translate-script";
-      script.src =
-        "//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit";
-      script.async = true;
-      document.body.appendChild(script);
-    }
-  }, []);
+  const resetAndTranslate = (langCode: string) => {
+    if (!window.translate) return;
 
-  const changeLanguage = (lang: string) => {
-    const select = document.querySelector(
-      ".goog-te-combo"
-    ) as HTMLSelectElement;
+    try {
+      fixTranslateIgnore();
+      window.translate.changeLanguage(langCode);
 
-    if (select) {
-      select.value = lang;
-      select.dispatchEvent(new Event("change"));
+      if (window.translate.listener) {
+        window.translate.listener.start();
+      }
+    } catch (error) {
+      console.error("Translation error:", error);
     }
   };
 
+  const changeLanguage = (langCode: string, langName: string) => {
+    if (!isLoaded || !window.translate) return;
+
+    localStorage.setItem("preferredLanguage", langCode);
+    setCurrentLang(langName);
+    setIsOpen(false);
+
+    resetAndTranslate(langCode);
+  };
+
+  const initTranslate = () => {
+    if (!window.translate) {
+      console.error("Translate object not available");
+      setIsLoaded(true);
+      return;
+    }
+
+    try {
+      const savedLang = localStorage.getItem("preferredLanguage") || "english";
+      const selectedLang = languages.find((lang) => lang.code === savedLang);
+
+      if (selectedLang) {
+        setCurrentLang(selectedLang.name);
+      } else {
+        localStorage.setItem("preferredLanguage", "english");
+        setCurrentLang("English");
+      }
+
+      window.translate.service.use("client.edge");
+
+      if (window.translate.selectLanguageTag) {
+        window.translate.selectLanguageTag.show = false;
+      }
+
+      fixTranslateIgnore();
+
+      if (savedLang !== "english") {
+        resetAndTranslate(savedLang);
+      }
+
+      setIsLoaded(true);
+    } catch (error) {
+      console.error("Translate initialization error:", error);
+      setIsLoaded(true);
+    }
+  };
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const existingScript = document.querySelector("#translate-script");
+
+    if (!existingScript) {
+      const script = document.createElement("script");
+      script.id = "translate-script";
+      script.src =
+        "https://cdn.staticfile.net/translate.js/3.18.66/translate.js";
+      script.async = true;
+
+      script.onload = () => {
+        const checkTranslate = setInterval(() => {
+          if (window.translate) {
+            clearInterval(checkTranslate);
+            initTranslate();
+          }
+        }, 100);
+
+        setTimeout(() => {
+          clearInterval(checkTranslate);
+
+          if (!window.translate) {
+            console.error("Translate failed to initialize");
+            setIsLoaded(true);
+          }
+        }, 5000);
+      };
+
+      script.onerror = () => {
+        console.error("Failed to load translate.js");
+        setIsLoaded(true);
+      };
+
+      document.head.appendChild(script);
+    } else {
+      const checkTranslate = setInterval(() => {
+        if (window.translate) {
+          clearInterval(checkTranslate);
+          initTranslate();
+        }
+      }, 100);
+
+      setTimeout(() => {
+        clearInterval(checkTranslate);
+        setIsLoaded(true);
+      }, 5000);
+    }
+  }, []);
+
   return (
-    <div className="relative">
-      {/* Hidden Google Translate default widget */}
-      <div id="google_translate_element" className="hidden" />
+    <div className="relative inline-block no-translate z-[999999]">
+      <button
+        onClick={() => setIsOpen((prev) => !prev)}
+        disabled={!isLoaded}
+        className="flex items-center gap-1.5 px-3 py-2.5 bg-white rounded-md  hover:bg-gray-50 transition-all duration-200 disabled:opacity-50"
+      >
+        <span className="text-base"><FaLanguage />
+</span>
 
-      {/* Custom UI */}
-      <div className="flex items-center gap-2 rounded-full border border-gray-200 bg-white px-3 py-2 shadow-sm">
-        <Languages className="h-4 w-4 text-[#1a237e]" />
+        <span className="text-xs font-semibold text-gray-700">
+          {isLoaded ? currentLang : "Loading..."}
+        </span>
 
-        <select
-          onChange={(e) => changeLanguage(e.target.value)}
-          defaultValue="en"
-          className="bg-transparent text-sm font-semibold text-gray-700 outline-none cursor-pointer"
+        <svg
+          className={`w-3.5 h-3.5 text-gray-600 transition-transform ${
+            isOpen ? "rotate-180" : ""
+          }`}
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
         >
-          {languages.map((lang) => (
-            <option key={lang.code} value={lang.code}>
-              {lang.label}
-            </option>
-          ))}
-        </select>
-      </div>
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M19 9l-7 7-7-7"
+          />
+        </svg>
+      </button>
+
+      {isOpen && (
+        <>
+          <div
+            className="fixed inset-0 z-[999998]"
+            onClick={() => setIsOpen(false)}
+          />
+
+          <div className="absolute top-full left-0 mt-2 w-56 bg-white rounded-lg  z-[999999] max-h-80 overflow-y-auto">
+            <div className="p-1.5">
+              {languages.map((lang) => (
+                <button
+                  key={lang.code}
+                  onClick={() => changeLanguage(lang.code, lang.name)}
+                  disabled={!isLoaded}
+                  className="flex items-center gap-2.5 w-full px-3 py-2 text-left hover:bg-gray-100 rounded-md transition-colors duration-150 disabled:opacity-50"
+                >
+                  <span className="text-lg">{lang.flag}</span>
+                  <span className="text-sm font-medium text-gray-700">
+                    {lang.name}
+                  </span>
+
+                  {currentLang === lang.name && (
+                    <svg
+                      className="w-4 h-4 ml-auto text-green-500"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M5 13l4 4L19 7"
+                      />
+                    </svg>
+                  )}
+                </button>
+              ))}
+            </div>
+          </div>
+        </>
+      )}
     </div>
   );
 }

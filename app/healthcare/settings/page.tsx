@@ -120,8 +120,9 @@ export default function SettingsPage() {
               <p className="text-sm text-gray-500">Allow doctors to view your history</p>
             </div>
             <button
+            disabled
               onClick={() => handleToggle("privacy", "shareRecords")}
-              className={`relative w-11 h-6 rounded-full transition ${
+              className={`relative w-11 h-6 rounded-full disabled:opacity-50 transition ${
                 settings.privacy.shareRecords ? "bg-[#1a237e]" : "bg-gray-300"
               }`}
             >
@@ -131,58 +132,6 @@ export default function SettingsPage() {
                 }`}
               />
             </button>
-          </div>
-        </div>
-      </div>
-
-      {/* Appearance */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
-        <div className="flex items-center gap-3 mb-4">
-          <Globe className="w-5 h-5 text-[#1a237e]" />
-          <h2 className="text-lg font-semibold text-gray-800">Appearance</h2>
-        </div>
-        <div className="space-y-3">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Theme</label>
-            <div className="flex gap-3">
-              <button
-                onClick={() =>
-                  setSettings({ ...settings, appearance: { ...settings.appearance, theme: "light" } })
-                }
-                className={`flex items-center gap-2 px-4 py-2 rounded-lg border ${
-                  settings.appearance.theme === "light"
-                    ? "border-[#1a237e] bg-[#1a237e]/5"
-                    : "border-gray-200"
-                }`}
-              >
-                <Sun className="w-4 h-4" /> Light
-              </button>
-              <button
-                onClick={() =>
-                  setSettings({ ...settings, appearance: { ...settings.appearance, theme: "dark" } })
-                }
-                className={`flex items-center gap-2 px-4 py-2 rounded-lg border ${
-                  settings.appearance.theme === "dark"
-                    ? "border-[#1a237e] bg-[#1a237e]/5"
-                    : "border-gray-200"
-                }`}
-              >
-                <Moon className="w-4 h-4" /> Dark
-              </button>
-            </div>
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Language</label>
-            <select
-              value={settings.appearance.language}
-              onChange={(e) =>
-                setSettings({ ...settings, appearance: { ...settings.appearance, language: e.target.value } })
-              }
-              className="w-full md:w-64 px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1a237e]"
-            >
-              <option value="en">English</option>
-              <option value="hi">हिन्दी</option>
-            </select>
           </div>
         </div>
       </div>
