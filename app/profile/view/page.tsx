@@ -14,13 +14,13 @@ import {
 import Link from "next/link";
 import Image from "next/image";
 
-// ---------- Media URL helper ----------
-const MEDIA_BASE_URL = process.env.NEXT_PUBLIC_MEDIA_URL || "http://localhost:5000";
-const getMediaUrl = (url: string) => {
-  if (!url) return "";
-  return url.startsWith("http") ? url : `${MEDIA_BASE_URL}${url}`;
+// Helper to build absolute image URL
+const getImageUrl = (path: string) => {
+  if (!path) return null;
+  if (path.startsWith("http")) return path;
+  const base = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+  return `${base}${path}`;
 };
-// ------------------------------------
 
 export default function ViewProfilePage() {
   const { user, loading: authLoading } = useAuth();
@@ -75,8 +75,7 @@ export default function ViewProfilePage() {
 
   if (!profileData) return null;
 
-  // Use getMediaUrl to resolve full image URL
-  const imageUrl = profileData.profileImage ? getMediaUrl(profileData.profileImage) : null;
+  const imageUrl = profileData.profileImage ? getImageUrl(profileData.profileImage) : null;
 
   return (
     <div className="min-h-screen bg-[#f0f2f5] flex flex-col">
@@ -86,7 +85,7 @@ export default function ViewProfilePage() {
         <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-5 mb-5">
           <div className="flex flex-wrap items-center justify-between gap-4">
             <div className="flex items-center gap-4">
-              {/* Profile Photo */}
+              {/* Profile Photo – enhanced */}
               <div className="relative">
                 <div className="w-20 h-20 rounded-full bg-gray-100 overflow-hidden border-4 border-white shadow-lg">
                   {imageUrl && !imgError ? (

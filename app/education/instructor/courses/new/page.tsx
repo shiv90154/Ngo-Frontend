@@ -6,6 +6,14 @@ import { educationAPI } from "@/lib/api";
 import { Loader2, Upload, X } from "lucide-react";
 import { toast } from "react-toastify";
 
+// ---------- Media URL helper ----------
+const MEDIA_BASE_URL = process.env.NEXT_PUBLIC_MEDIA_URL || "http://localhost:5000";
+export const getMediaUrl = (url: string) => {
+  if (!url) return "";
+  return url.startsWith("http") ? url : `${MEDIA_BASE_URL}${url}`;
+};
+// ------------------------------------
+
 const categories = ["UPSC", "Banking", "Agriculture", "School", "Skill", "Technology"];
 
 export default function CreateCoursePage() {
