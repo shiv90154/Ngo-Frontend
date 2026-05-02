@@ -133,58 +133,160 @@ export default function Services() {
 
   return (
     <div className="min-h-screen bg-[#f0f2f5] flex flex-col">
-      {/* Header unchanged */}
-      <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-200/60 shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            <div className="flex items-center gap-6 flex-1">
-              <div className="flex items-center gap-2 cursor-pointer" onClick={() => router.push('/')}>
-                <div className="relative w-8 h-8 rounded-lg overflow-hidden bg-white shadow-sm border border-gray-200">
-                  <Image
-                    src="/logo-photoroom.png"
-                    alt="Samraddh Logo"
-                    fill
-                    className="object-cover"
-                    priority
-                  />
-                </div>
-                <span className="text-xl font-extrabold text-[#1a237e] tracking-tight hidden sm:inline">
-                  Samraddh
-                </span>
-              </div>
-              <div className="hidden sm:block flex-1 max-w-md">
-                <GlobalSearch />
-              </div>
-            </div>
-            <div className="flex items-center gap-1.5 sm:gap-2">
-              <button onClick={() => router.push('/search')} className="sm:hidden p-2 text-gray-600 hover:bg-gray-100 rounded-lg"><Zap size={20} /></button>
-              <NotificationBell />
-              <div className="hidden md:flex items-center gap-2">
-                <button onClick={openSubscriptionModal} className="flex items-center gap-1.5 bg-indigo-50 text-indigo-700 px-3 py-1.5 rounded-full text-xs font-semibold hover:bg-indigo-100 transition border border-indigo-200"><BadgeCheck size={14} /> My Plan</button>
-                <button onClick={() => router.push('/services/mlm')} className="flex items-center gap-1.5 bg-amber-50 text-amber-700 px-3 py-1.5 rounded-full text-xs font-semibold hover:bg-amber-100 transition border border-amber-200"><TrendingUp size={14} /> Earnings</button>
-                <div className="flex items-center gap-2 bg-gray-50 rounded-full pl-2 pr-1 py-1 border border-gray-200">
-                  <span className="text-xs font-medium text-gray-700 max-w-[100px] truncate">{user.fullName || user.email}</span>
-                  <span className="text-[10px] bg-[#1a237e] text-white px-2 py-0.5 rounded-full font-medium">{user.role?.replace('_', ' ') || 'User'}</span>
-                </div>
-                <button onClick={() => router.push('/profile/view')} className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition"><User size={18} /></button>
-                <button onClick={handleLogout} className="p-2 text-gray-600 hover:bg-red-50 hover:text-red-600 rounded-lg transition"><LogOut size={18} /></button>
-              </div>
-              <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)} className="md:hidden p-2 text-gray-600 hover:bg-gray-100 rounded-lg"><Menu size={20} /></button>
-            </div>
-          </div>
-          {mobileMenuOpen && (
-            <div className="md:hidden border-t border-gray-100 py-3 space-y-1">
-              <button onClick={openSubscriptionModal} className="flex items-center gap-3 w-full px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 rounded-lg"><BadgeCheck size={18} className="text-indigo-600" /> My Plan</button>
-              <button onClick={() => router.push('/services/mlm')} className="flex items-center gap-3 w-full px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 rounded-lg"><TrendingUp size={18} className="text-amber-600" /> My Earnings</button>
-              <div className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700"><User size={18} className="text-[#1a237e]" /><span>{user.fullName || user.email}</span><span className="text-[10px] bg-[#1a237e] text-white px-2 py-0.5 rounded-full ml-auto">{user.role?.replace('_', ' ') || 'User'}</span></div>
-              <button onClick={() => { router.push('/profile/view'); setMobileMenuOpen(false); }} className="flex items-center gap-3 w-full px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 rounded-lg"><User size={18} /> My Profile</button>
-              <button onClick={() => { handleLogout(); setMobileMenuOpen(false); }} className="flex items-center gap-3 w-full px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 rounded-lg"><LogOut size={18} /> Logout</button>
-            </div>
-          )}
+      {/* Modern Header */}
+    <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-200/60 shadow-sm">
+  <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div className="flex items-center justify-between h-16 gap-3">
+      {/* Left: Brand / Service Icon */}
+      <div
+        className="flex items-center gap-2 shrink-0 cursor-pointer"
+        onClick={() => router.push("/services")}
+      >
+        <div className="w-8 h-8 bg-gradient-to-br from-[#1a237e] to-[#3949ab] rounded-lg flex items-center justify-center">
+          <LayoutGrid className="w-5 h-5 text-white" />
         </div>
       </header>
 
-      {/* Services Grid – yahan change kiya hai */}
+        <span className="text-xl font-extrabold text-[#1a237e] tracking-tight hidden sm:inline">
+          Samraddh
+        </span>
+      </div>
+
+      {/* Center: Search */}
+      <div className="flex-1 max-w-md">
+        <GlobalSearch />
+      </div>
+
+      {/* Right Actions */}
+      <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+        <NotificationBell />
+
+        {/* Desktop Actions */}
+        <div className="hidden md:flex items-center gap-2">
+          <button
+            onClick={openSubscriptionModal}
+            className="flex items-center gap-1.5 bg-indigo-50 text-indigo-700 px-3 py-1.5 rounded-full text-xs font-semibold hover:bg-indigo-100 transition border border-indigo-200"
+          >
+            <BadgeCheck size={14} />
+            My Plan
+          </button>
+
+          <button
+            onClick={() => router.push("/services/mlm")}
+            className="flex items-center gap-1.5 bg-amber-50 text-amber-700 px-3 py-1.5 rounded-full text-xs font-semibold hover:bg-amber-100 transition border border-amber-200"
+          >
+            <TrendingUp size={14} />
+            Earnings
+          </button>
+
+  <div
+  onClick={() => router.push("/profile/view")}
+                  className="flex items-center gap-2 bg-gray-50 rounded-full px-3 py-1 border border-gray-200 cursor-pointer hover:bg-gray-100 transition"
+                  title="View Profile"
+>
+  {/* Icon */}
+  <div className="w-7 h-7 rounded-full bg-[#1a237e]/10 flex items-center justify-center flex-shrink-0">
+    <User size={14} className="text-[#1a237e]" />
+  </div>
+
+  {/* Name + Role (stacked) */}
+  <div className="flex flex-col leading-tight max-w-[110px]">
+    <span className="text-xs font-medium text-gray-700 truncate">
+      {user.fullName || user.email}
+    </span>
+
+    <span className="text-[9px] text-gray-500 capitalize truncate">
+      {user.role?.replace("_", " ") || "User"}
+    </span>
+  </div>
+</div>
+
+          <button
+            onClick={handleLogout}
+            className="p-2 text-gray-600 hover:bg-red-50 hover:text-red-600 rounded-lg transition"
+            title="Logout"
+          >
+            <LogOut size={18} />
+          </button>
+        </div>
+
+        {/* Mobile Hamburger */}
+        <button
+          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          className="md:hidden p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition"
+        >
+          <Menu size={20} />
+        </button>
+      </div>
+    </div>
+
+    {/* Mobile Menu */}
+    {mobileMenuOpen && (
+      <div className="md:hidden border-t border-gray-100 py-4 space-y-2">
+        {/* User Info */}
+       <div className="mx-2 mb-3 rounded-xl bg-gray-50 border border-gray-200 px-4 py-3">
+  <div
+    onClick={() => {
+      router.push("/profile/view");
+      setMobileMenuOpen(false);
+    }}
+    className="flex items-center gap-3 cursor-pointer"
+  >
+    <div className="w-10 h-10 rounded-full bg-[#1a237e]/10 flex items-center justify-center">
+      <User size={20} className="text-[#1a237e]" />
+    </div>
+
+    <div className="min-w-0 flex-1 leading-tight">
+      {/* Username */}
+      <p className="text-sm font-semibold text-gray-800 truncate">
+        {user.fullName || user.email}
+      </p>
+
+      {/* Role (smaller + subtle) */}
+      <p className="text-[11px] text-gray-500 capitalize mt-[2px]">
+        {user.role?.replace("_", " ") || "User"}
+      </p>
+    </div>
+  </div>
+</div>
+
+        <button
+          onClick={() => {
+            openSubscriptionModal();
+            setMobileMenuOpen(false);
+          }}
+          className="flex items-center gap-3 w-full px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 rounded-lg transition"
+        >
+          <BadgeCheck size={18} className="text-[#1a237e]" />
+          My Plan
+        </button>
+
+        <button
+          onClick={() => {
+            router.push("/services/mlm");
+            setMobileMenuOpen(false);
+          }}
+          className="flex items-center gap-3 w-full px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 rounded-lg transition"
+        >
+          <TrendingUp size={18} className="text-[#1a237e]" />
+          Earnings
+        </button>
+
+        <button
+          onClick={() => {
+            handleLogout();
+            setMobileMenuOpen(false);
+          }}
+          className="flex items-center gap-3 w-full px-4 py-2.5 text-sm font-medium text-red-600 hover:bg-gray-50 rounded-lg transition"
+        >
+          <LogOut size={18} className="text-red-600" />
+          Logout
+        </button>
+      </div>
+    )}
+  </div>
+</header>
+      {/* Services Grid */}
       <div className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 w-full">
         <div className="mb-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
