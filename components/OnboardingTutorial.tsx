@@ -1,4 +1,5 @@
 "use client";
+
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -9,7 +10,6 @@ import {
   User,
   LayoutDashboard,
   Share2,
-  Sparkles,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 
@@ -17,177 +17,137 @@ const steps = [
   {
     title: "Complete Your Profile",
     description:
-      "Add your photo, phone, and address so services can work best for you. A complete profile helps us personalise your experience.",
+      "Add your details to unlock personalized services.",
     icon: User,
     action: { label: "Go to Profile", href: "/profile/view" },
-    color: "from-blue-500 to-blue-600",
   },
   {
     title: "Explore Services",
     description:
-      "Browse Education, Healthcare, Finance, News, Agriculture, and IT Services from the dashboard. Everything you need in one place.",
+      "Access education, healthcare, finance & more in one place.",
     icon: LayoutDashboard,
-    action: { label: "Start Exploring", href: "/services" },
-    color: "from-indigo-500 to-purple-600",
+    action: { label: "Explore Now", href: "/services" },
   },
   {
-    title: "Refer Friends & Earn",
+    title: "Earn with Referrals",
     description:
-      "Share your unique referral link and earn MLM commissions up to 5 levels deep when your friends join and make purchases.",
+      "Invite friends and earn rewards automatically.",
     icon: Share2,
     action: { label: "View Earnings", href: "/services/mlm" },
-    color: "from-amber-500 to-orange-600",
   },
 ];
 
 export default function OnboardingTutorial() {
   const [visible, setVisible] = useState(false);
-  const [current, setCurrent] = useState(0);
-  const [exiting, setExiting] = useState(false);
+  const [stepIndex, setStepIndex] = useState(0);
   const router = useRouter();
 
   useEffect(() => {
     const completed = localStorage.getItem("onboarding_completed");
     if (!completed) {
-      // Small delay so the page content loads first
-      const timer = setTimeout(() => setVisible(true), 800);
-      return () => clearTimeout(timer);
+      setTimeout(() => setVisible(true), 500);
     }
   }, []);
 
   const finish = () => {
-    setExiting(true);
-    setTimeout(() => {
-      localStorage.setItem("onboarding_completed", "true");
-      setVisible(false);
-    }, 300);
+    localStorage.setItem("onboarding_completed", "true");
+    setVisible(false);
   };
 
-  const nextStep = () => {
-    if (current < steps.length - 1) {
-      setCurrent(current + 1);
+  const next = () => {
+    if (stepIndex < steps.length - 1) {
+      setStepIndex(stepIndex + 1);
     } else {
       finish();
     }
   };
 
-  const prevStep = () => {
-    if (current > 0) setCurrent(current - 1);
+  const prev = () => {
+    if (stepIndex > 0) setStepIndex(stepIndex - 1);
   };
 
   if (!visible) return null;
 
-  const step = steps[current];
+  const step = steps[stepIndex];
   const Icon = step.icon;
-  const isLast = current === steps.length - 1;
+  const isLast = stepIndex === steps.length - 1;
 
   return (
     <AnimatePresence>
       <motion.div
+        className="fixed inset-0 z-[9999] bg-black/40 backdrop-blur-sm flex items-end sm:items-center justify-center"
         initial={{ opacity: 0 }}
-        animate={{ opacity: exiting ? 0 : 1 }}
-        transition={{ duration: 0.3 }}
-        className="fixed inset-0 z-[9999] bg-black/50 backdrop-blur-sm flex items-center justify-center p-4"
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
       >
         <motion.div
-          initial={{ scale: 0.9, opacity: 0, y: 20 }}
-          animate={{ scale: 1, opacity: 1, y: 0 }}
-          exit={{ scale: 0.9, opacity: 0, y: 20 }}
-          transition={{ type: "spring", stiffness: 300, damping: 25 }}
-          className="bg-white rounded-3xl shadow-2xl max-w-md w-full overflow-hidden relative"
+          initial={{ y: "100%", opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          exit={{ y: "100%", opacity: 0 }}
+          transition={{ type: "spring", stiffness: 260, damping: 25 }}
+          className="w-full sm:max-w-md bg-white rounded-t-3xl sm:rounded-3xl shadow-2xl p-6"
         >
-          {/* Colored header bar */}
-          <div className={`h-2 bg-gradient-to-r ${step.color}`} />
+          {/* Header */}
+          <div className="flex justify-between items-center mb-4">
+            <span className="text-sm text-gray-400">
+              Step {stepIndex + 1}/{steps.length}
+            </span>
+            <button onClick={finish}>
+              <X size={20} className="text-gray-400" />
+            </button>
+          </div>
 
-          {/* Skip button – always visible */}
-          <button
-            onClick={finish}
-            className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 hover:bg-gray-100 p-1.5 rounded-full transition z-10"
-          >
-            <X size={18} />
-          </button>
-
-          <div className="p-6 sm:p-8">
-            {/* Step indicator */}
-            <div className="flex items-center justify-center gap-1.5 mb-6">
-              {steps.map((_, i) => (
-                <div
-                  key={i}
-                  className={`h-1.5 rounded-full transition-all duration-300 ${
-                    i <= current
-                      ? "bg-[#1a237e] w-8"
-                      : "bg-gray-200 w-4"
-                  }`}
-                />
-              ))}
+          {/* Icon */}
+          <div className="flex justify-center mb-5">
+            <div className="w-16 h-16 rounded-full bg-indigo-600 flex items-center justify-center">
+              <Icon className="text-white w-7 h-7" />
             </div>
+          </div>
 
-            {/* Icon with gradient circle */}
-            <div className="flex justify-center mb-6">
-              <div
-                className={`w-20 h-20 rounded-full bg-gradient-to-br ${step.color} flex items-center justify-center shadow-lg`}
-              >
-                <Icon className="w-9 h-9 text-white" />
-              </div>
-            </div>
+          {/* Content */}
+          <div className="text-center mb-6">
+            <h2 className="text-xl font-bold mb-2">{step.title}</h2>
+            <p className="text-gray-600 text-sm">{step.description}</p>
+          </div>
 
-            {/* Content */}
-            <div className="text-center mb-8">
-              <h3 className="text-2xl font-extrabold text-gray-900 mb-2">
-                {step.title}
-              </h3>
-              <p className="text-gray-600 leading-relaxed">
-                {step.description}
-              </p>
-            </div>
+          {/* CTA */}
+          <div className="space-y-3">
+            <button
+              onClick={next}
+              className="w-full bg-indigo-600 text-white py-3 rounded-xl font-semibold"
+            >
+              {isLast ? "Get Started" : "Continue"}
+            </button>
 
-            {/* Navigation */}
-            <div className="flex items-center justify-between gap-3">
-              <button
-                disabled={current === 0}
-                onClick={prevStep}
-                className="p-2.5 rounded-full disabled:opacity-30 hover:bg-gray-100 transition"
-              >
-                <ChevronLeft size={20} />
-              </button>
-
-              <div className="flex-1 flex justify-center">
-                <span className="text-sm text-gray-400 font-medium">
-                  {current + 1} of {steps.length}
-                </span>
-              </div>
-
-              {isLast ? (
-                <button
-                  onClick={finish}
-                  className={`flex items-center gap-2 bg-gradient-to-r ${step.color} text-white px-5 py-2.5 rounded-full text-sm font-bold shadow-md hover:shadow-lg transition`}
-                >
-                  <Check size={16} /> Get Started
-                </button>
-              ) : (
-                <button
-                  onClick={nextStep}
-                  className="p-2.5 rounded-full hover:bg-gray-100 transition"
-                >
-                  <ChevronRight size={20} />
-                </button>
-              )}
-            </div>
-
-            {/* Quick action link */}
             {step.action && (
-              <div className="mt-5 text-center">
-                <button
-                  onClick={() => {
-                    router.push(step.action!.href);
-                    finish();
-                  }}
-                  className="text-sm text-[#1a237e] font-semibold hover:underline"
-                >
-                  {step.action.label} →
-                </button>
-              </div>
+              <button
+                onClick={() => {
+                  router.push(step.action.href);
+                  finish();
+                }}
+                className="w-full border border-gray-200 py-3 rounded-xl text-sm"
+              >
+                {step.action.label}
+              </button>
             )}
+          </div>
+
+          {/* Navigation */}
+          <div className="flex justify-between mt-4">
+            <button
+              onClick={prev}
+              disabled={stepIndex === 0}
+              className="text-sm text-gray-400"
+            >
+              Back
+            </button>
+
+            <button
+              onClick={next}
+              className="text-sm text-indigo-600 font-semibold"
+            >
+              {isLast ? "Finish" : "Next"}
+            </button>
           </div>
         </motion.div>
       </motion.div>
