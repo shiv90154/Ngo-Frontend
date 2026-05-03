@@ -87,9 +87,12 @@ export default function NewsSidebar() {
   }, [mounted, user, unreadCount]);
 
   const isActive = (href: string) => {
-    if (href === "/news" && pathname === "/news") return true;
-    return pathname === href || pathname.startsWith(href + "/");
-  };
+  if (href === "/news") {
+    return pathname === "/news";
+  }
+
+  return pathname === href || pathname.startsWith(href + "/");
+};
 
   if (!mounted) {
     return (

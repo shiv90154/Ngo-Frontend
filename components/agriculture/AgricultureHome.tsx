@@ -216,162 +216,99 @@ const AgricultureDashboard: React.FC = () => {
         }
       `}</style>
 
-      {/* ── Navbar ─────────────────────────────────────────────────────────── */}
-      <nav className="fixed top-0 left-0 right-0 z-50 bg-gray-800 backdrop-blur-md border-b border-white/10 shadow-lg">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 flex items-center justify-between h-16">
-          {/* Logo */}
-          <Link href="/agriculture" className="flex items-center gap-2.5 group">
-            <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-amber-400 to-green-600 flex items-center justify-center text-lg shadow-md group-hover:scale-105 transition-transform">
-              <GiSeedling />
-            </div>
-            <div className="leading-none">
-              <div className="text-white font-display text-lg font-bold tracking-tight">Samraaddh</div>
-              <div className="text-green-400 text-[10px] font-medium tracking-widest uppercase">Agriculture Hub</div>
-            </div>
-          </Link>
+    {/* ── Navbar ─────────────────────────────────────────────────────────── */}
+<nav className="fixed top-0 left-0 right-0 z-50 bg-[#f8faf6]/95 backdrop-blur-xl border-b border-emerald-900/10 shadow-sm">
+  <div className="max-w-7xl mx-auto px-4 sm:px-6 flex items-center justify-between h-16">
+    
+    {/* Logo */}
+    <Link
+      href="/services"
+      className="flex items-center gap-3 group"
+    >
+      <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-600 via-green-500 to-lime-500 flex items-center justify-center text-xl text-white shadow-md shadow-emerald-900/20 group-hover:scale-105 transition-transform duration-200">
+        <GiSeedling />
+      </div>
 
-          {/* Desktop Nav Links */}
-          <div className="hidden md:flex items-center gap-1">
-            {NAV_LINKS.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                className="relative flex items-center gap-2 px-4 py-2 rounded-lg text-white/75 hover:text-white hover:bg-white/10 transition-all text-sm font-medium group"
-              >
-                <span className="text-green-400 group-hover:text-amber-400 transition-colors">{link.icon}</span>
-                {link.label}
-              </Link>
-            ))}
-          </div>
-
-          {/* Mobile menu toggle */}
-          <button
-            onClick={() => setMenuOpen((v) => !v)}
-            className="md:hidden p-2 text-white/80 hover:text-white transition-colors"
-            aria-label="Toggle menu"
-          >
-            {menuOpen ? (
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            ) : (
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-              </svg>
-            )}
-          </button>
+      <div className="leading-none">
+        <div className="text-[#173b25] font-display text-lg font-bold tracking-tight group-hover:text-emerald-700 transition-colors">
+          Samraaddh
         </div>
+        <div className="text-emerald-600 text-[10px] font-semibold tracking-[0.22em] uppercase">
+          Agriculture Hub
+        </div>
+      </div>
+    </Link>
 
-        {/* Mobile Menu */}
-        {menuOpen && (
-          <div className="md:hidden bg-[#1a3a1e] border-t border-white/10 px-4 py-3 space-y-1">
-            {NAV_LINKS.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                onClick={() => setMenuOpen(false)}
-                className="flex items-center gap-3 px-3 py-3 rounded-lg text-white/80 hover:bg-white/10 hover:text-white transition-all text-sm font-medium"
-              >
-                <span className="text-green-400">{link.icon}</span>
-                <div>
-                  <div>{link.label}</div>
-                  <div className="text-white/40 text-xs">{link.description}</div>
-                </div>
-              </Link>
-            ))}
-            {user && (
-              <div className="pt-2 mt-2 border-t border-white/10 flex items-center gap-3 px-3">
-                <UserAvatar name={user.name} />
-                <div>
-                  <div className="text-white text-sm font-medium">{user.name}</div>
-                  {isContractFarmer && (
-                    <div className="text-amber-400 text-xs">Contract Farmer ✓</div>
-                  )}
-                </div>
+    {/* Desktop Nav Links */}
+    <div className="hidden md:flex items-center gap-1 bg-white/70 border border-emerald-900/10 rounded-full px-2 py-1 shadow-sm">
+      {NAV_LINKS.map((link) => (
+        <Link
+          key={link.href}
+          href={link.href}
+          className="relative flex items-center gap-2 px-4 py-2 rounded-full text-slate-600 hover:text-emerald-800 hover:bg-emerald-50 transition-all text-sm font-medium group"
+        >
+          <span className="text-emerald-600 group-hover:text-lime-600 transition-colors">
+            {link.icon}
+          </span>
+          {link.label}
+        </Link>
+      ))}
+    </div>
+
+    {/* Mobile menu toggle */}
+    <button
+      onClick={() => setMenuOpen((v) => !v)}
+      className="md:hidden p-2 rounded-lg text-emerald-800 hover:bg-emerald-100 transition-colors"
+      aria-label="Toggle menu"
+    >
+      {menuOpen ? (
+        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      ) : (
+        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+        </svg>
+      )}
+    </button>
+  </div>
+
+  {/* Mobile Menu */}
+  {menuOpen && (
+    <div className="md:hidden bg-[#f8faf6] border-t border-emerald-900/10 px-4 py-4 space-y-2 shadow-lg">
+      {NAV_LINKS.map((link) => (
+        <Link
+          key={link.href}
+          href={link.href}
+          onClick={() => setMenuOpen(false)}
+          className="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-700 hover:bg-emerald-50 hover:text-emerald-800 transition-all text-sm font-medium"
+        >
+          <span className="text-emerald-600 text-lg">{link.icon}</span>
+
+          <div>
+            <div>{link.label}</div>
+            <div className="text-slate-400 text-xs">{link.description}</div>
+          </div>
+        </Link>
+      ))}
+
+      {user && (
+        <div className="pt-3 mt-3 border-t border-emerald-900/10 flex items-center gap-3 px-4">
+          <UserAvatar name={user.name} />
+
+          <div>
+            <div className="text-slate-800 text-sm font-semibold">{user.name}</div>
+            {isContractFarmer && (
+              <div className="text-amber-600 text-xs font-medium">
+                Contract Farmer ✓
               </div>
             )}
           </div>
-        )}
-      </nav>
-
-      {/* ── Hero Section ───────────────────────────────────────────────────── */}
-      <section className="relative h-[92vh] min-h-[600px] pt-16 overflow-hidden grain-overlay">
-        {/* Sliding Background Images */}
-        {HERO_IMAGES.map((img, i) => (
-          <div
-            key={i}
-            className="hero-slide absolute inset-0 bg-cover bg-center"
-            style={{
-              backgroundImage: `url(${img.url})`,
-              opacity: i === heroIndex ? 1 : 0,
-            }}
-          />
-        ))}
-        {/* Overlay */}
-        <div className="absolute inset-0 bg-gradient-to-r from-[#0d2010]/90 via-[#0d2010]/60 to-transparent z-[2]" />
-
-        {/* Content */}
-        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 h-full flex flex-col justify-center pb-12">
-          <div className="max-w-2xl">
-            {/* Greeting chip */}
-            {!authLoading && user && (
-              <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full px-4 py-1.5 mb-6">
-                <span className="pulse-dot w-2 h-2 rounded-full bg-green-400 inline-block" />
-                <span className="text-green-300 text-sm font-medium">
-                  Welcome back, {firstName} 👋
-                </span>
-              </div>
-            )}
-
-            <h1 className="font-display text-5xl sm:text-6xl lg:text-7xl font-extrabold text-white leading-[1.05] mb-6">
-              Your Farm,
-              <br />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 to-green-400">
-                Your Future.
-              </span>
-            </h1>
-            <p className="text-white/70 text-lg sm:text-xl max-w-lg leading-relaxed mb-8">
-              Real-time mandi prices, a thriving marketplace, and AI-powered disease detection — everything a modern farmer needs in one place.
-            </p>
-
-            {/* CTA Buttons */}
-            <div className="flex flex-wrap gap-3">
-              <Link
-                href="/agriculture/mandi"
-                className="flex items-center gap-2 px-6 py-3.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-green-900 font-semibold text-sm shadow-lg hover:shadow-amber-500/30 transition-all"
-              >
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
-                </svg>
-                Live Mandi Rates
-              </Link>
-              <Link
-                href="/agriculture/crop-disease-detection"
-                className="flex items-center gap-2 px-6 py-3.5 rounded-xl bg-white/10 hover:bg-white/20 border border-white/30 text-white font-semibold text-sm backdrop-blur-sm transition-all"
-              >
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
-                </svg>
-                Scan Your Crop
-              </Link>
-            </div>
-          </div>
         </div>
-
-        {/* Hero dot indicators */}
-        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-10 flex gap-2">
-          {HERO_IMAGES.map((_, i) => (
-            <button
-              key={i}
-              onClick={() => setHeroIndex(i)}
-              className={`h-1.5 rounded-full transition-all ${
-                i === heroIndex ? "w-8 bg-amber-400" : "w-2 bg-white/30"
-              }`}
-            />
-          ))}
-        </div>
-      </section>
+      )}
+    </div>
+  )}
+</nav>
 
       {/* ── Main Feature Cards ─────────────────────────────────────────────── */}
       <section className="py-10 px-4 sm:px-6 max-w-7xl mx-auto">
@@ -450,82 +387,6 @@ const AgricultureDashboard: React.FC = () => {
           </div>
         </div>
       </section>
-
-      {/* ── Market Snapshot ────────────────────────────────────────────────── */}
-      <section className="py-20 max-w-7xl mx-auto px-4 sm:px-6">
-        <div className="flex flex-col sm:flex-row items-start sm:items-end justify-between gap-4 mb-10">
-          <div>
-            <p className="text-green-700 font-medium text-sm tracking-widest uppercase mb-2">Commodities</p>
-            <h2 className="font-display text-4xl text-[#1a3a1e] font-bold">Today's Market Snapshot</h2>
-          </div>
-          <Link
-            href="/agriculture/mandi"
-            className="flex items-center gap-2 px-5 py-2.5 rounded-xl border-2 border-[#1a3a1e] text-[#1a3a1e] font-semibold text-sm hover:bg-[#1a3a1e] hover:text-white transition-all"
-          >
-            View All Rates
-            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-            </svg>
-          </Link>
-        </div>
-      </section>
-
-      {/* ── CTA Banner ─────────────────────────────────────────────────────── */}
-      <section className="px-4 sm:px-6 pb-20 max-w-7xl mx-auto">
-        <div className="relative rounded-3xl overflow-hidden">
-          <img
-            src="https://images.unsplash.com/photo-1625246333195-78d9c38ad449?w=1400&q=80"
-            alt="Tractor in field"
-            className="absolute inset-0 w-full h-full object-cover"
-          />
-          <div className="absolute inset-0 bg-gradient-to-r from-[#0d2010]/95 via-[#0d2010]/80 to-[#0d2010]/40" />
-          <div className="relative z-10 py-16 sm:py-20 px-8 sm:px-14">
-            <div className="max-w-xl">
-              <h2 className="font-display text-4xl sm:text-5xl font-extrabold text-white mb-4 leading-tight">
-                Detect Crop Disease <span className="text-amber-400">Before It Spreads</span>
-              </h2>
-              <p className="text-white/65 text-base sm:text-lg leading-relaxed mb-8">
-                Point your phone camera at any leaf and get instant AI diagnosis with treatment recommendations in seconds.
-              </p>
-              <Link
-                href="/agriculture/crop-disease-detection"
-                className="inline-flex items-center gap-3 px-7 py-4 rounded-xl bg-amber-500 hover:bg-amber-400 text-green-900 font-bold text-base shadow-xl hover:shadow-amber-500/30 transition-all"
-              >
-                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
-                </svg>
-                Try Free Disease Scanner
-              </Link>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ── Footer ─────────────────────────────────────────────────────────── */}
-      <footer className="bg-[#1a3a1e] py-10 px-4 sm:px-6">
-        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-amber-400 to-green-600 flex items-center justify-center text-base">
-              🌱
-            </div>
-            <span className="text-white font-display text-lg font-bold">KrishiSaathi</span>
-          </div>
-          <div className="flex items-center gap-6">
-            {NAV_LINKS.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                className="text-white/50 hover:text-white text-sm transition-colors"
-              >
-                {link.label}
-              </Link>
-            ))}
-          </div>
-          <div className="text-white/30 text-xs">
-            © {new Date().getFullYear()} KrishiSaathi. All rights reserved.
-          </div>
-        </div>
-      </footer>
     </div>
   );
 };

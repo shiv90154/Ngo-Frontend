@@ -10,9 +10,8 @@ export default function LogoutButton() {
 
   const handleLogout = async () => {
     await logout();
-    // 强制刷新页面或跳转到首页
-    router.push("/");
-    router.refresh(); // 确保客户端状态完全重置
+    router.replace("/");
+    router.refresh(); 
   };
 
   return (

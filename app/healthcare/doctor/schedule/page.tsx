@@ -148,7 +148,7 @@ export default function AvailabilityPage() {
                   className="w-full px-3 py-2 border border-gray-200 rounded-lg"
                 >
                   {DAYS.map((d) => (
-                    <option key={d} value={d}>{d}</option>
+                    <option key={d} value={d}>{d.charAt(0).toUpperCase() + d.slice(1)}</option>
                   ))}
                 </select>
               </div>

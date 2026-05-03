@@ -2,8 +2,9 @@
 "use client";
 
 import { useState, useEffect, useCallback, useRef } from "react";
+import { useAuth } from "@/contexts/AuthContext";
 import { mediaAPI } from "@/lib/api";
-import { Search, Loader2, X, Compass, Sparkles } from "lucide-react";
+import { Search, X, Compass, Sparkles } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import FollowButton from "@/components/news/FollowButton";
@@ -11,7 +12,6 @@ import { debounce } from "lodash";
 import { motion, AnimatePresence } from "framer-motion";
 import { getMediaUrl } from "@/utils/mediaUrl";
 
-// ---------- Types ----------
 interface Creator {
   _id: string;
   fullName?: string;
@@ -24,6 +24,8 @@ interface Creator {
 }
 
 export default function SearchPage() {
+  const { user } = useAuth();
+
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<Creator[]>([]);
   const [loading, setLoading] = useState(false);
@@ -38,10 +40,17 @@ export default function SearchPage() {
         setLoading(false);
         return;
       }
+
       setHasSearched(true);
+
       try {
         const res = await mediaAPI.searchCreators(searchTerm);
-        setResults(res.data.users || []);
+
+        const filteredUsers = (res.data.users || []).filter(
+          (creator: Creator) => creator._id !== user?._id
+        );
+
+        setResults(filteredUsers);
       } catch (error) {
         console.error("Search failed:", error);
         setResults([]);
@@ -49,12 +58,21 @@ export default function SearchPage() {
         setLoading(false);
       }
     }, 400),
-    []
+    [user?._id]
   );
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setQuery(value);
+
+    if (!value.trim()) {
+      setResults([]);
+      setHasSearched(false);
+      setLoading(false);
+      debouncedSearch.cancel();
+      return;
+    }
+
     setLoading(true);
     debouncedSearch(value);
   };
@@ -64,6 +82,7 @@ export default function SearchPage() {
     setResults([]);
     setHasSearched(false);
     setLoading(false);
+    debouncedSearch.cancel();
     inputRef.current?.focus();
   };
 
@@ -73,11 +92,10 @@ export default function SearchPage() {
     };
   }, [debouncedSearch]);
 
-  const quickTags = ['News', 'Sports', 'Politics', 'Local'];
+  const quickTags = ["News", "Sports", "Politics", "Local"];
 
   return (
     <div className="max-w-2xl mx-auto px-4 pb-20 space-y-6">
-      {/* Search Bar Card */}
       <motion.div
         initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
@@ -94,9 +112,11 @@ export default function SearchPage() {
 
         <div className="relative">
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5" />
+
           <label htmlFor="search-input" className="sr-only">
             Search creators
           </label>
+
           <input
             ref={inputRef}
             id="search-input"
@@ -107,6 +127,7 @@ export default function SearchPage() {
             className="w-full pl-12 pr-12 py-3.5 bg-slate-50/80 backdrop-blur-sm rounded-2xl text-sm ring-1 ring-slate-200 focus:ring-2 focus:ring-indigo-500/20 focus:bg-white transition-all outline-none placeholder:text-slate-400"
             autoFocus
           />
+
           <AnimatePresence>
             {query && (
               <motion.button
@@ -123,22 +144,23 @@ export default function SearchPage() {
           </AnimatePresence>
         </div>
 
-        {/* Animated loading bar */}
         <div className="h-1 mt-3 rounded-full overflow-hidden bg-slate-100 relative">
           {loading && (
             <motion.div
               className="absolute inset-y-0 left-0 w-1/3 rounded-full bg-gradient-to-r from-indigo-500 to-indigo-600"
-              animate={{ x: ['0%', '200%'] }}
-              transition={{ repeat: Infinity, duration: 1.2, ease: 'easeInOut' }}
+              animate={{ x: ["0%", "200%"] }}
+              transition={{
+                repeat: Infinity,
+                duration: 1.2,
+                ease: "easeInOut",
+              }}
             />
           )}
         </div>
       </motion.div>
 
-      {/* Results Container */}
       <div className="bg-white/70 backdrop-blur-xl rounded-2xl ring-1 ring-slate-900/5 shadow-sm overflow-hidden">
         <AnimatePresence mode="wait">
-          {/* Initial empty state */}
           {!hasSearched && !loading && (
             <motion.div
               key="initial"
@@ -150,15 +172,18 @@ export default function SearchPage() {
               <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-white shadow-sm ring-1 ring-slate-200/60 flex items-center justify-center">
                 <Sparkles className="w-8 h-8 text-indigo-400" />
               </div>
+
               <h3 className="text-lg font-semibold text-slate-800 mb-2">
                 Find your community
               </h3>
+
               <p className="text-slate-500 text-sm max-w-xs mx-auto mb-8">
-                Search for local creators to stay updated with what's happening in your area.
+                Search for local creators to stay updated with what's happening
+                in your area.
               </p>
 
               <div className="flex flex-wrap justify-center gap-2">
-                {quickTags.map(tag => (
+                {quickTags.map((tag) => (
                   <button
                     key={tag}
                     onClick={() => {
@@ -176,7 +201,6 @@ export default function SearchPage() {
             </motion.div>
           )}
 
-          {/* No results */}
           {hasSearched && !loading && results.length === 0 && (
             <motion.div
               key="no-results"
@@ -188,16 +212,17 @@ export default function SearchPage() {
               <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-slate-50 flex items-center justify-center ring-1 ring-slate-200/60">
                 <X className="w-8 h-8 text-slate-300" />
               </div>
+
               <p className="text-sm font-semibold text-slate-700">
                 No results for "{query}"
               </p>
+
               <p className="text-xs text-slate-400 mt-1">
                 Check your spelling or try another name.
               </p>
             </motion.div>
           )}
 
-          {/* Results list */}
           {hasSearched && results.length > 0 && (
             <motion.div
               key="results"
@@ -206,46 +231,49 @@ export default function SearchPage() {
               exit={{ opacity: 0 }}
               className="divide-y divide-slate-100"
             >
-              {results.map((user, idx) => (
+              {results.map((creator, idx) => (
                 <motion.div
-                  key={user._id}
+                  key={creator._id}
                   initial={{ opacity: 0, x: -4 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: idx * 0.02 }}
                   className="flex items-center justify-between p-4 hover:bg-slate-50/30 transition-colors group"
                 >
                   <Link
-                    href={`/news/profile/${user._id}`}
+                    href={`/news/profile/${creator._id}`}
                     className="flex items-center gap-4 flex-1 min-w-0"
                   >
                     <div className="w-11 h-11 rounded-full bg-gradient-to-br from-indigo-100 to-indigo-200 flex items-center justify-center text-indigo-700 font-bold text-sm ring-1 ring-indigo-300/60 overflow-hidden shrink-0">
-                      {user.profileImage ? (
+                      {creator.profileImage ? (
                         <Image
-                          src={getMediaUrl(user.profileImage)}
-                          alt={user.fullName || "Creator"}
+                          src={getMediaUrl(creator.profileImage)}
+                          alt={creator.fullName || "Creator"}
                           width={44}
                           height={44}
                           className="object-cover"
                           unoptimized
                         />
                       ) : (
-                        user.fullName?.charAt(0) || "?"
+                        creator.fullName?.charAt(0) || "?"
                       )}
                     </div>
 
                     <div className="truncate">
                       <p className="font-semibold text-slate-900 group-hover:text-indigo-700 transition-colors truncate">
-                        {user.fullName}
+                        {creator.fullName}
                       </p>
+
                       <div className="flex items-center gap-2 mt-0.5">
                         <span className="text-[11px] font-medium text-slate-500">
-                          {user.mediaCreatorProfile?.totalFollowers ?? 0} followers
+                          {creator.mediaCreatorProfile?.totalFollowers ?? 0}{" "}
+                          followers
                         </span>
-                        {user.state && (
+
+                        {creator.state && (
                           <>
                             <span className="w-1 h-1 bg-slate-300 rounded-full" />
                             <span className="text-[11px] font-medium text-slate-500 truncate">
-                              {user.state}
+                              {creator.state}
                             </span>
                           </>
                         )}
@@ -254,7 +282,7 @@ export default function SearchPage() {
                   </Link>
 
                   <div className="ml-4 shrink-0">
-                    <FollowButton userId={user._id} size="sm" />
+                    <FollowButton userId={creator._id} size="sm" />
                   </div>
                 </motion.div>
               ))}
@@ -263,7 +291,6 @@ export default function SearchPage() {
         </AnimatePresence>
       </div>
 
-      {/* Loading skeleton */}
       {loading && !hasSearched && (
         <div className="bg-white/70 backdrop-blur-xl rounded-2xl ring-1 ring-slate-900/5 overflow-hidden">
           {[...Array(3)].map((_, i) => (
