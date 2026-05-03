@@ -3,8 +3,15 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
-import { healthcareAPI } from "@/lib/api";
-import { Calendar, FileText, Pill, Loader2, Stethoscope } from "lucide-react";
+import { healthcareAPI, medicineAPI } from "@/lib/api";
+import {
+  Calendar,
+  FileText,
+  Pill,
+  ShoppingBag,
+  Loader2,
+  Stethoscope,
+} from "lucide-react";
 import Link from "next/link";
 
 type Appointment = {
@@ -29,18 +36,18 @@ export default function HealthcareDashboard() {
     appointments: 0,
     prescriptions: 0,
     records: 0,
+    medicineOrders: 0,
   });
-
-  const [recentAppointments, setRecentAppointments] = useState<Appointment[]>([]);
+  const [recentAppointments, setRecentAppointments] = useState<Appointment[]>(
+    []
+  );
 
   useEffect(() => {
     if (authLoading) return;
-
     if (!user) {
       router.replace("/login");
       return;
     }
-
     if (user.role === "DOCTOR") {
       router.replace("/healthcare/doctor/dashboard");
       return;
@@ -50,17 +57,14 @@ export default function HealthcareDashboard() {
       try {
         setLoading(true);
 
-        const [aptRes, presRes, recRes] = await Promise.all([
-          healthcareAPI.getPatientAppointments({
-            page: 1,
-            limit: 5,
-          }),
+        const [aptRes, presRes, recRes, orderRes] = await Promise.all([
+          healthcareAPI.getPatientAppointments({ page: 1, limit: 5 }),
           healthcareAPI.getPatientPrescriptions(),
           healthcareAPI.getPatientHealthRecords(),
+          medicineAPI.getMyOrders().catch(() => ({ data: { orders: [] } })),
         ]);
 
         const appointments = aptRes.data?.appointments || [];
-
         const uniqueAppointments = Array.from(
           new Map(
             appointments.map((apt: Appointment) => [apt._id, apt])
@@ -75,6 +79,8 @@ export default function HealthcareDashboard() {
             presRes.data?.prescriptions?.length || presRes.data?.length || 0,
           records:
             recRes.data?.records?.length || recRes.data?.length || 0,
+          medicineOrders:
+            orderRes.data?.orders?.length || orderRes.data?.length || 0,
         });
       } catch (error) {
         console.error("Failed to load dashboard:", error);
@@ -96,6 +102,7 @@ export default function HealthcareDashboard() {
 
   return (
     <div className="space-y-6">
+      {/* Welcome Banner */}
       <div className="bg-gradient-to-r from-[#1a237e] to-[#283593] rounded-xl p-6 text-white">
         <div className="flex items-center gap-4">
           <Stethoscope className="w-10 h-10" />
@@ -104,36 +111,44 @@ export default function HealthcareDashboard() {
               Welcome, {user?.fullName?.split(" ")[0]}
             </h1>
             <p className="text-blue-100 text-sm mt-1">
-              Manage your health records and appointments
+              Manage your health records, appointments, and medicines
             </p>
           </div>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      {/* Stats Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard
           icon={Calendar}
-          label="Total Appointments"
+          label="Appointments"
           value={stats.appointments}
-          href="/healthcare/appointments"
+          href="/healthcare/patient/appointments"
         />
         <StatCard
           icon={Pill}
           label="Prescriptions"
           value={stats.prescriptions}
-          href="/healthcare/prescriptions"
+          href="/healthcare/patient/prescriptions"
         />
         <StatCard
           icon={FileText}
           label="Health Records"
           value={stats.records}
-          href="/healthcare/records"
+          href="/healthcare/patient/records"
+        />
+        {/* New Medicine Orders card */}
+        <StatCard
+          icon={ShoppingBag}
+          label="Medicine Orders"
+          value={stats.medicineOrders}
+          href="/healthcare/medicines/orders"
         />
       </div>
 
+      {/* Recent Appointments */}
       <div className="bg-white rounded-xl shadow-sm border p-5">
         <h2 className="text-lg font-semibold mb-4">Recent Appointments</h2>
-
         {recentAppointments.length === 0 ? (
           <p className="text-gray-500 text-center py-4">
             No appointments found
@@ -149,20 +164,20 @@ export default function HealthcareDashboard() {
                   <p className="font-medium">
                     Dr. {apt.doctorId?.fullName || "Unknown Doctor"}
                   </p>
-
                   <p className="text-sm text-gray-500">
-                    {new Date(apt.appointmentDate).toLocaleDateString("en-IN", {
-                      day: "2-digit",
-                      month: "short",
-                      year: "numeric",
-                    })}
-
+                    {new Date(apt.appointmentDate).toLocaleDateString(
+                      "en-IN",
+                      {
+                        day: "2-digit",
+                        month: "short",
+                        year: "numeric",
+                      }
+                    )}
                     {apt.timeSlot?.start && apt.timeSlot?.end
                       ? `, ${apt.timeSlot.start} - ${apt.timeSlot.end}`
                       : ""}
                   </p>
                 </div>
-
                 <span
                   className={`px-2 py-1 rounded-full text-xs font-medium ${
                     apt.status?.toUpperCase() === "CONFIRMED"

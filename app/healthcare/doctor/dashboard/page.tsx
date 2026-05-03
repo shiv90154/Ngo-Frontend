@@ -14,9 +14,12 @@ import {
   Clock,
   CheckCircle,
   XCircle,
-  Eye,
+  ShoppingBag,
+  ShieldAlert,
+  ShieldCheck,
 } from "lucide-react";
 import Link from "next/link";
+import { toast } from "react-toastify";
 
 type AppointmentStatus =
   | "booked"
@@ -61,39 +64,48 @@ export default function DoctorDashboard() {
     totalPrescriptions: 0,
     totalRevenue: 0,
   });
-
   const [recentAppointments, setRecentAppointments] = useState<Appointment[]>([]);
   const [loading, setLoading] = useState(true);
   const [actionLoadingId, setActionLoadingId] = useState<string | null>(null);
   const [search, setSearch] = useState("");
   const [error, setError] = useState("");
+  const [verificationStatus, setVerificationStatus] = useState<string | null>(null); // 🆕
 
   useEffect(() => {
     fetchDashboard();
+    fetchVerificationStatus(); // 🆕
   }, []);
 
   const fetchDashboard = async () => {
     try {
       setLoading(true);
       setError("");
-
       const res = await healthcareAPI.getDoctorDashboard();
-
       const data = res.data;
-
       setStats({
         totalAppointments: data?.stats?.totalAppointments || 0,
         totalPatients: data?.stats?.totalPatients || 0,
         totalPrescriptions: data?.stats?.totalPrescriptions || 0,
         totalRevenue: data?.stats?.totalRevenue || 0,
       });
-
       setRecentAppointments(data?.recentAppointments || []);
     } catch (error) {
       console.error("Failed to fetch doctor dashboard:", error);
       setError("Failed to load dashboard. Please try again.");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchVerificationStatus = async () => {
+    try {
+      // Use the doctor's own ID from the auth context
+      if (!user?.id) return;
+      const res = await healthcareAPI.getDoctorById(user.id);
+      const doctor = res.data?.user || res.data?.doctor || res.data?.data || res.data || {};
+      setVerificationStatus(doctor.doctorVerification?.verificationStatus || null);
+    } catch (error) {
+      // Silently fail – verification status is not critical
     }
   };
 
@@ -104,10 +116,10 @@ export default function DoctorDashboard() {
     try {
       setActionLoadingId(appointmentId);
       await healthcareAPI.updateAppointmentStatus(appointmentId, { status });
+      toast.success(`Appointment ${status}`);
       await fetchDashboard();
-    } catch (error) {
-      console.error("Failed to update appointment:", error);
-      alert("Failed to update appointment status");
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || "Update failed");
     } finally {
       setActionLoadingId(null);
     }
@@ -115,19 +127,12 @@ export default function DoctorDashboard() {
 
   const filteredAppointments = useMemo(() => {
     const value = search.toLowerCase().trim();
-
     if (!value) return recentAppointments;
-
     return recentAppointments.filter((appt) => {
       const patientName = appt.patientId?.fullName?.toLowerCase() || "";
       const status = appt.status?.toLowerCase() || "";
       const type = appt.consultationType?.toLowerCase() || "";
-
-      return (
-        patientName.includes(value) ||
-        status.includes(value) ||
-        type.includes(value)
-      );
+      return patientName.includes(value) || status.includes(value) || type.includes(value);
     });
   }, [search, recentAppointments]);
 
@@ -141,6 +146,7 @@ export default function DoctorDashboard() {
 
   return (
     <div className="p-4 sm:p-6 space-y-6 bg-gray-50 min-h-screen">
+      {/* Header */}
       <div className="bg-gradient-to-r from-[#1a237e] to-[#283593] rounded-2xl p-6 text-white shadow-sm">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div>
@@ -148,8 +154,23 @@ export default function DoctorDashboard() {
             <p className="mt-1 text-blue-100">
               Welcome back, Dr. {user?.fullName || "Doctor"}
             </p>
+            {/* 🆕 Verification status badge */}
+            {verificationStatus && verificationStatus !== "approved" && (
+              <div className="mt-3 inline-flex items-center gap-2 rounded-lg bg-white/15 px-3 py-1.5 text-sm">
+                {verificationStatus === "pending" ? (
+                  <>
+                    <ShieldAlert className="w-4 h-4 text-yellow-300" />
+                    <span>Verification Pending</span>
+                  </>
+                ) : verificationStatus === "rejected" ? (
+                  <>
+                    <XCircle className="w-4 h-4 text-red-300" />
+                    <span>Verification Rejected</span>
+                  </>
+                ) : null}
+              </div>
+            )}
           </div>
-
           <button
             onClick={fetchDashboard}
             className="inline-flex items-center justify-center gap-2 rounded-xl bg-white/15 hover:bg-white/25 px-4 py-2 text-sm font-medium transition"
@@ -166,45 +187,22 @@ export default function DoctorDashboard() {
         </div>
       )}
 
+      {/* Stats cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
-        <StatCard
-          label="Appointments"
-          value={stats.totalAppointments}
-          icon={<Calendar size={21} />}
-          color="bg-blue-100 text-blue-700"
-        />
-        <StatCard
-          label="Patients"
-          value={stats.totalPatients}
-          icon={<Users size={21} />}
-          color="bg-green-100 text-green-700"
-        />
-        <StatCard
-          label="Prescriptions"
-          value={stats.totalPrescriptions}
-          icon={<ClipboardList size={21} />}
-          color="bg-purple-100 text-purple-700"
-        />
-        <StatCard
-          label="Revenue"
-          value={`₹${Number(stats.totalRevenue || 0).toLocaleString("en-IN")}`}
-          icon={<Activity size={21} />}
-          color="bg-orange-100 text-orange-700"
-        />
+        <StatCard label="Appointments" value={stats.totalAppointments} icon={<Calendar size={21} />} color="bg-blue-100 text-blue-700" />
+        <StatCard label="Patients" value={stats.totalPatients} icon={<Users size={21} />} color="bg-green-100 text-green-700" />
+        <StatCard label="Prescriptions" value={stats.totalPrescriptions} icon={<ClipboardList size={21} />} color="bg-purple-100 text-purple-700" />
+        <StatCard label="Revenue" value={`₹${Number(stats.totalRevenue || 0).toLocaleString("en-IN")}`} icon={<Activity size={21} />} color="bg-orange-100 text-orange-700" />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Appointments list */}
         <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-5 lg:col-span-2">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-5">
             <div>
-              <h2 className="text-lg font-bold text-gray-900">
-                Recent Appointments
-              </h2>
-              <p className="text-sm text-gray-500">
-                View and manage latest patient bookings
-              </p>
+              <h2 className="text-lg font-bold text-gray-900">Recent Appointments</h2>
+              <p className="text-sm text-gray-500">View and manage latest patient bookings</p>
             </div>
-
             <div className="relative w-full sm:w-72">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
               <input
@@ -220,47 +218,31 @@ export default function DoctorDashboard() {
             <div className="rounded-xl bg-gray-50 border border-dashed border-gray-200 p-8 text-center">
               <Calendar className="mx-auto text-gray-400 mb-3" size={34} />
               <p className="font-medium text-gray-700">No appointments found</p>
-              <p className="text-sm text-gray-500 mt-1">
-                Recent patient appointments will appear here.
-              </p>
+              <p className="text-sm text-gray-500 mt-1">Recent patient appointments will appear here.</p>
             </div>
           ) : (
             <div className="space-y-3">
               {filteredAppointments.map((appt) => (
-                <AppointmentCard key={appt._id} appt={appt} />
+                <AppointmentCard
+                  key={appt._id}
+                  appt={appt}
+                  onUpdateStatus={handleStatusUpdate}
+                  loadingId={actionLoadingId}
+                />
               ))}
             </div>
           )}
         </div>
 
+        {/* Quick actions */}
         <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-5">
           <h2 className="text-lg font-bold text-gray-900 mb-4">Quick Actions</h2>
-
           <div className="space-y-3">
-            <QuickLink
-              href="/doctor/appointments"
-              icon={<Calendar size={18} />}
-              title="Manage Appointments"
-              desc="View all bookings"
-            />
-            <QuickLink
-              href="/doctor/patients"
-              icon={<Users size={18} />}
-              title="My Patients"
-              desc="Search patient records"
-            />
-            <QuickLink
-              href="/doctor/prescriptions"
-              icon={<ClipboardList size={18} />}
-              title="Prescriptions"
-              desc="Create and view prescriptions"
-            />
-            <QuickLink
-              href="/doctor/availability"
-              icon={<Clock size={18} />}
-              title="Availability"
-              desc="Manage slots and working days"
-            />
+            <QuickLink href="/healthcare/doctor/appointments" icon={<Calendar size={18} />} title="Manage Appointments" desc="View all bookings" />
+            <QuickLink href="/healthcare/doctor/patients" icon={<Users size={18} />} title="My Patients" desc="Search patient records" />
+            <QuickLink href="/healthcare/doctor/prescriptions" icon={<ClipboardList size={18} />} title="Prescriptions" desc="Create and view prescriptions" />
+            <QuickLink href="/healthcare/medicines" icon={<ShoppingBag size={18} />} title="Medicine Store" desc="Browse & order medicines" />
+            <QuickLink href="/healthcare/doctor/schedule" icon={<Clock size={18} />} title="Availability" desc="Manage slots and working days" />
           </div>
         </div>
       </div>
@@ -268,8 +250,18 @@ export default function DoctorDashboard() {
   );
 }
 
-function AppointmentCard({ appt }: { appt: Appointment }) {
+// ⬇️ UPDATED AppointmentCard with inline status actions
+function AppointmentCard({
+  appt,
+  onUpdateStatus,
+  loadingId,
+}: {
+  appt: Appointment;
+  onUpdateStatus: (id: string, status: "confirmed" | "cancelled" | "completed" | "no-show") => void;
+  loadingId: string | null;
+}) {
   const status = appt.status || "booked";
+  const isActionLoading = loadingId === appt._id;
 
   return (
     <div className="rounded-xl border border-gray-200 bg-gray-50 p-4">
@@ -278,11 +270,8 @@ function AppointmentCard({ appt }: { appt: Appointment }) {
           <div className="w-10 h-10 rounded-full bg-[#1a237e]/10 text-[#1a237e] flex items-center justify-center font-bold">
             {(appt.patientId?.fullName || "P").charAt(0).toUpperCase()}
           </div>
-
           <div>
-            <p className="font-semibold text-gray-900">
-              {appt.patientId?.fullName || "Patient"}
-            </p>
+            <p className="font-semibold text-gray-900">{appt.patientId?.fullName || "Patient"}</p>
             <p className="text-sm text-gray-500">
               {formatDate(appt.appointmentDate)}{" "}
               {appt.timeSlot?.start && `• ${appt.timeSlot.start}`}
@@ -297,25 +286,50 @@ function AppointmentCard({ appt }: { appt: Appointment }) {
           </p>
         )}
 
-        <div>
+        <div className="flex items-center justify-between">
           <StatusBadge status={status} />
+
+          {/* Action buttons for pending/confirmed */}
+          <div className="flex items-center gap-1.5">
+            {status === "pending" && (
+              <>
+                <button
+                  onClick={() => onUpdateStatus(appt._id, "confirmed")}
+                  disabled={isActionLoading}
+                  className="p-1.5 bg-blue-100 text-blue-700 rounded hover:bg-blue-200 disabled:opacity-50"
+                  title="Confirm"
+                >
+                  <CheckCircle size={16} />
+                </button>
+                <button
+                  onClick={() => onUpdateStatus(appt._id, "cancelled")}
+                  disabled={isActionLoading}
+                  className="p-1.5 bg-red-100 text-red-700 rounded hover:bg-red-200 disabled:opacity-50"
+                  title="Cancel"
+                >
+                  <XCircle size={16} />
+                </button>
+              </>
+            )}
+            {status === "confirmed" && (
+              <button
+                onClick={() => onUpdateStatus(appt._id, "completed")}
+                disabled={isActionLoading}
+                className="p-1.5 bg-green-100 text-green-700 rounded hover:bg-green-200 disabled:opacity-50"
+                title="Mark Completed"
+              >
+                <CheckCircle size={16} />
+              </button>
+            )}
+          </div>
         </div>
       </div>
     </div>
   );
 }
 
-function StatCard({
-  label,
-  value,
-  icon,
-  color,
-}: {
-  label: string;
-  value: number | string;
-  icon: React.ReactNode;
-  color: string;
-}) {
+// ... (StatCard, QuickLink, StatusBadge, formatDate remain exactly the same as before)
+function StatCard({ label, value, icon, color }: { label: string; value: number | string; icon: React.ReactNode; color: string }) {
   return (
     <div className="bg-white rounded-2xl border border-gray-200 p-5 shadow-sm hover:shadow-md transition">
       <div className="flex items-center justify-between gap-4">
@@ -323,33 +337,16 @@ function StatCard({
           <p className="text-sm font-medium text-gray-500">{label}</p>
           <p className="text-2xl font-bold text-gray-900 mt-1">{value}</p>
         </div>
-        <div className={`w-11 h-11 rounded-xl flex items-center justify-center ${color}`}>
-          {icon}
-        </div>
+        <div className={`w-11 h-11 rounded-xl flex items-center justify-center ${color}`}>{icon}</div>
       </div>
     </div>
   );
 }
 
-function QuickLink({
-  href,
-  icon,
-  title,
-  desc,
-}: {
-  href: string;
-  icon: React.ReactNode;
-  title: string;
-  desc: string;
-}) {
+function QuickLink({ href, icon, title, desc }: { href: string; icon: React.ReactNode; title: string; desc: string }) {
   return (
-    <Link
-      href={href}
-      className="flex items-center gap-3 rounded-xl border border-gray-200 bg-gray-50 p-4 hover:bg-[#1a237e]/5 hover:border-[#1a237e]/20 transition"
-    >
-      <div className="w-10 h-10 rounded-xl bg-[#1a237e]/10 text-[#1a237e] flex items-center justify-center">
-        {icon}
-      </div>
+    <Link href={href} className="flex items-center gap-3 rounded-xl border border-gray-200 bg-gray-50 p-4 hover:bg-[#1a237e]/5 hover:border-[#1a237e]/20 transition">
+      <div className="w-10 h-10 rounded-xl bg-[#1a237e]/10 text-[#1a237e] flex items-center justify-center">{icon}</div>
       <div>
         <p className="text-sm font-semibold text-gray-900">{title}</p>
         <p className="text-xs text-gray-500">{desc}</p>
@@ -367,13 +364,8 @@ function StatusBadge({ status }: { status: string }) {
     completed: "bg-purple-100 text-purple-700",
     "no-show": "bg-gray-200 text-gray-700",
   };
-
   return (
-    <span
-      className={`text-xs capitalize px-3 py-1.5 rounded-full font-medium ${
-        styles[status] || "bg-gray-100 text-gray-700"
-      }`}
-    >
+    <span className={`text-xs capitalize px-3 py-1.5 rounded-full font-medium ${styles[status] || "bg-gray-100 text-gray-700"}`}>
       {status.replace("-", " ")}
     </span>
   );
@@ -381,10 +373,5 @@ function StatusBadge({ status }: { status: string }) {
 
 function formatDate(date?: string) {
   if (!date) return "No date";
-
-  return new Date(date).toLocaleDateString("en-IN", {
-    day: "2-digit",
-    month: "short",
-    year: "numeric",
-  });
+  return new Date(date).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" });
 }

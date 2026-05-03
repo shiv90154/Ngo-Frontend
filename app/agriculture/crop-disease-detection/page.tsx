@@ -1,3 +1,3 @@
-export default function DiseaseDetection(): JSX.Element {
-    return <>Coming Soon</>;
+export default function DiseaseDetection() {
+  return <>Coming Soon</>;
 }

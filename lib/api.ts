@@ -99,6 +99,10 @@ export const healthcareAPI = {
 
   getPrescriptionById: (id: string) => api.get(`/healthcare/prescriptions/${id}`),
 
+  // 🆕 Order items from a prescription
+  getOrderItemsFromPrescription: (prescriptionId: string) =>
+    api.get(`/healthcare/prescriptions/${prescriptionId}/order-items`),
+
   // ---------- HEALTH RECORDS ----------
   addHealthRecord: (formData: FormData) =>
     api.post("/healthcare/records", formData, {
@@ -130,12 +134,92 @@ export const healthcareAPI = {
 
   // ---------- DOCTOR DASHBOARD & PATIENTS ----------
   getDoctorDashboard: () => api.get("/healthcare/doctor/dashboard"),
-  
+
   getDoctorPatients: (params?: {
-  search?: string;
-  page?: number;
-  limit?: number;
-}) => api.get("/healthcare/doctor/patients", { params }),
+    search?: string;
+    page?: number;
+    limit?: number;
+  }) => api.get("/healthcare/doctor/patients", { params }),
+
+  // ---------- DOCTOR VERIFICATION (ADMIN) ----------
+  getPendingDoctors: () => api.get("/healthcare/admin/doctors/pending"),
+  verifyDoctor: (doctorId: string) => api.put(`/healthcare/admin/doctors/verify/${doctorId}`),
+  rejectDoctor: (doctorId: string, reason: string) =>
+    api.put(`/healthcare/admin/doctors/reject/${doctorId}`, { reason }),
+};
+
+// ======================
+// MEDICINE & E‑PHARMACY API
+// ======================
+// ======================
+// MEDICINE & E‑PHARMACY API
+// ======================
+export const medicineAPI = {
+  // ---------- MEDICINE CATALOGUE ----------
+  getMedicines: (params?: {
+    search?: string;
+    category?: string;
+    page?: number;
+    limit?: number;
+  }) => api.get("/medicines", { params }),
+
+  searchMedicines: (q: string, params?: { page?: number; limit?: number }) =>
+    api.get("/medicines/search", { params: { q, ...params } }),
+
+  getMedicineById: (id: string) => api.get(`/medicines/${id}`),
+
+  // ---------- ADMIN MEDICINE MANAGEMENT ----------
+  addMedicine: (data: {
+    name: string;
+    genericName?: string;
+    brand?: string;
+    manufacturer?: string;
+    description?: string;
+    price: number;
+    mrp?: number;
+    prescriptionRequired?: boolean;
+    stock?: number;
+    category?: string;
+    dosageForm?: string;
+    dosageStrength?: string;
+    sideEffects?: string;
+    imageUrl?: string;
+  }) => api.post("/medicines", data),
+
+  updateMedicine: (id: string, data: any) => api.put(`/medicines/${id}`, data),
+
+  deleteMedicine: (id: string) => api.delete(`/medicines/${id}`),
+
+  updateStock: (id: string, stock: number) =>
+    api.patch(`/medicines/${id}/stock`, { stock }),
+
+  // ---------- ORDERS ----------
+  createOrder: (data: {
+    items: { medicine: string; quantity: number }[];
+    shippingAddress?: {
+      fullName: string;
+      address: string;
+      city: string;
+      state: string;
+      pincode: string;
+      phone: string;
+    };
+    paymentMethod?: string;
+    prescriptionId?: string;
+  }) => api.post("/medicines/order", data),
+
+  getMyOrders: () => api.get("/medicines/orders/my"),
+
+  getOrderById: (id: string) => api.get(`/medicines/orders/${id}`),
+
+  // 🆕 Admin: get all orders
+  getAllOrders: () => api.get("/medicines/orders/all"),
+
+  // Admin order status update
+  updateOrderStatus: (
+    id: string,
+    status: "confirmed" | "shipped" | "delivered" | "cancelled"
+  ) => api.patch(`/medicines/orders/${id}/status`, { status }),
 };
 
 // ======================
@@ -181,11 +265,7 @@ export const mediaAPI = {
     api.get("/media/search/creators", { params: { q, ...params } }),
   becomeCreator: () => api.post("/media/become-creator"),
   getCreatorProfile: (userId: string) =>
-  api.get(`/media/users/${userId}/profile`),
-
-  // ❌ REMOVE THESE - Duplicate ad tracking (use adsAPI instead)
-  // trackAdClick: (campaignId: string) => api.post("/media/ads/track-click", { campaignId }),
-  // trackAdImpression: (campaignId: string) => api.post("/media/ads/track-impression", { campaignId }),
+    api.get(`/media/users/${userId}/profile`),
 };
 
 // ======================
@@ -194,13 +274,13 @@ export const mediaAPI = {
 export const adsAPI = {
   // Get single ad for feed (used by feed page)
   getFeedAd: () => api.get("/ads/feed-ad"),
-  
+
   // ✅ USE THESE FOR TRACKING (unified)
   trackClick: (campaignId: string) => api.post("/ads/track-click", { campaignId }),
   trackImpression: (campaignId: string) => api.post("/ads/track-impression", { campaignId }),
-  
+
   // Admin routes (protected by role)
-  getCampaigns: (params?: { status?: string; page?: number; limit?: number }) => 
+  getCampaigns: (params?: { status?: string; page?: number; limit?: number }) =>
     api.get("/ads/campaigns", { params }),
   getCampaign: (id: string) => api.get(`/ads/campaigns/${id}`),
   createCampaign: (formData: FormData) =>
@@ -214,7 +294,7 @@ export const adsAPI = {
   updateCampaignStatus: (id: string, status: string) =>
     api.patch(`/ads/campaigns/${id}/status`, { status }),
   deleteCampaign: (id: string) => api.delete(`/ads/campaigns/${id}`),
-  
+
   // Analytics
   getAnalytics: () => api.get("/ads/analytics"),
   getCampaignAnalytics: (campaignId: string) => api.get(`/ads/analytics/campaign/${campaignId}`),
@@ -320,7 +400,7 @@ export const itAPI = {
 export const adminAPI = {
   // Dashboard stats
   getStats: () => api.get("/admin/stats"),
-createUser: (data: any) => api.post('/admin/users', data),
+  createUser: (data: any) => api.post('/admin/users', data),
   // User management
   getUsers: (params?: { page?: number; limit?: number; role?: string; search?: string }) =>
     api.get("/admin/users", { params }),

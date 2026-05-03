@@ -1,12 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useState, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { educationAPI } from "@/lib/api";
 import { Loader2 } from "lucide-react";
 import { toast } from "react-toastify";
 
-export default function CreateTestPage() {
+// Inner component that actually uses useSearchParams
+function CreateTestContent() {
   const searchParams = useSearchParams();
   const courseId = searchParams.get("courseId") || "";
   const router = useRouter();
@@ -55,5 +56,14 @@ export default function CreateTestPage() {
         </form>
       </div>
     </div>
+  );
+}
+
+// Page component wrapped in Suspense
+export default function CreateTestPage() {
+  return (
+    <Suspense fallback={<div className="flex justify-center items-center min-h-screen"><Loader2 className="animate-spin" size={32} /></div>}>
+      <CreateTestContent />
+    </Suspense>
   );
 }

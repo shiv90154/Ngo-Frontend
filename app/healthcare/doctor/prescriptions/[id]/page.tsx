@@ -1,13 +1,22 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
-import { healthcareAPI } from "@/lib/api";
-import { FileText, Activity, Loader2, User, Pill } from "lucide-react";
+import { useParams, useRouter } from "next/navigation";
+import { healthcareAPI, medicineAPI } from "@/lib/api";
+import {
+  FileText,
+  Activity,
+  Loader2,
+  User,
+  Pill,
+  ShoppingBag,
+} from "lucide-react";
+import { toast } from "react-toastify";
 import PrescriptionModal from "@/components/healthcare/PrescriptionModal";
 
 export default function PatientDetailPage() {
   const params = useParams();
+  const router = useRouter();
   const id = params?.id as string;
 
   const [patient, setPatient] = useState<any>(null);
@@ -16,6 +25,7 @@ export default function PatientDetailPage() {
   const [appointments, setAppointments] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [showPrescriptionModal, setShowPrescriptionModal] = useState(false);
+  const [orderingPresId, setOrderingPresId] = useState<string | null>(null);
 
   useEffect(() => {
     if (!id) return;
@@ -24,12 +34,7 @@ export default function PatientDetailPage() {
       try {
         setLoading(true);
 
-        const [
-          recordsRes,
-          presRes,
-          patientsRes,
-          apptRes,
-        ] = await Promise.all([
+        const [recordsRes, presRes, patientsRes, apptRes] = await Promise.all([
           healthcareAPI.getPatientHealthRecords(id),
           healthcareAPI.getPatientPrescriptions(id),
           healthcareAPI.getDoctorPatients({ limit: 200 }),
@@ -83,11 +88,12 @@ export default function PatientDetailPage() {
         setPatient(currentPatient);
         setRecords(recordsRes.data.records || []);
         setPrescriptions(presRes.data.prescriptions || []);
-        setAppointments(allAppointments.filter(
-          (a: any) =>
-            String(a.patientId?._id || a.patientId) === String(id)
-        ));
-
+        setAppointments(
+          allAppointments.filter(
+            (a: any) =>
+              String(a.patientId?._id || a.patientId) === String(id)
+          )
+        );
       } catch (error) {
         console.error(error);
       } finally {
@@ -97,6 +103,35 @@ export default function PatientDetailPage() {
 
     fetchData();
   }, [id]);
+
+  const handleOrderFromPrescription = async (prescriptionId: string) => {
+    try {
+      setOrderingPresId(prescriptionId);
+      const res = await healthcareAPI.getOrderItemsFromPrescription(prescriptionId);
+      const items = res.data.items;
+
+      if (!items || items.length === 0) {
+        toast.error("No medicines found for this prescription");
+        return;
+      }
+
+      await medicineAPI.createOrder({
+        items: items.map((item: any) => ({
+          medicine: item.medicine,
+          quantity: item.quantity || 1,
+        })),
+        paymentMethod: "wallet",
+        prescriptionId,
+      });
+
+      toast.success("Order placed successfully!");
+      router.push("/healthcare/medicines/orders");
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || "Failed to place order");
+    } finally {
+      setOrderingPresId(null);
+    }
+  };
 
   if (loading) {
     return (
@@ -108,7 +143,6 @@ export default function PatientDetailPage() {
 
   return (
     <div className="max-w-5xl mx-auto space-y-6">
-
       {/* PATIENT HEADER */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
         <div className="flex flex-col sm:flex-row sm:items-center gap-4">
@@ -138,7 +172,6 @@ export default function PatientDetailPage() {
 
       {/* RECORDS + APPOINTMENTS */}
       <div className="grid md:grid-cols-2 gap-6">
-
         {/* RECORDS */}
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
           <h2 className="font-semibold text-gray-800 flex items-center gap-2 mb-3">
@@ -176,9 +209,7 @@ export default function PatientDetailPage() {
                   <p className="text-gray-800 font-medium">
                     {new Date(a.appointmentDate).toLocaleDateString()}
                   </p>
-                  <p className="text-sm text-gray-500 capitalize">
-                    {a.status}
-                  </p>
+                  <p className="text-sm text-gray-500 capitalize">{a.status}</p>
                 </div>
               ))}
             </div>
@@ -186,79 +217,84 @@ export default function PatientDetailPage() {
         </div>
       </div>
 
-     {/* PRESCRIPTIONS */}
-<div className="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
-  <h2 className="font-semibold text-gray-800 flex items-center gap-2 mb-3">
-    <Pill size={18} /> Prescriptions
-  </h2>
+      {/* PRESCRIPTIONS – with Order button */}
+      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
+        <h2 className="font-semibold text-gray-800 flex items-center gap-2 mb-3">
+          <Pill size={18} /> Prescriptions
+        </h2>
 
-  {prescriptions.length === 0 ? (
-    <p className="text-gray-500 text-sm">No prescriptions</p>
-  ) : (
-    <div className="space-y-4">
-      {prescriptions.map((p: any) => (
-        <div key={p._id} className="border border-gray-100 rounded-xl p-4">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-3">
-            <div>
-              <p className="font-semibold text-gray-800">
-                {p.diagnosis || "No diagnosis"}
-              </p>
-
-              <p className="text-xs text-gray-500 mt-1">
-                {p.prescriptionDate || p.createdAt
-                  ? new Date(p.prescriptionDate || p.createdAt).toLocaleDateString()
-                  : "No date"}
-              </p>
-            </div>
-          </div>
-
-          {p.medicines?.length > 0 ? (
-            <div className="space-y-2">
-              {p.medicines.map((medicine: any, index: number) => (
-                <div
-                  key={index}
-                  className="bg-gray-50 border border-gray-100 rounded-lg p-3"
-                >
-                  <p className="font-medium text-gray-800">
-                    {medicine.name || "Unnamed medicine"}
-                  </p>
-
-                  <div className="grid sm:grid-cols-3 gap-2 mt-2 text-xs text-gray-600">
-                    <p>
-                      <span className="font-medium text-gray-700">Dosage:</span>{" "}
-                      {medicine.dosage || "N/A"}
+        {prescriptions.length === 0 ? (
+          <p className="text-gray-500 text-sm">No prescriptions</p>
+        ) : (
+          <div className="space-y-4">
+            {prescriptions.map((p: any) => (
+              <div key={p._id} className="border border-gray-100 rounded-xl p-4">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-3">
+                  <div>
+                    <p className="font-semibold text-gray-800">
+                      {p.diagnosis || "No diagnosis"}
                     </p>
-
-                    <p>
-                      <span className="font-medium text-gray-700">Frequency:</span>{" "}
-                      {medicine.frequency || "N/A"}
-                    </p>
-
-                    <p>
-                      <span className="font-medium text-gray-700">Duration:</span>{" "}
-                      {medicine.duration || "N/A"}
+                    <p className="text-xs text-gray-500 mt-1">
+                      {p.prescriptionDate || p.createdAt
+                        ? new Date(p.prescriptionDate || p.createdAt).toLocaleDateString()
+                        : "No date"}
                     </p>
                   </div>
 
-                  {medicine.instructions && (
-                    <p className="text-xs text-gray-500 mt-2">
-                      <span className="font-medium text-gray-700">
-                        Instructions:
-                      </span>{" "}
-                      {medicine.instructions}
-                    </p>
-                  )}
+                  <button
+                    onClick={() => handleOrderFromPrescription(p._id)}
+                    disabled={orderingPresId === p._id}
+                    className="flex items-center gap-1.5 px-3 py-1.5 bg-green-600 text-white rounded-lg text-xs font-medium hover:bg-green-700 disabled:opacity-50 whitespace-nowrap"
+                  >
+                    {orderingPresId === p._id ? (
+                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                    ) : (
+                      <ShoppingBag className="w-3.5 h-3.5" />
+                    )}
+                    Order Medicines
+                  </button>
                 </div>
-              ))}
-            </div>
-          ) : (
-            <p className="text-sm text-gray-500">No medicines added</p>
-          )}
-        </div>
-      ))}
-    </div>
-  )}
-</div>
+
+                {p.medicines?.length > 0 ? (
+                  <div className="space-y-2">
+                    {p.medicines.map((medicine: any, index: number) => (
+                      <div key={index} className="bg-gray-50 border border-gray-100 rounded-lg p-3">
+                        <p className="font-medium text-gray-800">
+                          {medicine.name || "Unnamed medicine"}
+                        </p>
+
+                        <div className="grid sm:grid-cols-3 gap-2 mt-2 text-xs text-gray-600">
+                          <p>
+                            <span className="font-medium text-gray-700">Dosage:</span>{" "}
+                            {medicine.dosage || "N/A"}
+                          </p>
+                          <p>
+                            <span className="font-medium text-gray-700">Frequency:</span>{" "}
+                            {medicine.frequency || "N/A"}
+                          </p>
+                          <p>
+                            <span className="font-medium text-gray-700">Duration:</span>{" "}
+                            {medicine.duration || "N/A"}
+                          </p>
+                        </div>
+
+                        {medicine.instructions && (
+                          <p className="text-xs text-gray-500 mt-2">
+                            <span className="font-medium text-gray-700">Instructions:</span>{" "}
+                            {medicine.instructions}
+                          </p>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-sm text-gray-500">No medicines added</p>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
 
       <PrescriptionModal
         isOpen={showPrescriptionModal}

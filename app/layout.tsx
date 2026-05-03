@@ -5,8 +5,8 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import SplashScreen from "@/components/SplashScreen";
-import OnboardingTutorial from "@/components/OnboardingTutorial";   
-import LanguageSwitcher from "@/components/TranslatePage";
+import OnboardingTutorial from "@/components/OnboardingTutorial";
+import LanguageSwitcher from "@/components/TranslatePage"; // <-- ensure this file has the corrected ISO codes
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -24,7 +24,7 @@ export default function RootLayout({
         <AuthProvider>
           <SplashScreen />
           <OnboardingTutorial />
-          <LanguageSwitcher />
+          <LanguageSwitcher />   {/* Fixed version with ISO language codes */}
           {children}
           <ToastContainer
             position="top-right"
@@ -39,8 +39,6 @@ export default function RootLayout({
             theme="light"
           />
         </AuthProvider>
-
-       
       </body>
     </html>
   );

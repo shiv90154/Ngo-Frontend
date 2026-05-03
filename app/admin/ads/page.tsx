@@ -177,11 +177,11 @@ export default function AdminAdsPage() {
   };
 
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>): void => {
-    const files = Array.from(e.target.files || []);
+    const files: File[] = Array.from(e.target.files || []); // FIX: Explicit type annotation
     setMediaFiles(files);
     
     const previews: MediaPreview[] = files.map(file => ({
-      url: URL.createObjectURL(file),
+      url: URL.createObjectURL(file), // Now safe, file is recognized as File (extends Blob)
       type: file.type.startsWith('image/') ? 'image' : 'video'
     }));
     setMediaPreview(previews);
