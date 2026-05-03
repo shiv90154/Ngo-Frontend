@@ -14,6 +14,7 @@ import {
   X,
   ChevronDown,
   Stethoscope,
+  ShoppingBag,
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
@@ -44,6 +45,7 @@ export default function HealthcareNavbar() {
     { name: "Appointments", href: "/healthcare/appointments", icon: Calendar },
     { name: "Health Records", href: "/healthcare/records", icon: FileText },
     { name: "Prescriptions", href: "/healthcare/prescriptions", icon: FileText },
+    { name: "Medicines", href: "/healthcare/medicines", icon: ShoppingBag },
   ];
 
   const isActive = (href: string) => {
@@ -65,11 +67,11 @@ export default function HealthcareNavbar() {
     <header className="sticky top-0 z-50 bg-white border-b border-gray-200 shadow-sm">
       <div className="px-4 lg:px-6">
         <div className="flex items-center justify-between h-16">
-          {/* Logo - size increased to w-16 h-16 (64px) with subtle styling */}
+          {/* Logo */}
           <Link href={dashboardHref} className="flex items-center gap-4">
             <div className="relative w-16 h-16 rounded-lg overflow-hidden bg-white shadow-sm border border-gray-100">
               <Image
-                src="/doctor.png"  // 👈 Change to your actual healthcare logo path
+                src="/doctor.png"
                 alt="Samraddh Healthcare Logo"
                 fill
                 className="object-cover"

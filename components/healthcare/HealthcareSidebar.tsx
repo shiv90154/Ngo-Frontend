@@ -10,9 +10,9 @@ import {
   Users,
   Settings,
   HelpCircle,
-  Stethoscope,
   Pill,
   Clock,
+  ShoppingBag,
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
@@ -34,6 +34,7 @@ export default function HealthcareSidebar() {
     { name: "My Appointments", href: "/healthcare/patient/appointments", icon: Calendar },
     { name: "Health Records", href: "/healthcare/patient/records", icon: FileText },
     { name: "Prescriptions", href: "/healthcare/patient/prescriptions", icon: Pill },
+    { name: "Medicines", href: "/healthcare/medicines", icon: ShoppingBag },
   ];
 
   const doctorLinks = [
@@ -42,28 +43,20 @@ export default function HealthcareSidebar() {
     { name: "Appointments", href: "/healthcare/doctor/appointments", icon: Calendar },
     { name: "Schedule", href: "/healthcare/doctor/schedule", icon: Clock },
     { name: "Prescriptions", href: "/healthcare/doctor/prescriptions", icon: Pill },
+    { name: "Medicines", href: "/healthcare/medicines", icon: ShoppingBag },
   ];
 
   const links = isDoctor ? doctorLinks : patientLinks;
 
   const isActive = (href: string) => {
-  if (href === "/healthcare") {
-    // Only highlight the dashboard when exactly on /healthcare or /healthcare/
-    return pathname === "/healthcare" || pathname === "/healthcare/";
-  }
-  // For other routes, check exact match or child routes
-  return pathname === href || pathname.startsWith(href + "/");
-};
-
-  const userInitial = mounted && user?.fullName ? user.fullName.charAt(0) : "";
-  const userFullName = mounted && user?.fullName ? user.fullName : "";
-  const userRole = mounted && user?.role ? user.role.replace(/_/g, " ") : "Patient";
+    if (href === "/healthcare") {
+      return pathname === "/healthcare" || pathname === "/healthcare/";
+    }
+    return pathname === href || pathname.startsWith(href + "/");
+  };
 
   return (
-      <aside className="hidden lg:block w-64 bg-white border-r border-gray-200 h-[calc(100vh-64px)] sticky top-16 overflow-y-auto p-4">
-      
-
-      {/* Navigation */}
+    <aside className="hidden lg:block w-64 bg-white border-r border-gray-200 h-[calc(100vh-64px)] sticky top-16 overflow-y-auto p-4">
       <nav className="space-y-0.5">
         {links.map((link) => {
           const Icon = link.icon;
@@ -85,7 +78,6 @@ export default function HealthcareSidebar() {
         })}
       </nav>
 
-        {/* Footer Links */}
       <div className="absolute bottom-4 left-4 right-4">
         <Link
           href="/healthcare/help"

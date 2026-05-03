@@ -1,10 +1,10 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { authAPI } from "@/lib/api";
 import {
-  X, Check, Loader2, User,
+  X, Check, Loader2, User, Upload,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "react-toastify";
@@ -15,6 +15,8 @@ type FieldConfig = {
   type: "text" | "select" | "date" | "file";
   options?: string[];
   required?: boolean;
+  accept?: string;          // for file inputs
+  multiple?: boolean;       // for file inputs
 };
 
 type ModuleConfig = {
@@ -37,10 +39,18 @@ const MODULE_CONFIGS: Record<string, ModuleConfig> = {
     title: "Doctor Profile",
     description: "Complete your professional details to start consulting.",
     fields: [
-      { name: "doctorSpecialization", label: "Specialization", type: "text", required: true },
-      { name: "doctorExperience", label: "Experience (years)", type: "text" },
-      { name: "consultationFee", label: "Consultation Fee (₹)", type: "text" },
-      { name: "registrationNumber", label: "Registration Number", type: "text", required: true },
+      // Doctor basic profile
+      { name: "doctorProfile.specialization", label: "Specialization", type: "text", required: true },
+      { name: "doctorProfile.experienceYears", label: "Experience (years)", type: "text" },
+      { name: "doctorProfile.consultationFee", label: "Consultation Fee (₹)", type: "text" },
+      { name: "doctorProfile.registrationNumber", label: "Registration Number", type: "text", required: true },
+      // Verification fields
+      { name: "doctorVerification.qualification", label: "Qualification (e.g., MBBS, MD)", type: "text", required: true },
+      { name: "doctorVerification.college", label: "Medical College / University", type: "text", required: true },
+      { name: "doctorVerification.yearOfPassing", label: "Year of Passing", type: "text", required: true },
+      { name: "doctorVerification.medicalCouncilRegNumber", label: "Medical Council Reg. Number", type: "text", required: true },
+      { name: "degreeCertificate", label: "Degree Certificate (PDF/Image)", type: "file", accept: "image/*,.pdf", required: true },
+      { name: "registrationCertificate", label: "Registration Certificate (PDF/Image)", type: "file", accept: "image/*,.pdf", required: true },
     ],
   },
   news: {
@@ -99,6 +109,7 @@ export default function ModuleSetupWizard({ module }: ModuleSetupWizardProps) {
   const [exiting, setExiting] = useState(false);
   const [updating, setUpdating] = useState(false);
   const [form, setForm] = useState<Record<string, any>>({});
+  const fileInputRefs = useRef<Record<string, HTMLInputElement | null>>({});
 
   const config = MODULE_CONFIGS[module];
   if (!config) return null;
@@ -106,8 +117,20 @@ export default function ModuleSetupWizard({ module }: ModuleSetupWizardProps) {
   const getMissingFields = useCallback(() => {
     if (!user) return config.fields;
     return config.fields.filter(f => {
-      const val = user[f.name];
-      return val === undefined || val === null || val === "";
+      // For file fields, we check if the corresponding user field exists and is truthy
+      if (f.type === "file") {
+        // Check if the user has the uploaded file URL stored (e.g., degreeCertificate)
+        const val = user[f.name] || user.doctorVerification?.[f.name];
+        return !val;
+      }
+      // For nested keys like "doctorProfile.specialization", we need to traverse
+      const keys = f.name.split(".");
+      let current: any = user;
+      for (const key of keys) {
+        current = current?.[key];
+        if (current === undefined || current === null || current === "") return true;
+      }
+      return false;
     });
   }, [user, config.fields]);
 
@@ -118,18 +141,33 @@ export default function ModuleSetupWizard({ module }: ModuleSetupWizardProps) {
 
     const missing = getMissingFields();
     if (missing.length > 0) {
+      // Prefill existing values
       const prefill: any = {};
       config.fields.forEach(f => {
-        if (user[f.name] !== undefined && user[f.name] !== null && user[f.name] !== "")
-          prefill[f.name] = user[f.name];
+        if (f.type === "file") return; // can't prefill file inputs
+        const keys = f.name.split(".");
+        let current: any = user;
+        let val = current;
+        for (const key of keys) {
+          val = current?.[key];
+          if (val === undefined || val === null) break;
+          current = val;
+        }
+        if (val !== undefined && val !== null && val !== "") {
+          prefill[f.name] = val;
+        }
       });
       setForm(prefill);
       setVisible(true);
     }
   }, [user, loading, module, config.fields, getMissingFields]);
 
-  const handleInputChange = (field: string, value: string) => {
+  const handleInputChange = (field: string, value: string | File) => {
     setForm(prev => ({ ...prev, [field]: value }));
+  };
+
+  const handleFileChange = (field: string, file: File | null) => {
+    setForm(prev => ({ ...prev, [field]: file }));
   };
 
   const handleSave = async (e: React.FormEvent) => {
@@ -138,8 +176,12 @@ export default function ModuleSetupWizard({ module }: ModuleSetupWizardProps) {
     try {
       const fd = new FormData();
       Object.entries(form).forEach(([key, val]) => {
-        if (val !== undefined && val !== null && val !== "")
+        if (val === undefined || val === null || val === "") return;
+        if (val instanceof File) {
+          fd.append(key, val);
+        } else {
           fd.append(key, val as string);
+        }
       });
 
       const res = await authAPI.updateProfile(fd);
@@ -174,7 +216,7 @@ export default function ModuleSetupWizard({ module }: ModuleSetupWizardProps) {
           animate={{ scale: 1, y: 0, opacity: 1 }}
           exit={{ scale: 0.95, y: 20, opacity: 0 }}
           transition={{ duration: 0.2 }}
-          className="bg-white rounded-2xl shadow-2xl max-h-[90vh] overflow-y-auto max-w-md w-full relative"
+          className="bg-white rounded-2xl shadow-2xl max-h-[90vh] overflow-y-auto max-w-lg w-full relative"
         >
           {/* Top trim – tricolor */}
           <div className="h-1 flex">
@@ -232,6 +274,23 @@ export default function ModuleSetupWizard({ module }: ModuleSetupWizardProps) {
                       onChange={(e) => handleInputChange(field.name, e.target.value)}
                       className="w-full border border-gray-300 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-[#1a237e] focus:border-[#1a237e] outline-none"
                     />
+                  ) : field.type === "file" ? (
+                    <div>
+                      <input
+                        type="file"
+                        accept={field.accept}
+                        multiple={field.multiple}
+                        ref={(el) => { fileInputRefs.current[field.name] = el; }}
+                        onChange={(e) => {
+                          const file = e.target.files?.[0] || null;
+                          handleFileChange(field.name, file);
+                        }}
+                        className="w-full border border-gray-300 rounded-lg p-2 text-sm file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-[#1a237e]/10 file:text-[#1a237e] hover:file:bg-[#1a237e]/20 transition"
+                      />
+                      {form[field.name] && form[field.name] instanceof File && (
+                        <p className="text-xs text-gray-500 mt-1">Selected: {form[field.name].name}</p>
+                      )}
+                    </div>
                   ) : (
                     <input
                       type="text"
@@ -247,7 +306,6 @@ export default function ModuleSetupWizard({ module }: ModuleSetupWizardProps) {
 
             {/* Action */}
             <button
-              type="submit"
               onClick={handleSave}
               disabled={updating}
               className="w-full flex items-center justify-center gap-2 bg-[#1a237e] text-white py-2.5 rounded-lg font-semibold hover:bg-[#0d1757] transition disabled:opacity-60 shadow-sm"

@@ -2,8 +2,9 @@
 
 import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
-import { Clock, Save, Loader2, Plus, X, CheckCircle } from "lucide-react";
+import { Clock, Save, Loader2, Plus, X, ShieldAlert, ShieldCheck } from "lucide-react";
 import { healthcareAPI } from "@/lib/api";
+import { toast } from "react-toastify";
 
 const DAYS = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"];
 
@@ -11,17 +12,18 @@ export default function AvailabilityPage() {
   const { user } = useAuth();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [saveMessage, setSaveMessage] = useState("");
   const [availability, setAvailability] = useState<any>({
     workingDays: ["monday", "tuesday", "wednesday", "thursday", "friday"],
     timeSlots: [{ day: "monday", startTime: "09:00", endTime: "17:00", slotDuration: 30 }],
     consultationModes: { video: true, audio: true, chat: true, inPerson: false },
     isAcceptingAppointments: true,
   });
+  const [verificationStatus, setVerificationStatus] = useState<string | null>(null);
 
   useEffect(() => {
     if (user?.role === "DOCTOR") {
       fetchAvailability();
+      fetchVerificationStatus();
     }
   }, [user]);
 
@@ -33,8 +35,20 @@ export default function AvailabilityPage() {
       }
     } catch (error) {
       console.error("Failed to fetch availability:", error);
+      toast.error("Failed to load your availability settings");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchVerificationStatus = async () => {
+    try {
+      if (!user?.id) return;
+      const res = await healthcareAPI.getDoctorById(user.id);
+      const doctor = res.data?.user || res.data?.doctor || res.data?.data || res.data || {};
+      setVerificationStatus(doctor.doctorVerification?.verificationStatus || null);
+    } catch (error) {
+      // silently fail
     }
   };
 
@@ -73,10 +87,9 @@ export default function AvailabilityPage() {
     setSaving(true);
     try {
       await healthcareAPI.setDoctorAvailability(availability);
-      setSaveMessage("Availability saved successfully!");
-      setTimeout(() => setSaveMessage(""), 3000);
-    } catch (error) {
-      console.error("Save failed:", error);
+      toast.success("Availability saved successfully!");
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || "Failed to save availability");
     } finally {
       setSaving(false);
     }
@@ -84,7 +97,7 @@ export default function AvailabilityPage() {
 
   if (user?.role !== "DOCTOR") {
     return (
-      <div className="bg-white rounded-xl p-8 text-center">
+      <div className="bg-white rounded-xl p-8 text-center shadow-sm border">
         <Clock className="w-12 h-12 mx-auto text-gray-300 mb-3" />
         <p className="text-gray-500">This section is only accessible to doctors.</p>
       </div>
@@ -99,12 +112,34 @@ export default function AvailabilityPage() {
     );
   }
 
+  const isNotApproved = verificationStatus && verificationStatus !== "approved";
+
   return (
     <div className="space-y-6">
+      {/* Page header */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
         <h1 className="text-2xl font-bold text-gray-800">Manage Availability</h1>
         <p className="text-gray-500 mt-1">Set your working hours and consultation modes</p>
       </div>
+
+      {/* Verification warning */}
+      {isNotApproved && (
+        <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 flex items-start gap-3 text-amber-800">
+          <ShieldAlert className="w-5 h-5 mt-0.5 shrink-0" />
+          <div>
+            <p className="font-semibold">
+              {verificationStatus === "pending"
+                ? "Your doctor account is pending verification."
+                : "Your verification request was rejected."}
+            </p>
+            <p className="text-sm mt-0.5">
+              {verificationStatus === "pending"
+                ? "You can still set your availability, but you won't appear in searches until an admin approves your profile."
+                : "Please contact the administrator for further information."}
+            </p>
+          </div>
+        </div>
+      )}
 
       {/* Working Days */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
@@ -246,11 +281,6 @@ export default function AvailabilityPage() {
 
       {/* Save Button */}
       <div className="flex justify-end">
-        {saveMessage && (
-          <span className="text-sm text-green-600 flex items-center gap-1 mr-4">
-            <CheckCircle className="w-4 h-4" /> {saveMessage}
-          </span>
-        )}
         <button
           onClick={handleSave}
           disabled={saving}

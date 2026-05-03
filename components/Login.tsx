@@ -1,4 +1,3 @@
-// components/Login.tsx
 "use client";
 
 import { useState, useEffect } from "react";
@@ -12,14 +11,12 @@ export default function LoginPage() {
   const { login, user, loading: authLoading } = useAuth();
   const [isClient, setIsClient] = useState(false);
 
-  useEffect(() => {
-    setIsClient(true);
-  }, []);
+  useEffect(() => setIsClient(true), []);
 
   useEffect(() => {
     if (isClient && !authLoading && user) {
-      
-      const isAdmin = user.role === "SUPER_ADMIN" || user.role === "ADDITIONAL_DIRECTOR";
+      const isAdmin =
+        user.role === "SUPER_ADMIN" || user.role === "ADDITIONAL_DIRECTOR";
       router.replace(isAdmin ? "/admin" : "/services");
     }
   }, [isClient, authLoading, user, router]);
@@ -33,7 +30,7 @@ export default function LoginPage() {
 
   const validate = () => {
     let err: { email?: string; password?: string } = {};
-    if (!email) err.email = "Email is required";
+    if (!email.trim()) err.email = "Email is required";
     if (!password) err.password = "Password is required";
     setError(err);
     return Object.keys(err).length === 0;
@@ -45,9 +42,7 @@ export default function LoginPage() {
     if (!validate()) return;
     setLoading(true);
     const result = await login(email, password);
-    if (result.success) {
-      // 登录成功，上面的 useEffect 会自动处理跳转
-    } else {
+    if (!result.success) {
       setGeneralError(result.error);
       setLoading(false);
     }
@@ -59,7 +54,6 @@ export default function LoginPage() {
     <div className="min-h-screen bg-[#f0f2f5] flex flex-col">
       <div className="flex-1 flex items-center justify-center p-4 py-8">
         <div className="w-full max-w-6xl">
-          {/* 标题 */}
           <div className="text-center mb-6">
             <h1 className="text-3xl md:text-4xl font-bold text-[#1a237e] mt-3 font-serif">
               Samraddh Bharat
@@ -67,66 +61,51 @@ export default function LoginPage() {
             <p className="text-gray-600 mt-1 text-sm md:text-base">
               डिजिटल इंडिया - एकीकृत सेवा पोर्टल
             </p>
-            <p className="text-gray-500 text-xs md:text-sm">
-              Digital India - Unified Service Portal
-            </p>
           </div>
 
           <div className="bg-white rounded-xl shadow-2xl overflow-hidden border border-gray-200">
             <div className="grid md:grid-cols-2">
-              {/* 左侧信息面板 */}
-              <div className="bg-gradient-to-br from-[#1a237e] to-[#283593] text-white p-8 hidden md:block">
-                <div className="h-full flex flex-col">
-                  <div className="mb-6">
-                    <h2 className="text-2xl font-bold mb-2">Samraddh Bharat</h2>
-                    <p className="text-blue-100 text-sm leading-relaxed">
-                      Access multiple schemes and services through a single, secure platform.
-                    </p>
-                  </div>
-
-                  <div className="space-y-4 mt-4">
-                    <div className="flex items-start gap-3">
-                      <div className="w-8 h-8 bg-white/10 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                        ✓
-                      </div>
-                      <div>
-                        <p className="font-medium">Secure & Verified</p>
-                        <p className="text-xs text-blue-200">Aadhaar-based authentication</p>
-                      </div>
-                    </div>
-                    <div className="flex items-start gap-3">
-                      <div className="w-8 h-8 bg-white/10 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                        ✓
-                      </div>
-                      <div>
-                        <p className="font-medium">All Services Unified</p>
-                        <p className="text-xs text-blue-200">Education, Health, Agri, Finance & more</p>
-                      </div>
-                    </div>
-                    <div className="flex items-start gap-3">
-                      <div className="w-8 h-8 bg-white/10 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                        ✓
-                      </div>
-                      <div>
-                        <p className="font-medium">Real-time Tracking</p>
-                        <p className="text-xs text-blue-200">Monitor applications and benefits</p>
-                      </div>
+              {/* Left info panel unchanged */}
+              <div className="bg-gradient-to-br from-[#1a237e] to-[#283593] text-white p-8 hidden md:flex flex-col justify-between">
+                <div>
+                  <h2 className="text-2xl font-bold mb-2">Samraddh Bharat</h2>
+                  <p className="text-blue-100 text-sm leading-relaxed">
+                    Access multiple schemes and services through a single,
+                    secure platform.
+                  </p>
+                </div>
+                <div className="space-y-4 mt-4">
+                  <div className="flex items-start gap-3">
+                    <div className="w-8 h-8 bg-white/10 rounded-full flex items-center justify-center flex-shrink-0">✓</div>
+                    <div>
+                      <p className="font-medium">Secure & Verified</p>
+                      <p className="text-xs text-blue-200">Aadhaar-based authentication</p>
                     </div>
                   </div>
-
-                  <div className="mt-auto pt-8">
-                    <div className="border-t border-white/20 pt-4">
-                      <p className="text-xs italic text-blue-200">
-                        "सबका साथ, सबका विकास, सबका विश्वास"
-                      </p>
-                      <p className="text-xs text-blue-300 mt-2">© Samraddh Bharat Foundation</p>
-                      <p className="text-xs text-blue-300">Government of India Initiative</p>
+                  <div className="flex items-start gap-3">
+                    <div className="w-8 h-8 bg-white/10 rounded-full flex items-center justify-center flex-shrink-0">✓</div>
+                    <div>
+                      <p className="font-medium">All Services Unified</p>
+                      <p className="text-xs text-blue-200">Education, Health, Agri, Finance & more</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <div className="w-8 h-8 bg-white/10 rounded-full flex items-center justify-center flex-shrink-0">✓</div>
+                    <div>
+                      <p className="font-medium">Real-time Tracking</p>
+                      <p className="text-xs text-blue-200">Monitor applications and benefits</p>
                     </div>
                   </div>
                 </div>
+                <div className="border-t border-white/20 pt-4 mt-6">
+                  <p className="text-xs italic text-blue-200">
+                    "सबका साथ, सबका विकास, सबका विश्वास"
+                  </p>
+                  <p className="text-xs text-blue-300 mt-2">© Samraddh Bharat Foundation</p>
+                </div>
               </div>
 
-              {/* 右侧登录表单 */}
+              {/* Right login form */}
               <div className="p-8">
                 <div className="max-w-sm mx-auto">
                   <h3 className="text-2xl font-bold text-gray-800 mb-1">Sign In</h3>

@@ -9,7 +9,8 @@ import {
   User, Mail, Phone, Calendar, MapPin, Fingerprint,
   GraduationCap, HeartPulse, Sprout, Wallet,
   MonitorSmartphone, Users, Store, ArrowLeft, Edit,
-  Loader2, Shield, Camera
+  Loader2, Shield, Camera, IndianRupee, BadgePercent,
+  Stethoscope
 } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
@@ -60,6 +61,7 @@ export default function ViewProfilePage() {
     { id: "it", label: "IT", icon: MonitorSmartphone },
     { id: "social", label: "Social", icon: Users },
     { id: "seller", label: "Seller", icon: Store },
+    { id: "licenses", label: "Licenses", icon: BadgePercent },
   ];
 
   if (authLoading || loading) {
@@ -85,7 +87,7 @@ export default function ViewProfilePage() {
         <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-5 mb-5">
           <div className="flex flex-wrap items-center justify-between gap-4">
             <div className="flex items-center gap-4">
-              {/* Profile Photo – enhanced */}
+              {/* Profile Photo */}
               <div className="relative">
                 <div className="w-20 h-20 rounded-full bg-gray-100 overflow-hidden border-4 border-white shadow-lg">
                   {imageUrl && !imgError ? (
@@ -168,6 +170,7 @@ export default function ViewProfilePage() {
 
         {/* Content */}
         <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-5 md:p-6">
+
           {/* Personal Tab */}
           {activeTab === "basic" && (
             <div className="space-y-5">
@@ -184,7 +187,7 @@ export default function ViewProfilePage() {
             </div>
           )}
 
-          {/* KYC Tab */}
+          {/* KYC Tab (unchanged) */}
           {activeTab === "kyc" && (
             <div className="space-y-5">
               <h3 className="text-lg font-semibold text-gray-800 border-b border-gray-200 pb-3">Identity Documents</h3>
@@ -197,7 +200,7 @@ export default function ViewProfilePage() {
             </div>
           )}
 
-          {/* Address Tab */}
+          {/* Address Tab (unchanged) */}
           {activeTab === "address" && (
             <div className="space-y-5">
               <h3 className="text-lg font-semibold text-gray-800 border-b border-gray-200 pb-3">Address Details</h3>
@@ -214,7 +217,7 @@ export default function ViewProfilePage() {
             </div>
           )}
 
-          {/* Education Tab */}
+          {/* Education Tab (unchanged) */}
           {activeTab === "education" && (
             <div className="space-y-5">
               <h3 className="text-lg font-semibold text-gray-800 border-b border-gray-200 pb-3">Educational Qualifications</h3>
@@ -227,7 +230,7 @@ export default function ViewProfilePage() {
             </div>
           )}
 
-          {/* Healthcare Tab */}
+          {/* Healthcare Tab (updated with doctor verification) */}
           {activeTab === "healthcare" && (
             <div className="space-y-5">
               <h3 className="text-lg font-semibold text-gray-800 border-b border-gray-200 pb-3">Health Information</h3>
@@ -241,17 +244,40 @@ export default function ViewProfilePage() {
                 <InfoRow label="Relationship" value={profileData.emergencyContact?.relationship || "—"} />
                 <InfoRow label="Emergency Phone" value={profileData.emergencyContact?.phone || "—"} />
               </div>
-              {user?.role === "DOCTOR" && profileData.doctorProfile && (
+
+              {/* Doctor Professional Details (visible to doctors or users with HEALTHCARE module) */}
+              {(user?.role === "DOCTOR" || user?.modules?.includes("HEALTHCARE")) && profileData.doctorProfile && (
                 <div className="mt-5 pt-4 border-t border-gray-200">
-                  <h4 className="font-semibold text-gray-800 mb-3">Doctor Professional Details</h4>
+                  <h4 className="font-semibold text-gray-800 mb-3 flex items-center gap-2"><Stethoscope size={18} /> Doctor Professional Details</h4>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                     <InfoRow label="Specialization" value={profileData.doctorProfile.specialization || "—"} />
                     <InfoRow label="Experience" value={profileData.doctorProfile.experienceYears ? `${profileData.doctorProfile.experienceYears} years` : "—"} />
                     <InfoRow label="Consultation Fee" value={profileData.doctorProfile.consultationFee ? `₹${profileData.doctorProfile.consultationFee}` : "—"} />
                     <InfoRow label="Registration Number" value={profileData.doctorProfile.registrationNumber || "—"} />
                   </div>
+
+                  {/* Doctor Verification Details */}
+                  <h4 className="font-semibold text-gray-800 mt-5 mb-3 flex items-center gap-2"><Shield size={18} /> Verification Details ({profileData.doctorVerification?.verificationStatus || "pending"})</h4>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <InfoRow label="Qualification" value={profileData.doctorVerification?.qualification || "—"} />
+                    <InfoRow label="Medical College" value={profileData.doctorVerification?.college || "—"} />
+                    <InfoRow label="Year of Passing" value={profileData.doctorVerification?.yearOfPassing || "—"} />
+                    <InfoRow label="Medical Council Reg. No." value={profileData.doctorVerification?.medicalCouncilRegNumber || "—"} />
+                    <InfoRow label="Degree Certificate" value={
+                      profileData.doctorVerification?.degreeCertificate ? (
+                        <a href={getImageUrl(profileData.doctorVerification.degreeCertificate)} target="_blank" className="text-[#1a237e] underline">View</a>
+                      ) : "—"
+                    } />
+                    <InfoRow label="Registration Certificate" value={
+                      profileData.doctorVerification?.registrationCertificate ? (
+                        <a href={getImageUrl(profileData.doctorVerification.registrationCertificate)} target="_blank" className="text-[#1a237e] underline">View</a>
+                      ) : "—"
+                    } />
+                  </div>
                 </div>
               )}
+
+              {/* Teacher Professional Details (unchanged) */}
               {user?.role === "TEACHER" && profileData.teacherProfile && (
                 <div className="mt-5 pt-4 border-t border-gray-200">
                   <h4 className="font-semibold text-gray-800 mb-3">Teacher Professional Details</h4>
@@ -267,7 +293,7 @@ export default function ViewProfilePage() {
             </div>
           )}
 
-          {/* Agriculture Tab */}
+          {/* Agriculture Tab (unchanged) */}
           {activeTab === "agriculture" && (
             <div className="space-y-5">
               <h3 className="text-lg font-semibold text-gray-800 border-b border-gray-200 pb-3">Farmer / Agriculture Profile</h3>
@@ -282,7 +308,7 @@ export default function ViewProfilePage() {
             </div>
           )}
 
-          {/* Finance Tab */}
+          {/* Finance Tab (updated with wallet & earnings) */}
           {activeTab === "finance" && (
             <div className="space-y-5">
               <h3 className="text-lg font-semibold text-gray-800 border-b border-gray-200 pb-3">Bank Account Details</h3>
@@ -292,10 +318,24 @@ export default function ViewProfilePage() {
                 <InfoRow label="IFSC Code" value={profileData.bankAccount?.ifsc || "—"} />
                 <InfoRow label="Bank Name" value={profileData.bankAccount?.bankName || "—"} />
               </div>
+
+              <div className="mt-5 pt-4 border-t border-gray-200">
+                <h4 className="font-semibold text-gray-800 mb-3 flex items-center gap-2"><IndianRupee size={18} /> Wallet & Earnings</h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                  <div className="p-4 bg-green-50 rounded-lg">
+                    <p className="text-sm text-gray-600">Wallet Balance</p>
+                    <p className="text-2xl font-bold text-green-800">₹{profileData.walletBalance?.toLocaleString("en-IN") || "0"}</p>
+                  </div>
+                  <div className="p-4 bg-blue-50 rounded-lg">
+                    <p className="text-sm text-gray-600">Total Earnings</p>
+                    <p className="text-2xl font-bold text-blue-800">₹{profileData.totalEarnings?.toLocaleString("en-IN") || "0"}</p>
+                  </div>
+                </div>
+              </div>
             </div>
           )}
 
-          {/* IT Tab */}
+          {/* IT Tab (unchanged) */}
           {activeTab === "it" && (
             <div className="space-y-5">
               <h3 className="text-lg font-semibold text-gray-800 border-b border-gray-200 pb-3">IT / Development Profile</h3>
@@ -307,7 +347,7 @@ export default function ViewProfilePage() {
             </div>
           )}
 
-          {/* Social Tab */}
+          {/* Social Tab (unchanged) */}
           {activeTab === "social" && (
             <div className="space-y-5">
               <h3 className="text-lg font-semibold text-gray-800 border-b border-gray-200 pb-3">Social & Media Profile</h3>
@@ -327,7 +367,7 @@ export default function ViewProfilePage() {
             </div>
           )}
 
-          {/* Seller Tab */}
+          {/* Seller Tab (unchanged) */}
           {activeTab === "seller" && (
             <div className="space-y-5">
               <h3 className="text-lg font-semibold text-gray-800 border-b border-gray-200 pb-3">E‑commerce Seller Profile</h3>
@@ -342,14 +382,38 @@ export default function ViewProfilePage() {
               </div>
             </div>
           )}
+
+          {/* Licenses Tab (new) */}
+          {activeTab === "licenses" && (
+            <div className="space-y-5">
+              <h3 className="text-lg font-semibold text-gray-800 border-b border-gray-200 pb-3">Your License Sales & Incentives</h3>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+                <div className="p-4 bg-white border rounded-xl">
+                  <p className="text-sm text-gray-500">Total Licenses Sold</p>
+                  <p className="text-3xl font-bold text-[#1a237e]">{profileData.licenseStats?.totalLicensesSold || 0}</p>
+                </div>
+                <div className="p-4 bg-white border rounded-xl">
+                  <p className="text-sm text-gray-500">This Month</p>
+                  <p className="text-3xl font-bold text-[#1a237e]">{profileData.licenseStats?.monthlyLicensesSold || 0}</p>
+                </div>
+                <div className="p-4 bg-white border rounded-xl">
+                  <p className="text-sm text-gray-500">Salary Eligible</p>
+                  <p className={`text-3xl font-bold ${profileData.licenseStats?.salaryEligible ? "text-green-600" : "text-gray-400"}`}>
+                    {profileData.licenseStats?.salaryEligible ? "Yes" : "No"}
+                  </p>
+                </div>
+              </div>
+              <p className="text-xs text-gray-400 mt-2">Licenses are managed by your reporting officer.</p>
+            </div>
+          )}
         </div>
       </div>
     </div>
   );
 }
 
-// Helper component for consistent info rows
-function InfoRow({ label, value }: { label: string; value: string }) {
+// Helper component for consistent info rows (accepts string or ReactNode)
+function InfoRow({ label, value }: { label: string; value: React.ReactNode }) {
   return (
     <div>
       <p className="text-xs text-gray-500 mb-0.5">{label}</p>
