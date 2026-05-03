@@ -10,43 +10,44 @@ export default function AboutPage() {
     { icon: Award, title: "Excellence", desc: "Continuous improvement and innovation in governance." },
   ];
 
-  // Local images – place these files in public/images/
-  const managers = [
+  // Data for the hierarchy
+  const topLeaders = [
     {
-      name: "श्रीमती पार्वती सिंह आर्मो",
-      role: "जिला शाखा प्रबंधक (District Branch Manager)",
-      area: "अनूपपुर, मध्य प्रदेश",
-      image: "/parvati.jpeg",       // <-- add your image file
+      name: "Mr SHIVESH PATEL",
+      role: "FOUNDER DIRECTOR & CEO",
+      image: "/c3.jpg",
     },
+    {
+      name: "Miss Nandni",
+      role: "FOUNDER DIRECTOR & MD",
+      image: "/nandni.jpeg",
+    },
+  ];
+
+  const otherLeaders = [
     {
       name: "श्री द्वारिका सिंह",
       role: "ब्लॉक विकास समन्वयक (Block Development Coordinator)",
       area: "पुष्पराजगढ़ ब्लॉक, जिला अनूपपुर, मध्य प्रदेश",
-      image: "/divakar.jpeg",       // <-- add your image file
+      image: "/divakar.jpeg",
     },
     {
-      name: "Mis Nandni",
-      role: "Founder Director MD",
-      area: "",
-      image: "/nandni.jpeg",        // <-- add your image file
-    },
-    {
-      name: "Mr SHIVESH PATEL",
-      role: "FOUNDER DIRECTOR CEO",
-      area: "",
-      image: "/ceo.jpeg",       // <-- add your image file
+      name: "श्रीमती पार्वती सिंह आर्मो",
+      role: "जिला शाखा प्रबंधक (District Branch Manager)",
+      area: "अनूपपुर, मध्य प्रदेश",
+      image: "/parvati.jpeg",
     },
     {
       name: "Mr Jay Prakash Singh dhurve",
       role: "राज्य विकास अधिकारी (State Development Officer)",
       area: "छत्तीसगढ़ राज्य (Chhattisgarh)",
-      image: "/singh.jpeg",    // <-- add your image file
+      image: "/singh.jpeg",
     },
     {
       name: "Mrs. Rekha kushvaha",
       role: "ब्लॉक विकास अधिकारी (Block Development Officer)",
       area: "कोतमा, जिला अनूपपुर (Kotma, Anuppur)",
-      image: "/rekha.jpg",         // <-- add your image file
+      image: "/rekha.jpg",
     },
   ];
 
@@ -119,41 +120,70 @@ export default function AboutPage() {
           </div>
         </section>
 
-        {/* Leadership Section with Local Images */}
+        {/* Leadership Section - Enlarged Cards */}
         <section className="py-12 bg-[#f8fafc]">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <h2 className="text-2xl md:text-3xl font-bold text-[#1a237e] font-serif text-center mb-4">
-              Meet Our Leadership
+              Organizational Leadership
             </h2>
             <p className="text-center text-gray-600 mb-10 max-w-2xl mx-auto">
-              Dedicated branch managers and directors ensuring smooth delivery of citizen services across India.
+              Founder & Executive Team – driving digital governance across India
             </p>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-              {managers.map((manager, idx) => (
-                <div
-                  key={idx}
-                  className="bg-white rounded-xl shadow-md overflow-hidden border border-gray-200 text-center p-6 transition-all duration-300 hover:shadow-lg hover:-translate-y-1"
-                >
-                  <div className="flex justify-center mb-4">
-                    <img
-                      src={manager.image}
-                      alt={manager.name}
-                      className="w-32 h-32 rounded-full object-cover border-4 border-[#1a237e]/20"
-                    />
+
+            {/* Tree Structure with Larger Cards */}
+            <div className="relative overflow-x-auto pb-8">
+              {/* Top Row: CEO + MD side by side - bigger cards */}
+              <div className="flex justify-center gap-8 md:gap-12 mb-16 relative">
+                {topLeaders.map((leader, idx) => (
+                  <div key={idx} className="relative flex flex-col items-center">
+                    <div className="bg-white rounded-xl shadow-lg p-6 w-72 text-center border-t-4 border-[#FF9933] transition-all hover:shadow-xl">
+                      <div className="flex justify-center mb-4">
+                        <img
+                          src={leader.image}
+                          alt={leader.name}
+                          className="w-32 h-32 rounded-full object-cover border-4 border-[#1a237e]/20"
+                        />
+                      </div>
+                      <h3 className="text-xl font-bold text-gray-800">{leader.name}</h3>
+                      <p className="text-base text-[#1a237e] font-semibold mt-2">{leader.role}</p>
+                    </div>
+                    {/* Vertical line downwards from each top leader */}
+                    <div className="w-0.5 h-8 bg-gray-300 mt-2"></div>
+                    <div className="w-px h-4 bg-gray-300"></div>
                   </div>
-                  <h3 className="text-xl font-bold text-gray-800 font-serif">{manager.name}</h3>
-                  <p className="text-[#1a237e] font-medium mt-1">{manager.role}</p>
-                  {manager.area && (
-                    <p className="text-sm text-gray-600 mt-2">{manager.area}</p>
-                  )}
-                  <div className="mt-4 flex justify-center gap-2">
-                    <div className="w-2 h-2 rounded-full bg-[#FF9933]"></div>
-                    <div className="w-2 h-2 rounded-full bg-white border border-gray-300"></div>
-                    <div className="w-2 h-2 rounded-full bg-[#138808]"></div>
-                  </div>
+                ))}
+              </div>
+
+              {/* Second row: All other managers under both CEO and MD - larger cards */}
+              <div className="relative mt-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 relative">
+                  {otherLeaders.map((manager, idx) => (
+                    <div key={idx} className="relative flex flex-col items-center">
+                      <div className="bg-white rounded-xl shadow-md p-6 w-full text-center border border-gray-200 transition-all hover:shadow-lg">
+                        <div className="flex justify-center mb-4">
+                          <img
+                            src={manager.image}
+                            alt={manager.name}
+                            className="w-28 h-28 rounded-full object-cover border-4 border-[#1a237e]/20"
+                          />
+                        </div>
+                        <h3 className="text-lg font-bold text-gray-800">{manager.name}</h3>
+                        <p className="text-sm text-[#1a237e] font-medium mt-2">{manager.role}</p>
+                        {manager.area && (
+                          <p className="text-sm text-gray-500 mt-2 leading-relaxed">{manager.area}</p>
+                        )}
+                      </div>
+                    </div>
+                  ))}
                 </div>
-              ))}
+              </div>
             </div>
+
+            {/* Legend */}
+            <p className="text-center text-gray-500 text-sm mt-8">
+              <span className="inline-block w-3 h-3 bg-[#FF9933] rounded-full mr-1"></span> Executive Leadership
+              <span className="inline-block w-3 h-3 bg-[#1a237e] rounded-full mx-2"></span> Regional & Block Management
+            </p>
           </div>
         </section>
 

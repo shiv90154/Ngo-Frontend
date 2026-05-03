@@ -139,7 +139,7 @@ const navItems = [
             <Link href="/" className="flex items-center gap-1.5 sm:gap-2 md:gap-3 flex-shrink-0">
               <div className="relative w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 flex-shrink-0">
                 <Image
-                  src="/logo-Photoroom.png"
+                  src="/logo-photoroom.png"
                   alt="Samraddh Bharat Logo"
                   fill
                   className="object-contain"

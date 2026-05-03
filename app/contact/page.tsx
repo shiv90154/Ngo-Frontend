@@ -32,56 +32,55 @@ export default function ContactPage() {
                     <span className="w-1 h-5 bg-[#FF9933] rounded-full"></span>
                     Contact Information
                   </h3>
-                  <div className="space-y-4">
+                  <div className="space-y-5">
+                    {/* Chhattisgarh Head Office */}
                     <div className="flex items-start gap-3">
                       <MapPin className="text-[#1a237e] mt-0.5 flex-shrink-0" size={20} />
                       <div>
-                        <p className="font-medium text-gray-800">Head Office</p>
+                        <p className="font-medium text-gray-800">Head Office (Chhattisgarh)</p>
                         <p className="text-sm text-gray-600">
-                          National Informatics Centre<br />
-                          A-Block, CGO Complex, Lodhi Road<br />
-                          New Delhi - 110003
+                          Rani Durgavati Chowk,<br />
+                          Dattatreya, Gaurella,<br />
+                          Chhattisgarh – 495117, India
                         </p>
                       </div>
                     </div>
+
+                    {/* Madhya Pradesh Head Office */}
+                    <div className="flex items-start gap-3">
+                      <MapPin className="text-[#1a237e] mt-0.5 flex-shrink-0" size={20} />
+                      <div>
+                        <p className="font-medium text-gray-800">Head Office (Madhya Pradesh)</p>
+                        <p className="text-sm text-gray-600">
+                          Ward No. 13, Anuppur Near Kediya Petrol Pump,<br />
+                          Amarkantak, Chowk, Jaitahari Road,<br />
+                          Anuppur, Madhya Pradesh 484224
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Phone Numbers */}
                     <div className="flex items-start gap-3">
                       <Phone className="text-[#1a237e] mt-0.5 flex-shrink-0" size={20} />
                       <div>
-                        <p className="font-medium text-gray-800">Toll Free</p>
-                        <p className="text-sm text-gray-600">1800-111-555</p>
-                        <p className="text-xs text-gray-500 mt-1">(24x7 Citizen Support)</p>
+                        <p className="font-medium text-gray-800">Phone</p>
+                        <p className="text-sm text-gray-600">+91 92437 73487</p>
+                        <p className="text-sm text-gray-600">+9630959865</p>
                       </div>
                     </div>
+
+                    {/* Email (keeping a generic one – update if you have actual email) */}
                     <div className="flex items-start gap-3">
                       <Mail className="text-[#1a237e] mt-0.5 flex-shrink-0" size={20} />
                       <div>
                         <p className="font-medium text-gray-800">Email</p>
-                        <p className="text-sm text-gray-600">support@samraddhbharat.gov.in</p>
-                        <p className="text-xs text-gray-500 mt-1">(Response within 24 hours)</p>
-                      </div>
-                    </div>
-                    <div className="flex items-start gap-3">
-                      <Clock className="text-[#1a237e] mt-0.5 flex-shrink-0" size={20} />
-                      <div>
-                        <p className="font-medium text-gray-800">Working Hours</p>
-                        <p className="text-sm text-gray-600">Monday - Friday: 9:00 AM - 6:00 PM</p>
-                        <p className="text-sm text-gray-600">Saturday: 10:00 AM - 4:00 PM</p>
-                        <p className="text-sm text-gray-600">Sunday: Closed</p>
+                        <p className="text-sm text-gray-600">info@samraddhbharat.org</p>
                       </div>
                     </div>
                   </div>
                 </div>
 
-                <div className="bg-white rounded-xl shadow-md p-6 border border-gray-200">
-                  <h3 className="text-lg font-bold text-[#1a237e] mb-4">Regional Offices</h3>
-                  <ul className="space-y-2 text-sm text-gray-700">
-                    <li>• Mumbai - 022-2261 1234</li>
-                    <li>• Kolkata - 033-2248 5678</li>
-                    <li>• Chennai - 044-2536 7890</li>
-                    <li>• Bengaluru - 080-2225 4321</li>
-                    <li>• Guwahati - 0361-254 7890</li>
-                  </ul>
-                </div>
+                {/* Optional: Regional Offices – removed as not provided */}
               </div>
 
               {/* Contact Form */}

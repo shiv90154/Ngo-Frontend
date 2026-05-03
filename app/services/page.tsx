@@ -224,19 +224,28 @@ export default function Services() {
                       <span key={fIdx} className="text-[10px] sm:text-xs px-1.5 py-0.5 rounded-full font-medium" style={{ background: `${service.accent}15`, color: service.accent }}>
                         {feature}
                       </span>
-                    ))}
-                  </div>
-                  <div className="flex items-center justify-between pt-2 border-t" style={{ borderColor: `${service.accent}20` }}>
-                    <span className="text-[10px] text-gray-400">Click</span>
-                    <div className="flex items-center gap-1 transition" style={{ color: service.accent }}>
-                      <span className="text-[10px] sm:text-xs font-medium">Explore</span>
-                      <ChevronRight size={12} className="sm:w-4 sm:h-4" />
+                    </div>
+                    <h3 className="text-lg font-bold mb-1" style={{ color: service.accent }}>{service.title}</h3>
+                    <p className="text-gray-600 text-sm mb-3">{service.desc}</p>
+                    <div className="flex flex-wrap gap-1.5 mb-4">
+                      {service.features.map((feature, fIdx) => (
+                        <span key={fIdx} className="text-xs px-2 py-0.5 rounded-full font-medium" style={{ background: `${service.accent}15`, color: service.accent }}>
+                          {feature}
+                        </span>
+                      ))}
+                    </div>
+                    <div className="flex items-center justify-between pt-3 border-t" style={{ borderColor: `${service.accent}20` }}>
+                      <span className="text-xs text-gray-400">Click to access</span>
+                      <div className="flex items-center gap-1 transition" style={{ color: service.accent }}>
+                        <span className="text-xs font-medium">Explore</span>
+                        <ChevronRight size={14} />
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
-            );
-          })}
+              );
+            })}
+          </div>
         </div>
       </div>
 
