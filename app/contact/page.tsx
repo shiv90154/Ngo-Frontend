@@ -167,7 +167,7 @@ export default function ContactPage() {
             {/* Map Placeholder */}
             <div className="mt-12 bg-white rounded-xl shadow-md border border-gray-200 overflow-hidden">
               <div className="aspect-[21/9] bg-gray-200 flex items-center justify-center">
-                <p className="text-gray-500">[ Interactive Map - Headquarters Location ]</p>
+                <p className="text-gray-500">[ Interactive Map  Headquarters Location ]</p>
               </div>
             </div>
           </div>

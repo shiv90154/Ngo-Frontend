@@ -127,7 +127,7 @@ export default function AboutPage() {
               Organizational Leadership
             </h2>
             <p className="text-center text-gray-600 mb-10 max-w-2xl mx-auto">
-              Founder & Executive Team – driving digital governance across India
+              Founder & Executive Team  driving digital governance across India
             </p>
 
             {/* Tree Structure with Larger Cards */}
